@@ -30,11 +30,13 @@ public slots:
 
 private:
 	Ui::MainUI *ui;
+	QList<QWidget*> page_list;
 
 private slots:
 	void nextClicked();
 	void prevClicked();
 	void startInstallClicked();
+	void installFinished();
 	void rebootClicked();
 	void updateButtonFrame();
 
