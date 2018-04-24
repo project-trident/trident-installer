@@ -12,11 +12,16 @@
 
 MainUI::MainUI() : QMainWindow(), ui(new Ui::MainUI){
   ui->setupUi(this); //load the designer file
-  setupConnections();
   page_list << ui->page_welcome << ui->page_partitions << ui->page_user << ui->page_pkgs << ui->page_summary;
   //NOTE: page_installing and page_finished are always at the end of the list;
-  ui->progress_pages->setRange(1,page_list.count()+1);
+  ui->progress_pages->setRange(0,page_list.count());
   ui->stackedWidget->setCurrentWidget(page_list.first());
+  //Create internal timers/objects
+  slideshowTimer = new QTimer(this);
+    slideshowTimer->setInterval(3000);
+
+  //Update the visuals and show the window
+  setupConnections();
   updateButtonFrame();
   if(DEBUG){
     this->show();
@@ -34,6 +39,8 @@ void MainUI::setupConnections(){
   connect(ui->tool_prev, SIGNAL(clicked()), this, SLOT(prevClicked()) );
   connect(ui->tool_startinstall, SIGNAL(clicked()), this, SLOT(startInstallClicked()) );
   connect(ui->tool_reboot, SIGNAL(clicked()), this, SLOT(rebootClicked()) );
+  connect(slideshowTimer, SIGNAL(timeout()), this, SLOT(nextSlideshowImage()) );
+  connect(ui->tabWidget, SIGNAL(tabBarClicked(int)), slideshowTimer, SLOT(stop()) );
 }
 
 // ===============
@@ -44,7 +51,15 @@ void MainUI::setupConnections(){
 //==============
 //  PRIVATE
 //==============
+void MainUI::loadPageFromBackend(QWidget *current){
+  //Note: This will never run for the installation/finished pages
 
+}
+
+void MainUI::savePageToBackend(QWidget *current){
+  //Note: This will never run for the installation/finished pages
+
+}
 
 //==============
 //  PRIVATE SLOTS
@@ -52,11 +67,14 @@ void MainUI::setupConnections(){
 void MainUI::nextClicked(){
  //Determine the next page to go to
   QWidget *cur = ui->stackedWidget->currentWidget();
+  savePageToBackend(cur);
   QWidget *next = 0;
   int page = page_list.indexOf(cur);
   if(page>=0 && page<page_list.count()-1){ next = page_list[page+1]; }
-
-  if(next!=0){ ui->stackedWidget->setCurrentWidget(next); }
+  if(next!=0){
+    loadPageFromBackend(next);
+    ui->stackedWidget->setCurrentWidget(next);
+  }
   updateButtonFrame();
 }
 
@@ -75,13 +93,15 @@ void MainUI::startInstallClicked(){
   ui->stackedWidget->setCurrentWidget(ui->page_installing);
   updateButtonFrame();
   if(DEBUG){
-    QTimer::singleShot(5000, this, SLOT(installFinished()));
+    QTimer::singleShot(10000, this, SLOT(installFinished()));
   }else{
     //Start Backend Process (TODO)
   }
+  slideshowTimer->start();
 }
 
 void MainUI::installFinished(){
+  slideshowTimer->stop();
   if(!DEBUG){
     //Do Error checking here (TODO)
   }
@@ -115,10 +135,18 @@ void MainUI::updateButtonFrame(){
   ui->tool_reboot->setVisible(showReboot);
   //Now setup the progress bar
   int page = page_list.indexOf(cur);
-  qDebug() << "Got Page:" << page << page_list.count() << ui->progress_pages->maximum() << ui->progress_pages->minimum();
+  //qDebug() << "Got Page:" << page << page_list.count() << ui->progress_pages->maximum() << ui->progress_pages->minimum();
   if(page>=0 && page<page_list.count()){
     ui->progress_pages->setValue(page+1);
   }
   ui->progress_pages->setVisible(page>=0);
-
 }
+
+//Internal button/timer slots
+void MainUI::nextSlideshowImage(){
+  int ctab = ui->tabWidget->currentIndex();
+  ctab++;
+  if(ctab >= ui->tabWidget->count()){ ctab = 0; } //rollback to the start
+  ui->tabWidget->setCurrentIndex(ctab);
+}
+

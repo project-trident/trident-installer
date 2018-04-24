@@ -1,0 +1,20 @@
+{
+  "Graphics Drivers" : {
+    "NVIDIA" : {
+      "Current" : {
+        "pkgname" : "nvidia-driver",
+        "default" : false,
+       "pciconf_regex" : ""
+      },
+      "Legacy: 340.x" : {
+
+      },
+      "Legacy: 304.x" : {
+
+      }
+    }
+  },
+  "Applications" : {
+
+  }
+}

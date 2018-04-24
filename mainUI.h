@@ -31,6 +31,10 @@ public slots:
 private:
 	Ui::MainUI *ui;
 	QList<QWidget*> page_list;
+	QTimer* slideshowTimer;
+
+	void loadPageFromBackend(QWidget *current);
+	void savePageToBackend(QWidget *current);
 
 private slots:
 	void nextClicked();
@@ -39,6 +43,9 @@ private slots:
 	void installFinished();
 	void rebootClicked();
 	void updateButtonFrame();
+
+	//Internal button/timer slots
+	void nextSlideshowImage();
 
 signals:
 
