@@ -4,17 +4,23 @@
       "Current" : {
         "pkgname" : "nvidia-driver",
         "default" : false,
-       "pciconf_regex" : ""
+        "pciconf_regex" : ""
       },
       "Legacy: 340.x" : {
-
+        "pkgname" : "nvidia-driver-340",
+        "default" : false
       },
       "Legacy: 304.x" : {
-
+        "pkgname" : "nvidia-driver-304",
+        "default" : false
       }
     }
   },
   "Applications" : {
-
+    "Lumina Desktop" : {
+      "pkgname" : "lumina",
+      "required" : true,
+      "default" : true
+    }
   }
 }
