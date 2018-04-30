@@ -76,14 +76,25 @@ void MainUI::loadPageFromBackend(QWidget *current){
 
 void MainUI::savePageToBackend(QWidget *current){
   //Note: This will never run for the installation/finished pages
-
+  if(current == ui->page_user){
+    BACKEND->clearUsers();
+    userdata data;
+      data.name = ui->line_user_name->text();
+      data.comment = ui->line_user_comment->text();
+      data.pass = ui->line_user_pass->text();
+      data.shell = ui->combo_user_shell->currentText();
+      data.groups << "wheel" << "operator";
+      data.home = "/usr/home/"+data.name;
+    BACKEND->addUser(data);
+    BACKEND->setRootPass(ui->line_pass_root->text());
+  }
 }
 
 //==============
 //  PRIVATE SLOTS
 //==============
 void MainUI::nextClicked(){
- //Determine the next page to go to
+  //Determine the next page to go to
   QWidget *cur = ui->stackedWidget->currentWidget();
   savePageToBackend(cur);
   QWidget *next = 0;
@@ -178,4 +189,12 @@ void MainUI::userDT_changed(){
   dt.setTimeZone( QTimeZone( ui->combo_welcome_timezone->currentText().toUtf8() ) );
   //qDebug() << " - After changing TZ:" << dt;
   BACKEND->setDateTime(dt);
+}
+
+void MainUI::validateRootPassword(){
+
+}
+
+void MainUI::validateUserInfo(){
+
 }

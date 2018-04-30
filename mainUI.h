@@ -50,6 +50,8 @@ private slots:
 	//Internal button/timer slots
 	void nextSlideshowImage();
 	void userDT_changed(); //user changed datetime or timezone
+	void validateRootPassword();
+	void validateUserInfo();
 
 signals:
 
