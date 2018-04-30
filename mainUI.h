@@ -1,9 +1,9 @@
-//===========================================
+//===========================
 //  Project Trident source code
 //  Copyright (c) 2018, Ken Moore
 //  Available under the 2-clause BSD license
 //  See the LICENSE file for full details
-//===========================================
+//===========================
 #ifndef _TRIDENT_INSTALL_WINDOW_H
 #define _TRIDENT_INSTALL_WINDOW_H
 
@@ -12,6 +12,8 @@
 #include <QTimer>
 #include <QProcess>
 #include <QShortcut>
+
+#include "backend.h"
 
 
 namespace Ui{
@@ -32,6 +34,7 @@ private:
 	Ui::MainUI *ui;
 	QList<QWidget*> page_list;
 	QTimer* slideshowTimer;
+	Backend *BACKEND;
 
 	void loadPageFromBackend(QWidget *current);
 	void savePageToBackend(QWidget *current);
@@ -46,6 +49,7 @@ private slots:
 
 	//Internal button/timer slots
 	void nextSlideshowImage();
+	void userDT_changed(); //user changed datetime or timezone
 
 signals:
 

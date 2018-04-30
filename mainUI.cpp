@@ -12,10 +12,15 @@
 
 MainUI::MainUI() : QMainWindow(), ui(new Ui::MainUI){
   ui->setupUi(this); //load the designer file
+  BACKEND = new Backend(this);
+  //PAGE ORDER
   page_list << ui->page_welcome << ui->page_partitions << ui->page_user << ui->page_pkgs << ui->page_summary;
   //NOTE: page_installing and page_finished are always at the end of the list;
+
+  //Now setup any other UI elements
   ui->progress_pages->setRange(0,page_list.count());
   ui->stackedWidget->setCurrentWidget(page_list.first());
+  loadPageFromBackend(page_list.first());
   //Create internal timers/objects
   slideshowTimer = new QTimer(this);
     slideshowTimer->setInterval(3000);
@@ -41,6 +46,10 @@ void MainUI::setupConnections(){
   connect(ui->tool_reboot, SIGNAL(clicked()), this, SLOT(rebootClicked()) );
   connect(slideshowTimer, SIGNAL(timeout()), this, SLOT(nextSlideshowImage()) );
   connect(ui->tabWidget, SIGNAL(tabBarClicked(int)), slideshowTimer, SLOT(stop()) );
+  //Welcome Page
+  connect(ui->dateTimeEdit, SIGNAL(dateTimeChanged(const QDateTime&)), this, SLOT(userDT_changed()) );
+  connect(ui->combo_welcome_timezone, SIGNAL(currentTextChanged(const QString&)), this, SLOT(userDT_changed()) );
+
 }
 
 // ===============
@@ -53,7 +62,16 @@ void MainUI::setupConnections(){
 //==============
 void MainUI::loadPageFromBackend(QWidget *current){
   //Note: This will never run for the installation/finished pages
-
+  if(current == ui->page_welcome){
+    //qDebug() << "Load Welcome Page Settings";
+    if(ui->combo_welcome_timezone->count()==0){
+      ui->combo_welcome_timezone->addItems(BACKEND->availableTimezones());
+    }
+    QDateTime dt = BACKEND->localDateTime();
+    int index = ui->combo_welcome_timezone->findText( dt.timeZone().id() );
+    if(index>=0){ ui->combo_welcome_timezone->setCurrentIndex(index); }
+    ui->dateTimeEdit->setDateTime(dt);
+  }
 }
 
 void MainUI::savePageToBackend(QWidget *current){
@@ -85,7 +103,10 @@ void MainUI::prevClicked(){
   int page = page_list.indexOf(cur);
   if(page>0){ next = page_list[page-1]; }
 
-  if(next!=0){ ui->stackedWidget->setCurrentWidget(next); }
+  if(next!=0){
+    loadPageFromBackend(next);
+    ui->stackedWidget->setCurrentWidget(next);
+  }
   updateButtonFrame();
 }
 
@@ -150,3 +171,11 @@ void MainUI::nextSlideshowImage(){
   ui->tabWidget->setCurrentIndex(ctab);
 }
 
+void MainUI::userDT_changed(){
+  //user changed datetime or timezone
+  QDateTime dt = ui->dateTimeEdit->dateTime();
+  //qDebug() << "Date Time Change:" << dt;
+  dt.setTimeZone( QTimeZone( ui->combo_welcome_timezone->currentText().toUtf8() ) );
+  //qDebug() << " - After changing TZ:" << dt;
+  BACKEND->setDateTime(dt);
+}

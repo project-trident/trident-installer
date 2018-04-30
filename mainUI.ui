@@ -30,7 +30,7 @@
     <item>
      <widget class="QStackedWidget" name="stackedWidget">
       <property name="currentIndex">
-       <number>0</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="page_welcome">
        <layout class="QVBoxLayout" name="verticalLayout_6">
@@ -79,12 +79,16 @@
         <item>
          <layout class="QGridLayout" name="gridLayout">
           <item row="2" column="1">
-           <widget class="QDateTimeEdit" name="dateTimeEdit"/>
+           <widget class="QDateTimeEdit" name="dateTimeEdit">
+            <property name="calendarPopup">
+             <bool>true</bool>
+            </property>
+           </widget>
           </item>
           <item row="1" column="1">
            <widget class="QLabel" name="label_19">
             <property name="text">
-             <string>Set Local Time</string>
+             <string>Local Time</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignCenter</set>
@@ -128,44 +132,11 @@
            </spacer>
           </item>
           <item row="2" column="2">
-           <widget class="QComboBox" name="comboBox_2"/>
-          </item>
-          <item row="3" column="1" colspan="2">
-           <layout class="QHBoxLayout" name="horizontalLayout_7">
-            <item>
-             <spacer name="horizontalSpacer_4">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>40</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item>
-             <widget class="QPushButton" name="push_save_time">
-              <property name="text">
-               <string>Set Date/Time</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <spacer name="horizontalSpacer_5">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>40</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-           </layout>
+           <widget class="QComboBox" name="combo_welcome_timezone">
+            <property name="sizeAdjustPolicy">
+             <enum>QComboBox::AdjustToContentsOnFirstShow</enum>
+            </property>
+           </widget>
           </item>
          </layout>
         </item>
@@ -271,14 +242,14 @@
                <item row="0" column="1">
                 <layout class="QHBoxLayout" name="horizontalLayout_3">
                  <item>
-                  <widget class="QLineEdit" name="lineEdit_2">
+                  <widget class="QLineEdit" name="line_pass_root">
                    <property name="echoMode">
                     <enum>QLineEdit::Password</enum>
                    </property>
                   </widget>
                  </item>
                  <item>
-                  <widget class="QToolButton" name="toolButton">
+                  <widget class="QToolButton" name="tool_showpass_root">
                    <property name="toolTip">
                     <string>View Password</string>
                    </property>
@@ -286,8 +257,7 @@
                     <string notr="true"/>
                    </property>
                    <property name="icon">
-                    <iconset theme="view-on">
-                     <normaloff>.</normaloff>.</iconset>
+                    <iconset theme="view-preview"/>
                    </property>
                   </widget>
                  </item>
@@ -303,14 +273,14 @@
                <item row="1" column="1">
                 <layout class="QHBoxLayout" name="horizontalLayout_4">
                  <item>
-                  <widget class="QLineEdit" name="lineEdit_3">
+                  <widget class="QLineEdit" name="line_passrepeat_root">
                    <property name="echoMode">
                     <enum>QLineEdit::Password</enum>
                    </property>
                   </widget>
                  </item>
                  <item>
-                  <widget class="QToolButton" name="toolButton_2">
+                  <widget class="QToolButton" name="tool_showpassrepeat_root">
                    <property name="toolTip">
                     <string>View Password</string>
                    </property>
@@ -318,13 +288,15 @@
                     <string notr="true"/>
                    </property>
                    <property name="icon">
-                    <iconset theme="view-on">
-                     <normaloff>.</normaloff>.</iconset>
+                    <iconset theme="view-preview"/>
                    </property>
                   </widget>
                  </item>
                  <item>
                   <widget class="QToolButton" name="tool_root_pass_chk">
+                   <property name="toolTip">
+                    <string>Passwords do not match!!</string>
+                   </property>
                    <property name="text">
                     <string notr="true"/>
                    </property>
@@ -385,8 +357,7 @@
                     <string notr="true"/>
                    </property>
                    <property name="icon">
-                    <iconset theme="view-on">
-                     <normaloff>.</normaloff>.</iconset>
+                    <iconset theme="view-preview"/>
                    </property>
                   </widget>
                  </item>
@@ -417,13 +388,15 @@
                     <string notr="true"/>
                    </property>
                    <property name="icon">
-                    <iconset theme="view-on">
-                     <normaloff>.</normaloff>.</iconset>
+                    <iconset theme="view-preview"/>
                    </property>
                   </widget>
                  </item>
                  <item>
                   <widget class="QToolButton" name="tool_user_pass_chk">
+                   <property name="toolTip">
+                    <string>Passwords do not match!!</string>
+                   </property>
                    <property name="text">
                     <string notr="true"/>
                    </property>
