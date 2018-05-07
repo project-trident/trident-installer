@@ -71,6 +71,10 @@ void MainUI::loadPageFromBackend(QWidget *current){
     int index = ui->combo_welcome_timezone->findText( dt.timeZone().id() );
     if(index>=0){ ui->combo_welcome_timezone->setCurrentIndex(index); }
     ui->dateTimeEdit->setDateTime(dt);
+
+  }else if(current == ui->page_partitions){
+    QJsonObject obj = BACKEND->availableDisks();
+    qDebug() << "Got Disks:" << obj;
   }
 }
 

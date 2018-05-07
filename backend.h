@@ -18,10 +18,28 @@ struct userdata{
 	bool autologin;
 };
 
+struct partitiondata{
+	QString install_type;
+	QStringList create_partitions; //datasets if using ZFS, partitions if using something else
+	double sizeMB; //size in MB; set to <=0 for automatic
+	QString extrasetup;
+};
+
+struct diskdata{
+	QString name, install_partition; //install_type: "ZFS", "SWAP", "UFS"
+	QString mirror_disk; //Used for old-style gmirror setup
+	bool installBootManager;
+	QList<partitiondata> partitions;
+};
+
+
+
 class Backend : public QObject{
 	Q_OBJECT
 private:
 	QJsonObject settings;
+	QList<userdata> USERS;
+	QList<diskdata> DISKS;
 
 	QString generateInstallConfig(); //turns JSON settings into a config file for pc-sysinstall
 
@@ -30,6 +48,8 @@ private slots:
 public:
 	Backend(QObject *parent);
 	~Backend();
+
+	static QString runCommand(bool &success, QString command, QStringList arguments = QStringList(), QString workdir = "", QStringList env = QStringList());
 
 	//Localization
 	QString lang();
@@ -51,14 +71,24 @@ public:
 	//System Users
 	QString rootPass();
 	void setRootPass(QString);
-	QList<userdata> users;
+	QList<userdata> users(){ return USERS; }
 	void addUser(userdata); //will overwrite existing user with the same "name"
 	void removeUser(QString name);
 	void clearUsers(); //remove all users
 
 	//Disk Partitioning
+	QJsonObject availableDisks();
+	bool installToBE(); //will report true if a valid ZFS pool was designated
+	QString zpoolName(); //will return the designated ZFS pool name
+	void setInstallToBE(QString pool); //set to an empty string to disable installing to a BE
+	//Individual disk setup
+	QList<diskdata> disks(){ return DISKS; }
+	void addDisk(diskdata); //will overwrite existing disk with the same name
+	void removeDisk(QString name);
+	void clearDisks();
 
 	//Packages
+
 
 public slots:
 
