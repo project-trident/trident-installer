@@ -19,14 +19,14 @@ struct userdata{
 };
 
 struct partitiondata{
-	QString install_type;
+	QString install_type; //install_type: "ZFS", "SWAP", "UFS"
 	QStringList create_partitions; //datasets if using ZFS, partitions if using something else
 	double sizeMB; //size in MB; set to <=0 for automatic
 	QString extrasetup;
 };
 
 struct diskdata{
-	QString name, install_partition; //install_type: "ZFS", "SWAP", "UFS"
+	QString name, install_partition; //name: ada0, install_partition: "all", "free", "s1", "s2" ...
 	QString mirror_disk; //Used for old-style gmirror setup
 	bool installBootManager;
 	QList<partitiondata> partitions;
@@ -50,6 +50,7 @@ public:
 	~Backend();
 
 	static QString runCommand(bool &success, QString command, QStringList arguments = QStringList(), QString workdir = "", QStringList env = QStringList());
+	static QString mbToHuman(double);
 
 	//Localization
 	QString lang();
@@ -78,6 +79,8 @@ public:
 
 	//Disk Partitioning
 	QJsonObject availableDisks();
+	QString diskInfoObjectToString(QJsonObject obj);
+	QString diskInfoObjectToShortString(QJsonObject obj);
 	bool installToBE(); //will report true if a valid ZFS pool was designated
 	QString zpoolName(); //will return the designated ZFS pool name
 	void setInstallToBE(QString pool); //set to an empty string to disable installing to a BE

@@ -30,7 +30,7 @@
     <item>
      <widget class="QStackedWidget" name="stackedWidget">
       <property name="currentIndex">
-       <number>2</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="page_welcome">
        <layout class="QVBoxLayout" name="verticalLayout_6">
@@ -174,7 +174,25 @@
          </widget>
         </item>
         <item>
-         <widget class="QTreeWidget" name="treeWidget">
+         <widget class="QTreeWidget" name="tree_disks">
+          <property name="indentation">
+           <number>10</number>
+          </property>
+          <property name="rootIsDecorated">
+           <bool>true</bool>
+          </property>
+          <property name="sortingEnabled">
+           <bool>false</bool>
+          </property>
+          <property name="animated">
+           <bool>true</bool>
+          </property>
+          <property name="wordWrap">
+           <bool>true</bool>
+          </property>
+          <property name="headerHidden">
+           <bool>true</bool>
+          </property>
           <column>
            <property name="text">
             <string notr="true">1</string>
@@ -212,8 +230,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>873</width>
-             <height>571</height>
+             <width>997</width>
+             <height>395</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_8">
@@ -257,7 +275,8 @@
                     <string notr="true"/>
                    </property>
                    <property name="icon">
-                    <iconset theme="view-preview"/>
+                    <iconset theme="view-preview">
+                     <normaloff>.</normaloff>.</iconset>
                    </property>
                   </widget>
                  </item>
@@ -364,7 +383,8 @@
                     <string notr="true"/>
                    </property>
                    <property name="icon">
-                    <iconset theme="view-preview"/>
+                    <iconset theme="view-preview">
+                     <normaloff>.</normaloff>.</iconset>
                    </property>
                   </widget>
                  </item>

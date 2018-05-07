@@ -74,7 +74,30 @@ void MainUI::loadPageFromBackend(QWidget *current){
 
   }else if(current == ui->page_partitions){
     QJsonObject obj = BACKEND->availableDisks();
+    ui->tree_disks->clear();
     qDebug() << "Got Disks:" << obj;
+    QStringList disks = obj.keys();
+    for(int i=0; i<disks.length(); i++){
+      QJsonObject info = obj.value(disks[i]).toObject();
+      QTreeWidgetItem *disk = new QTreeWidgetItem(ui->tree_disks, QStringList() << disks[i]);
+        disk->setIcon(0, QIcon::fromTheme(disks[i].startsWith("da") ? "media-removable" : "harddrive"));
+        disk->setToolTip(0, info.value(disks[i]).toObject().value("label").toString() );
+        disk->setWhatsThis(0, disks[i] + " : all"); //disk ID, partition type
+      QStringList parts = info.keys();
+      for(int p=0; p<parts.length(); p++){
+        QJsonObject pinfo = info.value(parts[p]).toObject();
+        if(disks[i] == parts[p]){
+           disk->setToolTip( 0, BACKEND->diskInfoObjectToString(pinfo) );
+           //Need to create the treewidgetitem for the freespace too (freemb)
+           QTreeWidgetItem *part = new QTreeWidgetItem(disk, QStringList() << "Free Space ("+Backend::mbToHuman(pinfo.value("freemb").toString().toDouble())+")");
+             part->setWhatsThis(0, disks[i]+" : free");
+        }else{
+          QTreeWidgetItem *part = new QTreeWidgetItem(disk, QStringList() << parts[p]+" ("+BACKEND->diskInfoObjectToShortString(pinfo)+")" );
+            part->setWhatsThis(0, disks[i] + " : " + parts[p].remove(disks[i]) ); //disk ID, partition type
+            part->setToolTip( 0, BACKEND->diskInfoObjectToString(pinfo) );
+        }
+      }
+    }
   }
 }
 

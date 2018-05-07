@@ -47,6 +47,14 @@ QString Backend::runCommand(bool &success, QString command, QStringList argument
   return info;
 }
 
+QString Backend::mbToHuman(double mb){
+  QStringList units; units << "MB" << "GB" << "TB" << "PB";
+  int unit;
+  for(unit=0; unit<units.length() && mb>1024; unit++){ mb = mb/1024; }
+  //Round to 2 decimel places
+  mb = qRound(mb*100)/100.0;
+  return QString::number(mb)+units[unit];
+}
 
 inline QString confString(QString var, QString val){
   QString tmp = var.append("=\"%1\"");
@@ -279,6 +287,23 @@ QJsonObject Backend::availableDisks(){
     }
   } //end loop over disks
   return obj;
+}
+
+QString Backend::diskInfoObjectToString(QJsonObject obj){
+  QStringList tmp;
+  QStringList keys = obj.keys();
+  for(int i=0; i<keys.length(); i++){
+    tmp << keys[i]+": "+obj.value(keys[i]).toString();
+  }
+  return tmp.join("\n");
+}
+
+QString Backend::diskInfoObjectToShortString(QJsonObject obj){
+  QString tmp;
+  if(obj.contains("label")){ tmp = obj.value("label").toString(); }
+  else{ tmp = obj.value("sysid").toString(); }
+  if(obj.contains("sizemb")){ tmp.append(", "+mbToHuman(obj.value("sizemb").toString().toDouble()) ); }
+  return tmp;
 }
 
 bool Backend::installToBE(){
