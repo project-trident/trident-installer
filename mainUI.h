@@ -12,6 +12,7 @@
 #include <QTimer>
 #include <QProcess>
 #include <QShortcut>
+#include <QMessageBox>
 
 #include "backend.h"
 
@@ -37,7 +38,7 @@ private:
 	Backend *BACKEND;
 
 	void loadPageFromBackend(QWidget *current);
-	void savePageToBackend(QWidget *current);
+	bool savePageToBackend(QWidget *current, bool prompts = true);
 
 private slots:
 	void nextClicked();
@@ -50,8 +51,10 @@ private slots:
 	//Internal button/timer slots
 	void nextSlideshowImage();
 	void userDT_changed(); //user changed datetime or timezone
-	void validateRootPassword();
-	void validateUserInfo();
+	bool validateRootPassword();
+	bool validateUserInfo();
+	void autogenerateUsername();
+	void validateUserPage();
 
 signals:
 

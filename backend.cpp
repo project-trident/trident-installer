@@ -7,8 +7,13 @@
 #include "backend.h"
 #include <QtMath>
 
-Backend::Backend(QObject *parent) : QObject(parent){
+// Set the bare-minimum partition install size for Trident
+//  Current at 10GB
+#define MIN_INSTALL_MB (10*1024)
 
+Backend::Backend(QObject *parent) : QObject(parent){
+  //Load the keyboard info cache in the background
+  QtConcurrent::run(this, &Backend::checkKeyboardInfo);
 }
 
 Backend::~Backend(){
@@ -147,6 +152,41 @@ QString Backend::generateInstallConfig(){
   return contents.join("\n");
 }
 
+void Backend::checkKeyboardInfo(){
+  if(keyboardInfo.keys().isEmpty()){
+    //Need to probe/cache the information about the available keyboards
+    bool ok = false;
+    QStringList models = runCommand(ok, "pc-sysinstall xkeyboard-models").replace("\t"," ").split("\n");
+    QStringList layouts = runCommand(ok, "pc-sysinstall xkeyboard-layouts").replace("\t"," ").split("\n");
+    QStringList variants = runCommand(ok, "pc-sysinstall xkeyboard-layouts").replace("\t"," ").split("\n");
+    //Now put them into the cache
+    QJsonObject modelObj;
+    for(int i=0; i<models.length(); i++){
+      if(models[i].simplified().isEmpty()){ continue; }
+      modelObj.insert(models[i].section(" ",0,0).simplified(), models[i].section(" ",1,-1).simplified() ); //id : description
+    }
+    keyboardInfo.insert("models", modelObj);
+    QJsonObject layObj;
+    for(int i=0; i<layouts.length(); i++){
+      if(layouts[i].simplified().isEmpty()){ continue; }
+      QString id = layouts[i].section(" ",0,0).simplified();
+      QString desc = layouts[i].section(" ",1,-1).simplified();
+      QStringList layout_variants = variants.filter(" "+id+": ");
+      QJsonObject var;
+      for(int v=0; v<layout_variants.length(); v++){
+        var.insert(layout_variants[i].section(" ",0,0), layout_variants[i].section(": ",1,-1) ); //id : description
+      }
+      QJsonObject obj;
+        obj.insert("id", id);
+        obj.insert("description", desc);
+        obj.insert("variants", var);
+      layObj.insert(id, obj);
+    }
+    keyboardInfo.insert("layouts", layObj);
+    //qDebug() << "Got Keyboard info:" << keyboardInfo;
+  }
+}
+
 //Localization
 QString Backend::lang(){
   QString tmp = settings.value("sys_lang").toString();
@@ -178,8 +218,14 @@ void Backend::setKeyboard(QStringList vals){
   settings.insert("keyboard",vals.join(", "));
 }
 
-QStringList Backend::availableKeyboards(QString layout, QString model){
-  return QStringList();
+QJsonObject Backend::availableKeyboardModels(){
+  checkKeyboardInfo();
+  return keyboardInfo.value("models").toObject();
+}
+
+QJsonObject Backend::availableKeyboardLayouts(){
+  checkKeyboardInfo();
+  return keyboardInfo.value("layouts").toObject();
 }
 
 //Time Settings
@@ -196,11 +242,11 @@ void Backend::setTimezone(QString tz){
 
 QDateTime Backend::localDateTime(){
   QDateTime cdt = QDateTime::currentDateTime();
-  qDebug() << cdt;
+  //qDebug() << cdt;
   if(settings.contains("timezone")){ cdt = cdt.toTimeZone( QTimeZone( settings.value("timezone").toString().toUtf8() ) ); }
-  qDebug() << cdt;
+  //qDebug() << cdt;
   if(settings.contains("time_offset_secs")){ cdt = cdt.addSecs( settings.value("time_offset_secs").toInt() ); }
-  qDebug() << "Local Date Time:" << cdt;
+  //qDebug() << "Local Date Time:" << cdt;
   return cdt;
 }
 
@@ -270,18 +316,22 @@ QJsonObject Backend::availableDisks(){
     QString diskID = disks[i].section(":",0,0).simplified();
     QString diskInfo = disks[i].section(":",1,-1).simplified();
     QStringList info = runCommand(ok2, "pc-sysinstall", QStringList() << "disk-part" << diskID).split("\n");
+    double totalMB = 0;
     for(int j=0; j<info.length() && ok2; j++){
       if(info[j].simplified().isEmpty()){ continue; }
       QString var = info[j].section(": ",0,0);
       QString val = info[j].section(": ",1,-1);
       QString partition = var.section("-",0,0); var = var.section("-",1,-1);
+      if(var=="sizemb"){ totalMB+= val.toDouble(); }
       QJsonObject tmp = diskObj.value(partition).toObject();
       tmp.insert(var, val);
       diskObj.insert(partition, tmp);
     }
     if(ok2){
+      //Add any extra info into the main diskID info object
       QJsonObject tmp = diskObj.value(diskID).toObject();
         tmp.insert("label", diskInfo);
+        if(!tmp.contains("sizemb")){ tmp.insert("sizemb", QString::number( qRound(totalMB) ) ); }
       diskObj.insert(diskID, tmp);
       obj.insert(diskID, diskObj);
     }
@@ -304,6 +354,16 @@ QString Backend::diskInfoObjectToShortString(QJsonObject obj){
   else{ tmp = obj.value("sysid").toString(); }
   if(obj.contains("sizemb")){ tmp.append(", "+mbToHuman(obj.value("sizemb").toString().toDouble()) ); }
   return tmp;
+}
+
+bool Backend::checkValidSize(QJsonObject obj, bool installdrive, bool freespaceonly){
+  double sizemb = 0;
+  if(!freespaceonly && obj.contains("sizemb")){ sizemb = obj.value("sizemb").toString().toDouble(); } //partition size
+  else if(obj.contains("freemb")){ sizemb = obj.value("freemb").toString().toDouble(); } //free space size
+  double min = 0;
+  if(installdrive){ min = MIN_INSTALL_MB; }
+  else{ min = 1024; } //1GB bare minimum for things like swap and such
+  return (sizemb >= min);
 }
 
 bool Backend::installToBE(){
@@ -345,3 +405,37 @@ void Backend::removeDisk(QString name){
 void Backend::clearDisks(){
   DISKS.clear();
 }
+
+QStringList Backend::generateDefaultZFSPartitions(){
+  QStringList parts;
+  parts << "/(compress=lz4|atime=off)";
+  parts << "/tmp(compress=lz4|setuid=off)";
+  parts << "/usr(canmount=off|mountpoint=none)";
+  parts << "/usr/home(compress=lz4)";
+  parts << "/usr/jails(compress=lz4)";
+  parts << "/usr/obj(compress=lz4)";
+  parts << "/usr/ports(compress=lz4)";
+  parts << "/usr/src(compress=lz4)";
+  parts << "/var(canmount=off|atime=on|mountpoint=none)";
+  parts << "/var/audit(compress=lz4)";
+  parts << "/var/log(compress=lz4|exec=off|setuid=off)";
+  parts << "/var/mail(compress=lz4)";
+  parts << "/var/tmp(compress=lz4|exec=off|setuid=off)";
+
+  return parts;
+}
+
+// == Packages ==
+QStringList Backend::availableShells(){
+  QStringList list;
+  //Build-in shells
+  list << "/bin/sh" << "/bin/csh" << "/bin/tcsh";
+  //Now look for packaged shells
+  // TODO
+  return list;
+}
+
+QString Backend::defaultUserShell(){
+  return "/bin/tcsh"; //change this to zsh later once the package files check is finished
+}
+

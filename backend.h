@@ -11,6 +11,7 @@
 #include <QJsonArray>
 #include <QTimeZone>
 #include <QDebug>
+#include <QtConcurrent>
 
 struct userdata{
 	QString name, comment, pass, shell, home;
@@ -37,11 +38,13 @@ struct diskdata{
 class Backend : public QObject{
 	Q_OBJECT
 private:
-	QJsonObject settings;
+	QJsonObject settings, keyboardInfo;
 	QList<userdata> USERS;
 	QList<diskdata> DISKS;
 
 	QString generateInstallConfig(); //turns JSON settings into a config file for pc-sysinstall
+
+	void checkKeyboardInfo();
 
 private slots:
 
@@ -52,6 +55,8 @@ public:
 	static QString runCommand(bool &success, QString command, QStringList arguments = QStringList(), QString workdir = "", QStringList env = QStringList());
 	static QString mbToHuman(double);
 
+	QString generateSummary(){ return generateInstallConfig(); }
+
 	//Localization
 	QString lang();
 	void setLang(QString);
@@ -59,7 +64,8 @@ public:
 	//Keyboard Settings
 	QStringList keyboard(); //layout, model, variant
 	void setKeyboard(QStringList); //layout, model, variant
-	QStringList availableKeyboards(QString layout = "", QString model = "");
+	QJsonObject availableKeyboardModels();
+	QJsonObject availableKeyboardLayouts();
 	//Time Settings
 	QString timezone();
 	void setTimezone(QString);
@@ -78,9 +84,12 @@ public:
 	void clearUsers(); //remove all users
 
 	//Disk Partitioning
+	// - Information functions
 	QJsonObject availableDisks();
 	QString diskInfoObjectToString(QJsonObject obj);
 	QString diskInfoObjectToShortString(QJsonObject obj);
+	bool checkValidSize(QJsonObject obj, bool installdrive = true, bool freespaceonly = false);
+	// ZFS Install to BE option
 	bool installToBE(); //will report true if a valid ZFS pool was designated
 	QString zpoolName(); //will return the designated ZFS pool name
 	void setInstallToBE(QString pool); //set to an empty string to disable installing to a BE
@@ -89,8 +98,11 @@ public:
 	void addDisk(diskdata); //will overwrite existing disk with the same name
 	void removeDisk(QString name);
 	void clearDisks();
+	QStringList generateDefaultZFSPartitions();
 
 	//Packages
+	QStringList availableShells();
+	QString defaultUserShell();
 
 
 public slots:

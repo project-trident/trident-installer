@@ -33,6 +33,7 @@ MainUI::MainUI() : QMainWindow(), ui(new Ui::MainUI){
   }else{
     this->showMaximized();
   }
+  //BACKEND->availableKeyboardModels();
 }
 
 MainUI::~MainUI(){
@@ -49,7 +50,16 @@ void MainUI::setupConnections(){
   //Welcome Page
   connect(ui->dateTimeEdit, SIGNAL(dateTimeChanged(const QDateTime&)), this, SLOT(userDT_changed()) );
   connect(ui->combo_welcome_timezone, SIGNAL(currentTextChanged(const QString&)), this, SLOT(userDT_changed()) );
-
+  //User Page
+  connect(ui->line_pass_root, SIGNAL(textEdited(const QString&)), this, SLOT(validateUserPage()) );
+  connect(ui->line_passrepeat_root, SIGNAL(textEdited(const QString&)), this, SLOT(validateUserPage()) );
+  connect(ui->tool_showpass_root, SIGNAL(toggled(bool)), this, SLOT(validateUserPage()) );
+  connect(ui->line_user_pass, SIGNAL(textEdited(const QString&)), this, SLOT(validateUserPage()) );
+  connect(ui->line_user_pass2, SIGNAL(textEdited(const QString&)), this, SLOT(validateUserPage()) );
+  connect(ui->tool_user_showpass, SIGNAL(toggled(bool)), this, SLOT(validateUserPage()) );
+  connect(ui->line_user_name, SIGNAL(textEdited(const QString&)), this, SLOT(validateUserPage()) );
+  connect(ui->line_user_comment, SIGNAL(textEdited(const QString&)), this, SLOT(validateUserPage()) );
+  connect(ui->line_user_comment, SIGNAL(editingFinished()), this, SLOT(autogenerateUsername()) );
 }
 
 // ===============
@@ -75,14 +85,16 @@ void MainUI::loadPageFromBackend(QWidget *current){
   }else if(current == ui->page_partitions){
     QJsonObject obj = BACKEND->availableDisks();
     ui->tree_disks->clear();
-    qDebug() << "Got Disks:" << obj;
+    //qDebug() << "Got Disks:" << obj;
     QStringList disks = obj.keys();
     for(int i=0; i<disks.length(); i++){
       QJsonObject info = obj.value(disks[i]).toObject();
-      QTreeWidgetItem *disk = new QTreeWidgetItem(ui->tree_disks, QStringList() << disks[i]);
+      QTreeWidgetItem *disk = new QTreeWidgetItem(ui->tree_disks, QStringList() << disks[i]+" ("+Backend::mbToHuman(info.value(disks[i]).toObject().value("sizemb").toString().toDouble())+")");
         disk->setIcon(0, QIcon::fromTheme(disks[i].startsWith("da") ? "media-removable" : "harddrive"));
-        disk->setToolTip(0, info.value(disks[i]).toObject().value("label").toString() );
+        disk->setToolTip(0, BACKEND->diskInfoObjectToString(info.value(disks[i]).toObject()) );
         disk->setWhatsThis(0, disks[i] + " : all"); //disk ID, partition type
+        disk->setData(0, Qt::UserRole, info.value(disks[i]).toObject().value("sizemb").toString());
+        disk->setExpanded(true);
       QStringList parts = info.keys();
       for(int p=0; p<parts.length(); p++){
         QJsonObject pinfo = info.value(parts[p]).toObject();
@@ -91,17 +103,49 @@ void MainUI::loadPageFromBackend(QWidget *current){
            //Need to create the treewidgetitem for the freespace too (freemb)
            QTreeWidgetItem *part = new QTreeWidgetItem(disk, QStringList() << "Free Space ("+Backend::mbToHuman(pinfo.value("freemb").toString().toDouble())+")");
              part->setWhatsThis(0, disks[i]+" : free");
+             part->setToolTip(0, tr("Unpartitioned free space"));
+             part->setDisabled(!BACKEND->checkValidSize(pinfo, true, true) );
+             part->setData(0, Qt::UserRole, pinfo.value("freemb").toString());
         }else{
           QTreeWidgetItem *part = new QTreeWidgetItem(disk, QStringList() << parts[p]+" ("+BACKEND->diskInfoObjectToShortString(pinfo)+")" );
             part->setWhatsThis(0, disks[i] + " : " + parts[p].remove(disks[i]) ); //disk ID, partition type
             part->setToolTip( 0, BACKEND->diskInfoObjectToString(pinfo) );
+            part->setDisabled(!BACKEND->checkValidSize(pinfo, true) );
+            part->setData(0, Qt::UserRole, pinfo.value("sizemb").toString());
         }
       }
     }
+
+  }else if(current == ui->page_user){
+    if(ui->combo_user_shell->count()<1){
+      //Need to fill the list of available shells
+      QStringList shells = BACKEND->availableShells();
+      QString defaultshell = BACKEND->defaultUserShell();
+      for(int i=0; i<shells.length(); i++){
+        ui->combo_user_shell->addItem( shells[i].section("/",-1), shells[i]);
+        if(shells[i] == defaultshell){ ui->combo_user_shell->setCurrentIndex(i); }
+      }
+    }
+    //Load the info from the backend
+    ui->line_pass_root->setText(BACKEND->rootPass());
+    QList<userdata> users = BACKEND->users();
+    if(users.count() > 0){
+      ui->line_user_name->setText(users[0].name);
+      ui->line_user_comment->setText(users[0].comment);
+      ui->line_user_pass->setText(users[0].pass);
+      ui->line_user_name->setText(users[0].name);
+    }
+    validateUserPage();
+
+  }else if(current == ui->page_summary){
+    ui->text_summary->clear();
+    ui->text_summary->setPlainText( BACKEND->generateSummary() );
+
   }
+
 }
 
-void MainUI::savePageToBackend(QWidget *current){
+bool MainUI::savePageToBackend(QWidget *current, bool prompts){
   //Note: This will never run for the installation/finished pages
   if(current == ui->page_user){
     BACKEND->clearUsers();
@@ -109,12 +153,50 @@ void MainUI::savePageToBackend(QWidget *current){
       data.name = ui->line_user_name->text();
       data.comment = ui->line_user_comment->text();
       data.pass = ui->line_user_pass->text();
-      data.shell = ui->combo_user_shell->currentText();
+      data.shell = ui->combo_user_shell->currentData().toString();
       data.groups << "wheel" << "operator";
       data.home = "/usr/home/"+data.name;
+      data.autologin = false;
     BACKEND->addUser(data);
     BACKEND->setRootPass(ui->line_pass_root->text());
+
+  }else if(current == ui->page_partitions){
+    QString sel = ui->tree_disks->currentItem()->whatsThis(0);
+    double totalMB = ui->tree_disks->currentItem()->data(0, Qt::UserRole).toString().toDouble();
+    if(BACKEND->disks().isEmpty() && sel.endsWith("all") && prompts){
+      //Full disk selected. Verify that this is what the user intends
+      bool ok = (QMessageBox::Yes == QMessageBox::warning(this, tr("Verify Hard Disk"), QString(tr("This will destroy any existing partitions and all data on the selected hard drive. Are you sure you want to continue? ")+"\n\n %1").arg(sel.section(":",0,0).simplified()), QMessageBox::Yes | QMessageBox::Cancel, QMessageBox::Yes ) );
+      if(!ok){ return false; }
+    }
+    //Create the disk/partition entry for the backend
+    BACKEND->clearDisks();
+    diskdata disk;
+      disk.name = sel.section(":",0,0).simplified();
+      disk.install_partition = sel.section(":",1,1).simplified();
+      disk.mirror_disk.clear(); //unset this
+      disk.installBootManager = (disk.install_partition=="all");
+    //Setup partitions for the disk
+    if(disk.install_partition=="all"){
+      double swapsize = 1024;
+      if(totalMB<(15*1024)){ swapsize=512; } //small disk - decrease the swap size accordingly
+      else if(totalMB>(200*1024)){ swapsize=2048; } //large disk - increase swap a bit more
+      //create a SWAP partition on full-disk installs
+      partitiondata swap;
+        swap.install_type = "SWAP.eli"; //make sure we use encrypted swap by default
+        swap.sizeMB = swapsize; //1GB swap by default
+      disk.partitions << swap;
+      totalMB-=swapsize; //decrease the total size a bit to account for the swap partition
+    }
+    //Now setup the main partition for ZFS
+    partitiondata part;
+      part.install_type = "ZFS";
+      part.sizeMB = totalMB - 10; //Make it 10MB smaller than calculated to account for rounding errors and such
+      part.create_partitions  = BACKEND->generateDefaultZFSPartitions();
+    disk.partitions.prepend(part); //make sure this partition is always first
+    //Now save it into the backend
+    BACKEND->addDisk(disk);
   }
+  return true;
 }
 
 //==============
@@ -123,7 +205,7 @@ void MainUI::savePageToBackend(QWidget *current){
 void MainUI::nextClicked(){
   //Determine the next page to go to
   QWidget *cur = ui->stackedWidget->currentWidget();
-  savePageToBackend(cur);
+  if(!savePageToBackend(cur)){ return; } //stop here if unable to continue
   QWidget *next = 0;
   int page = page_list.indexOf(cur);
   if(page>=0 && page<page_list.count()-1){ next = page_list[page+1]; }
@@ -137,11 +219,13 @@ void MainUI::nextClicked(){
 void MainUI::prevClicked(){
   //Determine the previous page to go to
   QWidget *cur = ui->stackedWidget->currentWidget();
+  savePageToBackend(cur, false); //preserve the current state of the page if possible (no prompts)
   QWidget *next = 0;
   int page = page_list.indexOf(cur);
   if(page>0){ next = page_list[page-1]; }
 
   if(next!=0){
+    ui->tool_next->setEnabled(true); //just in case a page validator had it disabled for the moment
     loadPageFromBackend(next);
     ui->stackedWidget->setCurrentWidget(next);
   }
@@ -218,10 +302,48 @@ void MainUI::userDT_changed(){
   BACKEND->setDateTime(dt);
 }
 
-void MainUI::validateRootPassword(){
-
+bool MainUI::validateRootPassword(){
+  QString pass = ui->line_pass_root->text();
+  bool match = (pass == ui->line_passrepeat_root->text() );
+  ui->tool_root_pass_chk->setVisible(!match);
+  ui->line_pass_root->setEchoMode( ui->tool_showpass_root->isChecked() ? QLineEdit::Normal : QLineEdit::Password);
+  return (!pass.isEmpty() && match);
 }
 
-void MainUI::validateUserInfo(){
+bool MainUI::validateUserInfo(){
+  //password match
+  QString pass = ui->line_user_pass->text();
+  bool match = (pass == ui->line_user_pass2->text() );
+  //qDebug() << "validate User Info:" << match << pass;
+  ui->tool_user_pass_chk->setVisible(!match);
+  ui->line_user_pass->setEchoMode( ui->tool_user_showpass->isChecked() ? QLineEdit::Normal : QLineEdit::Password);
+  //User name/comment text validation
+  ui->line_user_name->setText( ui->line_user_name->text().toLower().remove(" ") );
 
+  bool infochk = !ui->line_user_comment->text().isEmpty() && !ui->line_user_name->text().isEmpty();
+  //Return the overall result
+  return (!pass.isEmpty() && match && infochk);
+}
+
+void MainUI::autogenerateUsername(){
+  QString full = ui->line_user_comment->text();
+  if(full.simplified().isEmpty() || !ui->line_user_name->text().isEmpty()){ return; }
+  QString name = full;
+  QStringList list = full.split(" ", QString::SkipEmptyParts);
+  if(list.count()>1){
+    //multiple words, use the first letter of each and the full last word
+    name.clear();
+    for(int i=0; i<list.length(); i++){
+      if(i==list.length()-1){ name.append(list[i]); } //last word
+      else{ name.append(list[i].at(0)); }
+    }
+  }
+  ui->line_user_name->setText( name.toLower().remove(" ") );
+}
+
+void MainUI::validateUserPage(){
+  //Note - need to combine the bools this way so that both checks are run each time
+  bool ok_root = validateRootPassword();
+  bool ok_user = validateUserInfo();
+  ui->tool_next->setEnabled(ok_root && ok_user);
 }
