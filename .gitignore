@@ -30,3 +30,10 @@
 *.exe
 *.out
 *.app
+
+# Build dir
+.build/
+#Executables and stash files
+trident-installer
+.qmake.stash
+src-qt5/Makefile

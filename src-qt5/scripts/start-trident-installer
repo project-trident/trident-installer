@@ -1,0 +1,39 @@
+#!/bin/sh
+# Simple script to setup the graphical install environment and 
+#  launch the Qt5 installer.
+
+#Function: Setup the default xorg.conf file
+setupXorgConf(){
+  #Inputs: $1 : driver to use
+  _driver="$1"
+  #Have Xorg generate the basic template for this system hardware
+  Xorg -configure
+  #Now overwrite the video driver with the one designated 
+  _newconf="${HOME}/xorg.conf.new"
+  _conf="/etc/X11/xorg.conf"
+
+}
+
+# Probe the system for UEFI /VBOX and setup the vesa/scfb display driver
+_boot=`sysctl -n machdep.bootmethod` #BIOS or UEFI
+pciconf -lv | grep -q "VirtualBox Graphics"
+if [ $? -ne 0 ] ; then
+  #Virtualbox environment
+  #setupXorgConf "vboxvideo"
+elif [ "${_boot}" = "UEFI" ] ; then
+  #UEFI boot : use "scfb" driver
+  #setupXorgConf "scfb"
+else
+  #BIOS boot : use "vesa" driver
+  #setupXorgConf "vesa"
+fi
+
+#Make sure the DBUS machine-id file exists (bug in Qt)
+dbus-uuidgen --ensure >/dev/null 2>/dev/null
+
+#Setup any environment variables
+export QT_QPA_PLATFORMTHEME="lthemeengine"
+
+#Start the graphical install
+xinit /usr/local/bin/trident-installer -- :0
+shutdown -r now
