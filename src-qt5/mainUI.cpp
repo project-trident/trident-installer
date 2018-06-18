@@ -28,6 +28,8 @@ MainUI::MainUI() : QMainWindow(), ui(new Ui::MainUI){
   //Update the visuals and show the window
   setupConnections();
   updateButtonFrame();
+  //Only load the package page once
+  BACKEND->populatePackageTreeWidget(ui->tree_pkgs);
   if(DEBUG){
     this->show();
   }else{

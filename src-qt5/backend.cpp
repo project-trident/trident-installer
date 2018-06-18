@@ -61,10 +61,34 @@ QString Backend::mbToHuman(double mb){
   return QString::number(mb)+units[unit];
 }
 
+QString Backend::readFile(QString path){
+  QFile file(path);
+  QString contents;
+  if(file.open(QIODevice::ReadOnly)){
+    QTextStream out(&file);
+    contents = out.readAll();
+    file.close();
+  }
+  return contents;
+}
+
+bool Backend::isLaptop(){
+  static int hasbat = -1;
+  if(hasbat<0){
+    //Not probed yet
+    bool ok = false;
+    int ret = runCommand(ok, "apm -b").toInt();
+    if(ret<0 || ret>3 || !ok){ hasbat = 0; } //no battery found
+    else{ hasbat = 1; } //found a battery
+  }
+  return (hasbat==1);
+}
+
 inline QString confString(QString var, QString val){
   QString tmp = var.append("=\"%1\"");
   return tmp.arg(val);
 }
+
 
 inline QString partitionDataToConf(QString devtag, partitiondata data){
   QString parts = data.create_partitions.join(",");
@@ -184,6 +208,33 @@ void Backend::checkKeyboardInfo(){
     }
     keyboardInfo.insert("layouts", layObj);
     //qDebug() << "Got Keyboard info:" << keyboardInfo;
+  }
+}
+
+void Backend::GeneratePackageItem(QJsonObject json, QTreeWidget *tree, QString name, QTreeWidgetItem *parent){
+  if(json.isEmpty()){ return; }
+  QTreeWidgetItem *item = 0;
+  if(parent !=0){ item = new QTreeWidgetItem(parent); }
+  else{ item = new QTreeWidgetItem(tree); }
+  item->setText(0, name);
+
+  if(json.contains("pkgname")){
+    //Individual Package registration
+    //item->setCheckable(0, true);
+    item->setWhatsThis(0, json.value("pkgname").toString());
+    bool setChecked = json.value("default").toBool(false) || (json.value("default_laptop").toBool(false) && isLaptop());
+    item->setCheckState(0, setChecked ? Qt::Checked : Qt::Unchecked );
+    if(json.value("required").toBool(false)){
+      //item->setEnabled(0, false);
+      item->setToolTip(0, tr("Required Package"));
+    }
+  }else{
+    //Category entry
+    QStringList list = json.keys();
+    for(int i=0; i<list.length(); i++){
+      GeneratePackageItem(json.value(list[i]).toObject(), tree, list[i], item);
+    }
+    //item->setCheckable()
   }
 }
 
@@ -439,3 +490,12 @@ QString Backend::defaultUserShell(){
   return "/bin/tcsh"; //change this to zsh later once the package files check is finished
 }
 
+void Backend::populatePackageTreeWidget(QTreeWidget *tree){
+  QJsonObject pkgObj = QJsonDocument::fromJson( readFile(":/list/packages.json").toUtf8() ).object();
+  //qDebug() << "Got Package Object:" << pkgObj;
+  tree->clear();
+  QStringList categories = pkgObj.keys();
+  for(int i=0; i<categories.length(); i++){
+    GeneratePackageItem(pkgObj.value(categories[i]).toObject(), tree,categories[i], 0); //top-level items
+  }
+}

@@ -12,6 +12,8 @@
 #include <QTimeZone>
 #include <QDebug>
 #include <QtConcurrent>
+#include <QTreeWidget>
+#include <QTreeWidgetItem>
 
 struct userdata{
 	QString name, comment, pass, shell, home;
@@ -46,6 +48,8 @@ private:
 
 	void checkKeyboardInfo();
 
+	void GeneratePackageItem(QJsonObject json, QTreeWidget *tree, QString name, QTreeWidgetItem *parent = 0);
+
 private slots:
 
 public:
@@ -54,8 +58,12 @@ public:
 
 	static QString runCommand(bool &success, QString command, QStringList arguments = QStringList(), QString workdir = "", QStringList env = QStringList());
 	static QString mbToHuman(double);
+	static QString readFile(QString path);
 
+	// Information
 	QString generateSummary(){ return generateInstallConfig(); }
+	bool isLaptop();
+
 
 	//Localization
 	QString lang();
@@ -103,6 +111,7 @@ public:
 	//Packages
 	QStringList availableShells();
 	QString defaultUserShell();
+	void populatePackageTreeWidget(QTreeWidget *tree);
 
 
 public slots:

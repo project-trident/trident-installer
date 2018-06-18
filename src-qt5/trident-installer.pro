@@ -15,6 +15,8 @@ HEADERS  += mainUI.h \
 
 FORMS    += mainUI.ui
 
+RESOURCES = trident-installer.qrc
+
 TRANSLATIONS =  i18n/tri-install_af.ts \
                 i18n/tri-install_ar.ts \
                 i18n/tri-install_az.ts \
