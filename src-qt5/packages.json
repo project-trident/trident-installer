@@ -2,16 +2,17 @@
   "Graphics Drivers" : {
     "NVIDIA" : {
       "single_selection" : true,
-      "Current" : {
+      "icon" : "nvidia",
+      "Latest" : {
         "pkgname" : "nvidia-driver",
         "default" : false,
         "pciconf_regex" : ""
       },
-      "Legacy: 340.x" : {
+      "Older Legacy: 340.x" : {
         "pkgname" : "nvidia-driver-340",
         "default" : false
       },
-      "Legacy: 304.x" : {
+      "Oldest Legacy: 304.x" : {
         "pkgname" : "nvidia-driver-304",
         "default" : false
       }
@@ -22,6 +23,12 @@
     "Lumina Desktop" : {
       "pkgname" : "lumina",
       "required" : true,
+      "default" : true
+    },
+    "VLC" : {
+      "pkgname" : "vlc",
+      "icon" : "vlc",
+      "required" : false,
       "default" : true
     }
   },

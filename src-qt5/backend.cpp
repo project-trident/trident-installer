@@ -77,8 +77,8 @@ bool Backend::isLaptop(){
   if(hasbat<0){
     //Not probed yet
     bool ok = false;
-    int ret = runCommand(ok, "apm -b").toInt();
-    if(ret<0 || ret>3 || !ok){ hasbat = 0; } //no battery found
+    int ret = runCommand(ok, "apm -a").toInt();
+    if(ret<0 || ret>2 || !ok){ hasbat = 0; } //no battery found
     else{ hasbat = 1; } //found a battery
   }
   return (hasbat==1);
@@ -217,12 +217,15 @@ void Backend::GeneratePackageItem(QJsonObject json, QTreeWidget *tree, QString n
   if(parent !=0){ item = new QTreeWidgetItem(parent); }
   else{ item = new QTreeWidgetItem(tree); }
   item->setText(0, name);
-
+  if(json.contains("icon")){
+    item->setIcon(0, QIcon::fromTheme(json.value("icon").toString()) );
+  }
   if(json.contains("pkgname")){
     //Individual Package registration
     //item->setCheckable(0, true);
     item->setWhatsThis(0, json.value("pkgname").toString());
     bool setChecked = json.value("default").toBool(false) || (json.value("default_laptop").toBool(false) && isLaptop());
+    //if(setChecked){ qDebug() << "Check Item:" << json << name; }
     item->setCheckState(0, setChecked ? Qt::Checked : Qt::Unchecked );
     if(json.value("required").toBool(false)){
       //item->setEnabled(0, false);
@@ -234,7 +237,8 @@ void Backend::GeneratePackageItem(QJsonObject json, QTreeWidget *tree, QString n
     for(int i=0; i<list.length(); i++){
       GeneratePackageItem(json.value(list[i]).toObject(), tree, list[i], item);
     }
-    //item->setCheckable()
+    item->setExpanded(true);
+    //item->sortChildren(0, Qt::AscendingOrder);
   }
 }
 
