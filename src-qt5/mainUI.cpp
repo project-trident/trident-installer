@@ -14,7 +14,7 @@ MainUI::MainUI() : QMainWindow(), ui(new Ui::MainUI){
   ui->setupUi(this); //load the designer file
   BACKEND = new Backend(this);
   //PAGE ORDER
-  page_list << ui->page_welcome << ui->page_partitions << ui->page_user << ui->page_pkgs << ui->page_summary;
+  page_list << ui->page_welcome << ui->page_partitions << ui->page_pkgs << ui->page_user << ui->page_summary;
   //NOTE: page_installing and page_finished are always at the end of the list;
 
   //Now setup any other UI elements
@@ -121,11 +121,18 @@ void MainUI::loadPageFromBackend(QWidget *current){
   }else if(current == ui->page_user){
     if(ui->combo_user_shell->count()<1){
       //Need to fill the list of available shells
-      QStringList shells = BACKEND->availableShells();
-      QString defaultshell = BACKEND->defaultUserShell();
+      QStringList shells = BACKEND->availableShells(ui->tree_pkgs);
+      //Now figure out the default shell
+      QStringList defaultshell = BACKEND->defaultUserShell(); //priority-ordered
+      QString defshell;
+      for(int i=0; i<defaultshell.length() && defshell.isEmpty(); i++){
+        if(shells.contains(defaultshell[i])){ defshell = defaultshell[i]; }
+      }
+      qDebug() << "Got Shells:" << shells << defaultshell << defshell;
+      //Add the shells to the list
       for(int i=0; i<shells.length(); i++){
         ui->combo_user_shell->addItem( shells[i].section("/",-1), shells[i]);
-        if(shells[i] == defaultshell){ ui->combo_user_shell->setCurrentIndex(i); }
+        if(shells[i] == defshell){ ui->combo_user_shell->setCurrentIndex(i); }
       }
     }
     //Load the info from the backend

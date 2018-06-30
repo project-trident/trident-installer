@@ -109,8 +109,8 @@ public:
 	QStringList generateDefaultZFSPartitions();
 
 	//Packages
-	QStringList availableShells();
-	QString defaultUserShell();
+	QStringList availableShells(QTreeWidget *pkgtree);
+	QStringList defaultUserShell(); //list of defaults in order of importance
 	void populatePackageTreeWidget(QTreeWidget *tree);
 
 

@@ -1,27 +1,85 @@
 {
   "Graphics Drivers" : {
+    "icon" : "driver-manager",
     "NVIDIA" : {
       "single_selection" : true,
+      "expand" : false,
       "icon" : "nvidia",
-      "Latest" : {
+      "Latest: 390.x +" : {
         "pkgname" : "nvidia-driver",
+        "icon" : "nvidia",
         "default" : false,
         "pciconf_regex" : ""
       },
       "Older Legacy: 340.x" : {
         "pkgname" : "nvidia-driver-340",
+        "icon" : "nvidia",
         "default" : false
       },
       "Oldest Legacy: 304.x" : {
         "pkgname" : "nvidia-driver-304",
+        "icon" : "nvidia",
         "default" : false
+      },
+      "Open-Source: (NV)" : {
+        "pkgname" : "xf86-video-nv",
+        "icon" : "applications-system",
+        "default" : false
+      }
+    },
+    "AMD" : {
+      "icon" : "amd",
+      "expand" : false,
+      "Latest: (amdgpu)" : {
+        "pkgname" : "xf86-video-amdgpu",
+        "icon" : "amd",
+        "default" : false,
+        "pciconf_regex" : ""
+      },
+      "Legacy: (ati/radeon)" : {
+        "pkgname" : "xf86-video-ati",
+        "icon" : "amd-ati",
+        "default" : false
+      }
+    },
+    "Intel" : {
+      "icon" : "preferences-desktop-display",
+      "expand" : false,
+      "Latest: (modesetting)" : {
+        "pkgname" : "drm-next-kmod",
+        "icon" : "preferences-plugin",
+        "default" : true,
+        "required" : true
+      },
+      "Legacy: (intel)" : {
+        "pkgname" : "xf86-video-intel",
+        "icon" : "preferences-system",
+        "default" : false
+      }
+    },
+    "Virtual Machine Guest" : {
+      "icon" : "preferences-desktop-display",
+      "expand" : false,
+      "VMWare" : {
+        "pkgname" : "xf86-video-vmware",
+        "icon" : "vmware",
+        "default" : false,
+        "pciconf_regex" : ""
+      },
+      "VirtualBox" : {
+        "pkgname" : "virtualbox-ose-additions",
+        "icon" : "vbox",
+        "default" : false,
+        "pciconf_regex" : ""
       }
     }
   },
   "Applications" : {
     "single_selection" : false,
+    "icon" : "app-launcher",
     "Lumina Desktop" : {
       "pkgname" : "lumina",
+      "icon" : "desktop",
       "required" : true,
       "default" : true
     },
@@ -30,20 +88,71 @@
       "icon" : "vlc",
       "required" : false,
       "default" : true
+    },
+    "Phototonic" : {
+      "pkgname" : "phototonic",
+      "icon" : "applications-graphics",
+      "required" : false,
+      "default" : true
+    },
+    "Trojita" : {
+      "pkgname" : "trojita",
+      "icon" : "trojita",
+      "required" : false,
+      "default" : true
+    },
+    "Telegram" : {
+      "pkgname" : "telegram-desktop",
+      "icon" : "telegram",
+      "required" : false,
+      "default" : true
+    },
+    "Lumina Desktop Themes" : {
+      "pkgname" : "lumina-themes",
+      "icon" : "preferences-wallpaper",
+      "required" : false,
+      "default" : true
+    },
+    "Falkon " : {
+      "pkgname" : "falkon",
+      "icon" : "falkon",
+      "required" : false,
+      "default" : true
     }
   },
   "Power Management" : {
-    "powerdxx" : {
+    "icon" : "preferences-system-power",
+    "powerd++" : {
       "pkgname" : "powerdxx",
+      "icon" : "battery",
       "required" : "false",
       "default" : false,
       "default_laptop" : true
     },
     "intel_backlight" : {
       "pkgname" : "intel_backlight",
+      "icon" : "redshift",
       "required" : "false",
       "default" : false,
       "default_laptop" : true
+    }
+  },
+  "Shells" : {
+    "icon" : "utilities-terminal",
+    "bash" : {
+      "pkgname" : "bash",
+      "icon" : "bash",
+      "default" : false
+    },
+    "fish" : {
+      "pkgname" : "fish",
+      "icon" : "utilities-terminal",
+      "default" : false
+    },
+    "zsh" : {
+      "pkgname" : "zsh",
+      "icon" : "utilities-terminal",
+      "default" : true
     }
   }
 }

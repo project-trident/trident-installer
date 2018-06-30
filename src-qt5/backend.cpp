@@ -222,7 +222,6 @@ void Backend::GeneratePackageItem(QJsonObject json, QTreeWidget *tree, QString n
   }
   if(json.contains("pkgname")){
     //Individual Package registration
-    //item->setCheckable(0, true);
     item->setWhatsThis(0, json.value("pkgname").toString());
     bool setChecked = json.value("default").toBool(false) || (json.value("default_laptop").toBool(false) && isLaptop());
     //if(setChecked){ qDebug() << "Check Item:" << json << name; }
@@ -237,8 +236,8 @@ void Backend::GeneratePackageItem(QJsonObject json, QTreeWidget *tree, QString n
     for(int i=0; i<list.length(); i++){
       GeneratePackageItem(json.value(list[i]).toObject(), tree, list[i], item);
     }
-    item->setExpanded(true);
-    //item->sortChildren(0, Qt::AscendingOrder);
+    if(json.value("expand").toBool(true)){ item->setExpanded(true); }
+    item->sortChildren(0, Qt::AscendingOrder);
   }
 }
 
@@ -481,17 +480,31 @@ QStringList Backend::generateDefaultZFSPartitions(){
 }
 
 // == Packages ==
-QStringList Backend::availableShells(){
+QStringList Backend::availableShells(QTreeWidget *pkgtree){
   QStringList list;
   //Build-in shells
   list << "/bin/sh" << "/bin/csh" << "/bin/tcsh";
   //Now look for packaged shells
-  // TODO
+  QStringList search; search << "zsh" << "fish" << "bash";
+  for(int i=0; i<search.length(); i++){
+   QList<QTreeWidgetItem*> items = pkgtree->findItems(search[i], Qt::MatchFixedString | Qt::MatchRecursive,0);
+   qDebug() << "Shell search:" << search[i] << items.length();
+   if( !items.isEmpty() && (items.first()->checkState(0)==Qt::Checked) ){ list << "/usr/local/bin/"+search[i]; }
+  }
+  //Now sort the shells into alphabetical order
+  for(int i=0; i<list.length(); i++){
+    list[i] = list[i].section("/",-1)+":"+list[i];
+  }
+  list.sort();
+  for(int i=0; i<list.length(); i++){
+    list[i] = list[i].section(":",-1);
+  }
   return list;
 }
 
-QString Backend::defaultUserShell(){
-  return "/bin/tcsh"; //change this to zsh later once the package files check is finished
+QStringList Backend::defaultUserShell(){
+  QStringList defs; defs << "/usr/local/bin/zsh" << "/usr/local/bin/fish" << "/usr/local/bin/bash" << "/bin/tcsh";
+  return defs;
 }
 
 void Backend::populatePackageTreeWidget(QTreeWidget *tree){
