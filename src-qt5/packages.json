@@ -9,7 +9,10 @@
         "pkgname" : "nvidia-driver",
         "icon" : "nvidia",
         "default" : false,
-        "pciconf_regex" : ""
+        "pciconf_match" : {
+          "id_regex" : "vgapci[0-9]",
+          "vendor_regex" : "NVIDIA"
+        }
       },
       "Older Legacy: 340.x" : {
         "pkgname" : "nvidia-driver-340",
@@ -34,7 +37,10 @@
         "pkgname" : "xf86-video-amdgpu",
         "icon" : "amd",
         "default" : false,
-        "pciconf_regex" : ""
+        "pciconf_match" : {
+          "id_regex" : "vgapci[0-9]",
+          "vendor_regex" : "AMD"
+        }
       },
       "Legacy: (ati/radeon)" : {
         "pkgname" : "xf86-video-ati",
@@ -64,13 +70,19 @@
         "pkgname" : "xf86-video-vmware",
         "icon" : "vmware",
         "default" : false,
-        "pciconf_regex" : ""
+        "pciconf_match" : {
+          "id_regex" : "vgapci[0-9]",
+          "vendor_regex" : "VMware"
+        }
       },
       "VirtualBox" : {
         "pkgname" : "virtualbox-ose-additions",
         "icon" : "vbox",
         "default" : false,
-        "pciconf_regex" : ""
+        "pciconf_match" : {
+          "id_regex" : "vgapci[0-9]",
+          "vendor_regex" : "VirtualBox"
+        }
       }
     }
   },

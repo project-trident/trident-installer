@@ -40,14 +40,17 @@ struct diskdata{
 class Backend : public QObject{
 	Q_OBJECT
 private:
-	QJsonObject settings, keyboardInfo;
+	QJsonObject settings, keyboardInfo, pciconf;
 	QList<userdata> USERS;
 	QList<diskdata> DISKS;
 
 	QString generateInstallConfig(); //turns JSON settings into a config file for pc-sysinstall
 
+	//Functions for filling the private variables as needed (always run them before using)
 	void checkKeyboardInfo();
+	void checkPciConf();
 
+	//Recursive generation functions
 	void GeneratePackageItem(QJsonObject json, QTreeWidget *tree, QString name, QTreeWidgetItem *parent = 0);
 
 private slots:

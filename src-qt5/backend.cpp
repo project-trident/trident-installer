@@ -211,6 +211,31 @@ void Backend::checkKeyboardInfo(){
   }
 }
 
+void Backend::checkPciConf(){
+  if(pciconf.isEmpty()){
+    bool ok = false;
+    QStringList info = runCommand(ok, "pciconf -lv").replace("\t"," ").split("\n");
+    QJsonObject tmp; QString id;
+    for(int i=0; i<info.length(); i++){
+      //Check for a top-level item line
+      if(info[i].contains("@") && info[i].contains("rev=")){
+        if(!id.isEmpty()){ pciconf.insert(id, tmp); }
+        tmp = QJsonObject(); //clear this
+        id = info[i].section("@",0,0).simplified();
+        tmp.insert("location", info[i].section(" ",0,0).section("@",-1).simplified() );
+        //ignore the rest of the hex-code information for top-level item lines
+      }else{
+        QString value = info[i].section("=",1,-1).simplified();
+        if(value.startsWith("\'") && value.endsWith("\'")){ value.chop(1); value.remove(0,1); }
+        tmp.insert( info[i].section("=",0,0).simplified(), value);
+      }
+    }
+    //Make sure we insert the last item into the object too
+    if(!id.isEmpty()){ pciconf.insert(id, tmp); }
+    //qDebug() << "Got PCI Conf:" << pciconf;
+  }
+}
+
 void Backend::GeneratePackageItem(QJsonObject json, QTreeWidget *tree, QString name, QTreeWidgetItem *parent){
   if(json.isEmpty()){ return; }
   QTreeWidgetItem *item = 0;
@@ -224,10 +249,25 @@ void Backend::GeneratePackageItem(QJsonObject json, QTreeWidget *tree, QString n
     //Individual Package registration
     item->setWhatsThis(0, json.value("pkgname").toString());
     bool setChecked = json.value("default").toBool(false) || (json.value("default_laptop").toBool(false) && isLaptop());
+    if(!setChecked && json.contains("pciconf_match") ){
+      checkPciConf();
+      QJsonObject conf = json.value("pciconf_match").toObject();
+      QStringList ids = pciconf.keys();
+      if(conf.contains("id_regex")){ ids = ids.filter(QRegExp(conf.value("id_regex").toString())); }
+      for(int i=0; i<ids.length() && !setChecked; i++){
+        QJsonObject info = pciconf.value(ids[i]).toObject();
+        bool match = true;
+        if(conf.contains("vendor_regex")){ match = match && info.value("vendor").toString().contains(QRegExp(conf.value("vendor_regex").toString())); }
+        else if(conf.contains("device_regex")){ setChecked = info.value("device").toString().contains(QRegExp(conf.value("device_regex").toString())); }
+        else if(conf.contains("class_regex")){ setChecked = info.value("class").toString().contains(QRegExp(conf.value("class_regex").toString())); }
+        else if(conf.contains("subclass_regex")){ setChecked = info.value("subclass").toString().contains(QRegExp(conf.value("subclass_regex").toString())); }
+        setChecked = match;
+      }
+    }
     //if(setChecked){ qDebug() << "Check Item:" << json << name; }
     item->setCheckState(0, setChecked ? Qt::Checked : Qt::Unchecked );
     if(json.value("required").toBool(false)){
-      //item->setEnabled(0, false);
+      item->setDisabled(true);
       item->setToolTip(0, tr("Required Package"));
     }
   }else{
@@ -488,7 +528,6 @@ QStringList Backend::availableShells(QTreeWidget *pkgtree){
   QStringList search; search << "zsh" << "fish" << "bash";
   for(int i=0; i<search.length(); i++){
    QList<QTreeWidgetItem*> items = pkgtree->findItems(search[i], Qt::MatchFixedString | Qt::MatchRecursive,0);
-   qDebug() << "Shell search:" << search[i] << items.length();
    if( !items.isEmpty() && (items.first()->checkState(0)==Qt::Checked) ){ list << "/usr/local/bin/"+search[i]; }
   }
   //Now sort the shells into alphabetical order

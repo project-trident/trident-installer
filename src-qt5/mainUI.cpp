@@ -119,21 +119,23 @@ void MainUI::loadPageFromBackend(QWidget *current){
     }
 
   }else if(current == ui->page_user){
-    if(ui->combo_user_shell->count()<1){
-      //Need to fill the list of available shells
-      QStringList shells = BACKEND->availableShells(ui->tree_pkgs);
-      //Now figure out the default shell
+    //Need to fill the list of available shells
+    QStringList shells = BACKEND->availableShells(ui->tree_pkgs);
+    QString defshell = ui->combo_user_shell->currentText();
+    if(defshell.isEmpty() || shells.filter("/bin/"+defshell).isEmpty()){
+      //Now figure out the new default shell (first time, or shell no longer getting installed)
+      defshell.clear();
       QStringList defaultshell = BACKEND->defaultUserShell(); //priority-ordered
-      QString defshell;
       for(int i=0; i<defaultshell.length() && defshell.isEmpty(); i++){
         if(shells.contains(defaultshell[i])){ defshell = defaultshell[i]; }
       }
-      qDebug() << "Got Shells:" << shells << defaultshell << defshell;
-      //Add the shells to the list
-      for(int i=0; i<shells.length(); i++){
-        ui->combo_user_shell->addItem( shells[i].section("/",-1), shells[i]);
-        if(shells[i] == defshell){ ui->combo_user_shell->setCurrentIndex(i); }
-      }
+      //qDebug() << "Got Shells:" << shells << defshell;
+    }
+    //Add the shells to the list
+    ui->combo_user_shell->clear();
+    for(int i=0; i<shells.length(); i++){
+      ui->combo_user_shell->addItem( shells[i].section("/",-1), shells[i]);
+      if(defshell.section("/",-1) == shells[i].section("/",-1) ){ ui->combo_user_shell->setCurrentIndex(i); }
     }
     //Load the info from the backend
     ui->line_pass_root->setText(BACKEND->rootPass());
