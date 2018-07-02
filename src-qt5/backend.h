@@ -112,6 +112,8 @@ public:
 	QStringList generateDefaultZFSPartitions();
 
 	//Packages
+	QString dist_package_dir();
+	QJsonObject package_info(QString pkgname);
 	QStringList availableShells(QTreeWidget *pkgtree);
 	QStringList defaultUserShell(); //list of defaults in order of importance
 	void populatePackageTreeWidget(QTreeWidget *tree);

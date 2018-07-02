@@ -520,6 +520,41 @@ QStringList Backend::generateDefaultZFSPartitions(){
 }
 
 // == Packages ==
+QString Backend::dist_package_dir(){
+  static QString dist_dir = "";
+  if(dist_dir.isEmpty()){
+    //Find the directory with the distribution package files
+    QString base = "/dist";
+    QDir _dir(base);
+    QStringList dirs = _dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot, QDir::Name);
+    //Note - this dir is several levels deep with variable dir names - but ultimately is a single dir -> single dir format.
+    while(!dirs.isEmpty()){
+      //Go another level deep
+      _dir.cd(dirs.first());
+      dirs = _dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot, QDir::Name);
+    }
+    dist_dir = _dir.absolutePath();
+  }
+  return dist_dir;
+}
+
+QJsonObject Backend::package_info(QString pkgname){
+  QDir _dir(dist_package_dir());
+  QStringList files = _dir.entryList(QStringList() << pkgname+"-*.txz", QDir::Files, QDir::Name);
+  if(files.isEmpty()){ return QJsonObject(); } //no info available - package not found?
+  QString filepath = _dir.absoluteFilePath(files.first());
+  bool ok = false;
+  QStringList info = runCommand(ok, "pkg", QStringList() << "query" << "-F" << filepath << "%o|%n|%v|%c|%e").split("|");
+  if(!ok || info.length()<5 ){ return QJsonObject(); }
+  QJsonObject obj;
+  obj.insert("origin", info[0]);
+  obj.insert("name", info[1] );
+  obj.insert("version", info[2] );
+  obj.insert("comment", info[3] );
+  obj.insert("description", info[4] );
+  return obj;
+}
+
 QStringList Backend::availableShells(QTreeWidget *pkgtree){
   QStringList list;
   //Build-in shells
@@ -548,6 +583,7 @@ QStringList Backend::defaultUserShell(){
 
 void Backend::populatePackageTreeWidget(QTreeWidget *tree){
   QJsonObject pkgObj = QJsonDocument::fromJson( readFile(":/list/packages.json").toUtf8() ).object();
+  qDebug() << "Got Package Dist Dir:" << dist_package_dir();
   //qDebug() << "Got Package Object:" << pkgObj;
   tree->clear();
   QStringList categories = pkgObj.keys();
