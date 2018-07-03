@@ -36,6 +36,7 @@ private:
 	QList<QWidget*> page_list;
 	QTimer* slideshowTimer;
 	Backend *BACKEND;
+	bool DEBUG;
 
 	void loadPageFromBackend(QWidget *current);
 	bool savePageToBackend(QWidget *current, bool prompts = true);

@@ -248,6 +248,14 @@ void Backend::GeneratePackageItem(QJsonObject json, QTreeWidget *tree, QString n
   if(json.contains("pkgname")){
     //Individual Package registration
     item->setWhatsThis(0, json.value("pkgname").toString());
+    QJsonObject infoObj = package_info(item->whatsThis(0));
+    if(infoObj.isEmpty()){
+      qDebug() << "Package not found:" << item->whatsThis(0);
+      delete item;
+      return;
+    }
+    qDebug() << "Got package info:" << infoObj;
+    item->setText(0, item->text(0)+" ("+infoObj.value("version").toString().section(",",0,0)+")");
     bool setChecked = json.value("default").toBool(false) || (json.value("default_laptop").toBool(false) && isLaptop());
     if(!setChecked && json.contains("pciconf_match") ){
       checkPciConf();
@@ -524,7 +532,8 @@ QString Backend::dist_package_dir(){
   static QString dist_dir = "";
   if(dist_dir.isEmpty()){
     //Find the directory with the distribution package files
-    QString base = "/dist";
+    QString base = "/dist"; //Dir on the ISO
+    if(!QFile::exists(base)){ base = "/usr/local/pkg-cache"; } //Local Dir for testing
     QDir _dir(base);
     QStringList dirs = _dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot, QDir::Name);
     //Note - this dir is several levels deep with variable dir names - but ultimately is a single dir -> single dir format.

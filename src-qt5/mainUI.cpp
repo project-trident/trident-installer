@@ -8,11 +8,10 @@
 #include "ui_mainUI.h"
 #include <QDebug>
 
-#define DEBUG 1
-
 MainUI::MainUI() : QMainWindow(), ui(new Ui::MainUI){
   ui->setupUi(this); //load the designer file
   BACKEND = new Backend(this);
+  DEBUG = true;
   //PAGE ORDER
   page_list << ui->page_welcome << ui->page_partitions << ui->page_pkgs << ui->page_user << ui->page_summary;
   //NOTE: page_installing and page_finished are always at the end of the list;
