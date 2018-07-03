@@ -5,7 +5,7 @@
       "single_selection" : true,
       "expand" : false,
       "icon" : "nvidia",
-      "[Latest]" : {
+      "Latest" : {
         "pkgname" : "nvidia-driver",
         "icon" : "nvidia",
         "default" : false,
@@ -14,17 +14,17 @@
           "vendor_regex" : "NVIDIA"
         }
       },
-      "[Legacy]" : {
+      "Older Legacy" : {
         "pkgname" : "nvidia-driver-340",
         "icon" : "nvidia",
         "default" : false
       },
-      "[Legacy]" : {
+      "Oldest Legacy" : {
         "pkgname" : "nvidia-driver-304",
         "icon" : "nvidia",
         "default" : false
       },
-      "[Open-Source] nv" : {
+      "Open-Source nv" : {
         "pkgname" : "xf86-video-nv",
         "icon" : "applications-system",
         "default" : false
@@ -33,7 +33,7 @@
     "AMD" : {
       "icon" : "amd",
       "expand" : false,
-      "[Latest] amdgpu" : {
+      "Latest (amdgpu)" : {
         "pkgname" : "xf86-video-amdgpu",
         "icon" : "amd",
         "default" : false,
@@ -42,7 +42,7 @@
           "vendor_regex" : "AMD"
         }
       },
-      "[Legacy] ati/radeon" : {
+      "Legacy (ati/radeon)" : {
         "pkgname" : "xf86-video-ati",
         "icon" : "amd-ati",
         "default" : false
@@ -51,13 +51,13 @@
     "Intel" : {
       "icon" : "preferences-desktop-display",
       "expand" : false,
-      "[Latest] modesetting" : {
+      "Latest (modesetting)" : {
         "pkgname" : "drm-next-kmod",
         "icon" : "preferences-plugin",
         "default" : true,
         "required" : true
       },
-      "[Legacy] intel" : {
+      "Legacy (intel)" : {
         "pkgname" : "xf86-video-intel",
         "icon" : "preferences-system",
         "default" : false
@@ -125,7 +125,7 @@
       "required" : false,
       "default" : true
     },
-    "Falkon " : {
+    "Falkon" : {
       "pkgname" : "falkon",
       "icon" : "falkon",
       "required" : false,

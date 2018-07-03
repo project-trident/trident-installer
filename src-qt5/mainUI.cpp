@@ -7,10 +7,13 @@
 #include "mainUI.h"
 #include "ui_mainUI.h"
 #include <QDebug>
+#include <QLocale>
 
 MainUI::MainUI() : QMainWindow(), ui(new Ui::MainUI){
   ui->setupUi(this); //load the designer file
   BACKEND = new Backend(this);
+  connect(BACKEND, SIGNAL(keyboardInfoAvailable()), this, SLOT(populateKeyboardInfo()) );
+  ui->actionKeyboard->setEnabled(false);
   DEBUG = true;
   //PAGE ORDER
   page_list << ui->page_welcome << ui->page_partitions << ui->page_pkgs << ui->page_user << ui->page_summary;
@@ -24,11 +27,24 @@ MainUI::MainUI() : QMainWindow(), ui(new Ui::MainUI){
   slideshowTimer = new QTimer(this);
     slideshowTimer->setInterval(3000);
 
+  //Only load the package page once
+  BACKEND->populatePackageTreeWidget(ui->tree_pkgs);
+
+  //Setup the sidebar/buttons
+  last_sidebar_size = 0;
+  sidebar_group = new QActionGroup(this);
+    sidebar_group->setExclusive(true);
+    sidebar_group->addAction(ui->actionInfo);
+    sidebar_group->addAction(ui->actionKeyboard);
+    sidebar_group->addAction(ui->actionLocale);
+  collapse_sidebar();
+  //ui->toolBar->widgetForAction(ui->actionInfo)->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+  //ui->toolBar->widgetForAction(ui->actionKeyboard)->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+  //ui->toolBar->widgetForAction(ui->actionLocale)->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
   //Update the visuals and show the window
   setupConnections();
   updateButtonFrame();
-  //Only load the package page once
-  BACKEND->populatePackageTreeWidget(ui->tree_pkgs);
+
   if(DEBUG){
     this->show();
   }else{
@@ -42,10 +58,17 @@ MainUI::~MainUI(){
 }
 
 void MainUI::setupConnections(){
+  //Sidebar items
+  connect(sidebar_group, SIGNAL(triggered(QAction*)), this, SLOT(sidebar_item_changed()) );
+  connect(ui->tool_collapse_sidebar, SIGNAL(clicked()), this, SLOT(collapse_sidebar()) );
+  connect(ui->splitter, SIGNAL(splitterMoved(int, int)), this, SLOT(sidebar_size_changed()) );
+  connect(ui->list_locale, SIGNAL(currentRowChanged(int)), this, SLOT(localeChanged()) );
+  //Button Bar items
   connect(ui->tool_next, SIGNAL(clicked()), this, SLOT(nextClicked()) );
   connect(ui->tool_prev, SIGNAL(clicked()), this, SLOT(prevClicked()) );
   connect(ui->tool_startinstall, SIGNAL(clicked()), this, SLOT(startInstallClicked()) );
   connect(ui->tool_reboot, SIGNAL(clicked()), this, SLOT(rebootClicked()) );
+  connect(ui->tool_shutdown, SIGNAL(clicked()), this, SLOT(shutdownClicked()) );
   connect(slideshowTimer, SIGNAL(timeout()), this, SLOT(nextSlideshowImage()) );
   connect(ui->tabWidget, SIGNAL(tabBarClicked(int)), slideshowTimer, SLOT(stop()) );
   //Welcome Page
@@ -61,6 +84,8 @@ void MainUI::setupConnections(){
   connect(ui->line_user_name, SIGNAL(textEdited(const QString&)), this, SLOT(validateUserPage()) );
   connect(ui->line_user_comment, SIGNAL(textEdited(const QString&)), this, SLOT(validateUserPage()) );
   connect(ui->line_user_comment, SIGNAL(editingFinished()), this, SLOT(autogenerateUsername()) );
+  //Package Page
+  connect(ui->tree_pkgs, SIGNAL(itemChanged(QTreeWidgetItem*, int)), this, SLOT(pkg_item_changed(QTreeWidgetItem*,int)) );
 }
 
 // ===============
@@ -115,6 +140,9 @@ void MainUI::loadPageFromBackend(QWidget *current){
             part->setData(0, Qt::UserRole, pinfo.value("sizemb").toString());
         }
       }
+    }
+    if(ui->tree_disks->currentItem()==0){
+      ui->tree_disks->setCurrentItem( ui->tree_disks->topLevelItem(0) ); //first item
     }
 
   }else if(current == ui->page_user){
@@ -171,6 +199,7 @@ bool MainUI::savePageToBackend(QWidget *current, bool prompts){
     BACKEND->setRootPass(ui->line_pass_root->text());
 
   }else if(current == ui->page_partitions){
+    if(ui->tree_disks->currentItem()==0){ return false; }
     QString sel = ui->tree_disks->currentItem()->whatsThis(0);
     double totalMB = ui->tree_disks->currentItem()->data(0, Qt::UserRole).toString().toDouble();
     if(BACKEND->disks().isEmpty() && sel.endsWith("all") && prompts){
@@ -212,6 +241,129 @@ bool MainUI::savePageToBackend(QWidget *current, bool prompts){
 //==============
 //  PRIVATE SLOTS
 //==============
+void MainUI::collapse_sidebar(){
+  int width = ui->centralwidget->width();
+  ui->splitter->setSizes(QList<int>() << 0 << width);
+  ui->splitter->handle(1)->setEnabled(false);
+  QAction *checked = sidebar_group->checkedAction();
+  if(checked!=0){ checked->setChecked(false); }
+}
+
+void MainUI::sidebar_item_changed(){
+  //Determine which item is checked and adjust sidebar as needed
+  bool opensidebar = (ui->splitter->sizes().first()==0);
+  //Figure out which page in the sidebar should be shown
+  QAction *checked = sidebar_group->checkedAction();
+  if(checked == ui->actionLocale){
+    ui->stacked_sidebar->setCurrentWidget(ui->page_locale);
+    if(ui->list_locale->count()<1){
+      QString current = BACKEND->lang();
+      QStringList langs = BACKEND->availableLanguages();
+      langs.sort();
+      for(int i=0; i<langs.length(); i++){
+        QLocale locale(langs[i]);
+        ui->list_locale->addItem("("+langs[i].section(".",0,0)+") "+locale.nativeLanguageName());
+        if(current==langs[i] || current.section(".",0,0)==langs[i].section(".",0,0)){
+          ui->list_locale->setCurrentRow(i);
+        }
+      }
+      ui->list_locale->scrollToItem(ui->list_locale->currentItem(), QAbstractItemView::PositionAtCenter);
+    }
+
+  }else if(checked == ui->actionInfo){
+    ui->stacked_sidebar->setCurrentWidget(ui->page_system);
+    if(ui->text_system_info->toPlainText().isEmpty()){
+      ui->text_system_info->setPlainText( BACKEND->system_information() );
+    }
+
+  }else if(checked == ui->actionKeyboard){
+    ui->stacked_sidebar->setCurrentWidget(ui->page_keyboard);
+    //Note: The keyboard loading routine is asynchronous and this button will
+    //  only become active when ready
+
+  }else{
+    collapse_sidebar();
+    return;
+  }
+  //Now show the sidebar as needed
+  if(opensidebar){
+    int width = ui->centralwidget->width();
+    if(last_sidebar_size<=0){ last_sidebar_size = width/4; }
+    ui->splitter->setSizes(QList<int>() << last_sidebar_size << width-last_sidebar_size);
+    ui->splitter->handle(1)->setEnabled(true);
+  }
+}
+
+void MainUI::sidebar_size_changed(){
+  last_sidebar_size = ui->splitter->sizes().first();
+}
+
+void MainUI::keyboard_layout_changed(QString variant){
+  //Read the list of variants for the current layout and update the variant list
+  QJsonObject obj = QJsonDocument::fromJson(ui->combo_key_layout->currentData(100).toByteArray()).object();
+  //qDebug() << "Got Variants:" << obj;
+  ui->combo_key_variant->clear();
+  ui->combo_key_variant->addItem("----");
+  QStringList ids = obj.keys();
+  for(int i=0; i<ids.length(); i++){
+    ui->combo_key_variant->addItem(obj.value(ids[i]).toString(), ids[i]);
+    if(variant == ids[i]){ ui->combo_key_variant->setCurrentIndex(i+1); }
+  }
+  save_keyboard_layout();
+}
+
+void MainUI::save_keyboard_layout(){
+  ui->keyboard_test->clear();
+  QStringList current = BACKEND->keyboard(); //layout, model, variant
+  QStringList now;
+  now << ui->combo_key_layout->currentData().toString() << ui->combo_key_model->currentData().toString() << ui->combo_key_variant->currentData().toString();
+  if( now != current ){
+    qDebug() << "Set keyboard settings:" << now;
+    BACKEND->setKeyboard(now, !DEBUG);
+  }
+}
+
+void MainUI::populateKeyboardInfo(){
+  QStringList current = BACKEND->keyboard(); //layout, model, variant
+  //qDebug() << "Got Current Keyboard Settings:" << current;
+  //Initial population of info
+  QJsonObject json = BACKEND->availableKeyboardModels();
+  QStringList tmp = json.keys();
+  for(int i=0; i<tmp.length(); i++){
+    ui->combo_key_model->addItem(json.value(tmp[i]).toString(), tmp[i]);
+    if(tmp[i] == current[1]){ ui->combo_key_model->setCurrentIndex(i); }
+  }
+  json = BACKEND->availableKeyboardLayouts();
+  tmp  = json.keys();
+  //qDebug() << "Got Keyboard Layouts:" << json;
+  for(int i=0; i<tmp.length(); i++){
+    QJsonObject tobj = json.value(tmp[i]).toObject();
+    ui->combo_key_layout->addItem(tobj.value("description").toString(), tmp[i]);
+    if(current[0] == tmp[i]){ ui->combo_key_layout->setCurrentIndex(i); }
+    if(!tobj.value("variants").toObject().isEmpty()){
+      ui->combo_key_layout->setItemData(i, QJsonDocument(tobj.value("variants").toObject()).toJson(), 100);
+      //qDebug() << "Got Variants:" << tmp[i] << tobj;
+    }
+  }
+  //Now update the current variant list
+  keyboard_layout_changed(current[2]);
+  //Now setup connections (do not change keyboard for first init)
+  connect(ui->combo_key_model, SIGNAL(currentIndexChanged(int)), this, SLOT(save_keyboard_layout()) );
+  connect(ui->combo_key_layout, SIGNAL(currentIndexChanged(int)), this, SLOT(keyboard_layout_changed()) );
+  connect(ui->combo_key_variant, SIGNAL(currentIndexChanged(int)), this, SLOT(save_keyboard_layout()) );
+  ui->actionKeyboard->setEnabled(true); //info now available
+}
+
+void MainUI::localeChanged(){
+  QString now = ui->list_locale->currentItem()->text().section(")",0,0).section("(",-1)+".UTF-8";
+  qDebug() << "TO-DO: Locale Changed:" << now;
+  if(now != BACKEND->lang()){
+    BACKEND->setLang(now);
+  }
+  //Still need to change the localization object for the UI
+  
+}
+
 void MainUI::nextClicked(){
   //Determine the next page to go to
   QWidget *cur = ui->stackedWidget->currentWidget();
@@ -267,6 +419,11 @@ void MainUI::rebootClicked(){
   QApplication::exit(0);
 }
 
+void MainUI::shutdownClicked(){
+  if(!DEBUG){ QProcess::startDetached("shutdown -p now"); }
+  QApplication::exit(0);
+}
+
 void MainUI::updateButtonFrame(){
   QWidget *cur = ui->stackedWidget->currentWidget();
   bool showNext, showPrev, showStart, showReboot;
@@ -286,6 +443,8 @@ void MainUI::updateButtonFrame(){
   ui->tool_prev->setVisible(showPrev);
   ui->tool_startinstall->setVisible(showStart);
   ui->tool_reboot->setVisible(showReboot);
+  ui->tool_shutdown->setVisible(showReboot || showNext || showStart);
+
   //Now setup the progress bar
   int page = page_list.indexOf(cur);
   //qDebug() << "Got Page:" << page << page_list.count() << ui->progress_pages->maximum() << ui->progress_pages->minimum();
@@ -356,4 +515,20 @@ void MainUI::validateUserPage(){
   bool ok_root = validateRootPassword();
   bool ok_user = validateUserInfo();
   ui->tool_next->setEnabled(ok_root && ok_user);
+}
+
+void MainUI::pkg_item_changed(QTreeWidgetItem *item, int col){
+  //qDebug() << "Got pkg item changed";
+  if(col!=0 || item->checkState(0)!=Qt::Checked){ return; }
+  //qDebug() << "Got Pkg Item Changed:" << item->text(col);
+  if(item->parent()!=0 ){
+    if(item->parent()->data(0,100).toString().contains("single")){
+      //Make sure that none of the other items are checked
+      for(int i=0; i<item->parent()->childCount(); i++){
+        QTreeWidgetItem *child = item->parent()->child(i);
+        if(child==item){ continue; }
+        else if(child->checkState(0)==Qt::Checked){ child->setCheckState(0,Qt::Unchecked); }
+      }
+    }
+  }
 }

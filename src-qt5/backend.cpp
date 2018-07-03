@@ -100,6 +100,13 @@ inline QString partitionDataToConf(QString devtag, partitiondata data){
   return confString(devtag+"-part", line );
 }
 
+QString Backend::system_information(){
+  QString info;
+  info = "TEST";
+  //TO-DO, generate human-readable system information
+  return info;
+}
+
 QString Backend::generateInstallConfig(){
   // Turns JSON settings into a config file for pc-sysinstall
   QStringList contents, tmpL;
@@ -117,10 +124,10 @@ QString Backend::generateInstallConfig(){
   contents << "";
   contents << "# == LOCALIZATION ==";
   contents << confString("localizeLang",lang());
-  tmpL = keyboard();
-  if(tmpL.length()>0){ contents << confString("localizeKeyLayout", tmpL[0]); }
-  if(tmpL.length()>1){ contents << confString("localizeKeyModel", tmpL[1]); }
-  if(tmpL.length()>2){ contents << confString("localizeKeyVariant", tmpL[2]); }
+  tmpL = keyboard(); //this always returns a list of length 3 (layout, model, variant)
+  if(!tmpL[0].isEmpty()){ contents << confString("localizeKeyLayout", tmpL[0]); }
+  if(!tmpL[1].isEmpty()){ contents << confString("localizeKeyModel", tmpL[1]); }
+  if(!tmpL[2].isEmpty()){ contents << confString("localizeKeyVariant", tmpL[2]); }
 
   // Timezone
   contents << "";
@@ -182,7 +189,7 @@ void Backend::checkKeyboardInfo(){
     bool ok = false;
     QStringList models = runCommand(ok, "pc-sysinstall xkeyboard-models").replace("\t"," ").split("\n");
     QStringList layouts = runCommand(ok, "pc-sysinstall xkeyboard-layouts").replace("\t"," ").split("\n");
-    QStringList variants = runCommand(ok, "pc-sysinstall xkeyboard-layouts").replace("\t"," ").split("\n");
+    QStringList variants = runCommand(ok, "pc-sysinstall xkeyboard-variants").replace("\t"," ").split("\n");
     //Now put them into the cache
     QJsonObject modelObj;
     for(int i=0; i<models.length(); i++){
@@ -198,7 +205,7 @@ void Backend::checkKeyboardInfo(){
       QStringList layout_variants = variants.filter(" "+id+": ");
       QJsonObject var;
       for(int v=0; v<layout_variants.length(); v++){
-        var.insert(layout_variants[i].section(" ",0,0), layout_variants[i].section(": ",1,-1) ); //id : description
+        var.insert(layout_variants[v].section(" ",0,0), layout_variants[v].section(": ",1,-1) ); //id : description
       }
       QJsonObject obj;
         obj.insert("id", id);
@@ -207,6 +214,7 @@ void Backend::checkKeyboardInfo(){
       layObj.insert(id, obj);
     }
     keyboardInfo.insert("layouts", layObj);
+    emit keyboardInfoAvailable();
     //qDebug() << "Got Keyboard info:" << keyboardInfo;
   }
 }
@@ -254,8 +262,9 @@ void Backend::GeneratePackageItem(QJsonObject json, QTreeWidget *tree, QString n
       delete item;
       return;
     }
-    qDebug() << "Got package info:" << infoObj;
-    item->setText(0, item->text(0)+" ("+infoObj.value("version").toString().section(",",0,0)+")");
+    //qDebug() << "Got package info:" << infoObj;
+    item->setText(1, infoObj.value("version").toString().section(",",0,0));
+    item->setText(2, infoObj.value("comment").toString().simplified());
     bool setChecked = json.value("default").toBool(false) || (json.value("default_laptop").toBool(false) && isLaptop());
     if(!setChecked && json.contains("pciconf_match") ){
       checkPciConf();
@@ -285,7 +294,13 @@ void Backend::GeneratePackageItem(QJsonObject json, QTreeWidget *tree, QString n
       GeneratePackageItem(json.value(list[i]).toObject(), tree, list[i], item);
     }
     if(json.value("expand").toBool(true)){ item->setExpanded(true); }
+    if(json.value("single_selection").toBool(false)){
+      item->setData(0, 100, "single");
+      item->setText(0, item->text(0)+" ("+tr("limit 1")+")");
+    }
     item->sortChildren(0, Qt::AscendingOrder);
+    item->setFirstColumnSpanned(true);
+    if(item->childCount()<1){ item->setHidden(true); }
   }
 }
 
@@ -302,22 +317,53 @@ void Backend::setLang(QString lang){
 }
 
 QStringList Backend::availableLanguages(){
-  return QStringList();
+  //Probe the list of available translation files for this info
+  QStringList langs;
+  langs << "en_US.UTF-8"; //this is always available (default)
+  QDir _dir("/usr/local/share/project-trident/i18n");
+  QStringList files = _dir.entryList(QStringList()<<"tri-install_*.qm", QDir::Files, QDir::Name);
+  for(int i=0; i<files.length(); i++){
+    langs << files[i].section("_",1,-1).section(".qm",0,-2)+".UTF-8";
+  }
+  return langs;
 }
 
 //Keyboard Settings
 QStringList Backend::keyboard(){
+  //pre-fill the output list
+  QStringList list; list << "" << "" << "";
   //layout, model, variant
   QString tmp = settings.value("keyboard").toString();
   if(!tmp.isEmpty()){
-    return tmp.split(", ");
+    list = tmp.split(", ");
+  }else{
+    //Need to probe the system to get the info
+    bool ok = false;
+    QStringList info = runCommand(ok, "setxkbmap -query").split("\n");
+    if(ok){
+      for(int i=0; i<info.length(); i++){
+        if(info[i].startsWith("layout:")){ list[0] = info[i].section(":",-1).simplified(); }
+        else if(info[i].startsWith("model:")){ list[1] = info[i].section(":",-1).simplified(); }
+        else if(info[i].startsWith("variant:")){ list[2] = info[i].section(":",-1).simplified(); }
+      }
+    }
   }
-  return QStringList();
+  while(list.length()<3){ list << ""; }
+  return list;
 }
 
-void Backend::setKeyboard(QStringList vals){
+void Backend::setKeyboard(QStringList vals, bool changenow){
+  while(vals.length()<3){ vals << ""; }
   //layout, model, variant
   settings.insert("keyboard",vals.join(", "));
+  if(changenow){
+    bool ok = false;
+    QStringList args;
+    if(!vals[0].isEmpty()){ args << "-layout" << vals[0]; }
+    if(!vals[1].isEmpty()){ args << "-model" << vals[1]; }
+    if(!vals[2].isEmpty()){ args << "-variant" << vals[2]; }
+    runCommand(ok, "setxkbmap", args);
+  }
 }
 
 QJsonObject Backend::availableKeyboardModels(){
@@ -549,18 +595,20 @@ QString Backend::dist_package_dir(){
 
 QJsonObject Backend::package_info(QString pkgname){
   QDir _dir(dist_package_dir());
-  QStringList files = _dir.entryList(QStringList() << pkgname+"-*.txz", QDir::Files, QDir::Name);
+  QStringList files = _dir.entryList(QStringList() << pkgname+"-*.txz", QDir::Files | QDir::NoSymLinks, QDir::Name);
   if(files.isEmpty()){ return QJsonObject(); } //no info available - package not found?
-  QString filepath = _dir.absoluteFilePath(files.first());
-  bool ok = false;
-  QStringList info = runCommand(ok, "pkg", QStringList() << "query" << "-F" << filepath << "%o|%n|%v|%c|%e").split("|");
-  if(!ok || info.length()<5 ){ return QJsonObject(); }
   QJsonObject obj;
-  obj.insert("origin", info[0]);
-  obj.insert("name", info[1] );
-  obj.insert("version", info[2] );
-  obj.insert("comment", info[3] );
-  obj.insert("description", info[4] );
+  for(int i=0; i<files.length() && obj.isEmpty(); i++){
+    QString filepath = _dir.absoluteFilePath(files.first());
+    bool ok = false;
+    QStringList info = runCommand(ok, "pkg", QStringList() << "query" << "-F" << filepath << "%o|%n|%v|%c|%e").split("|");
+    if(!ok || info.length()<5 || info[1]!=pkgname ){ continue; }
+    obj.insert("origin", info[0]);
+    obj.insert("name", info[1] );
+    obj.insert("version", info[2] );
+    obj.insert("comment", info[3] );
+    obj.insert("description", info[4] );
+  }
   return obj;
 }
 
@@ -599,4 +647,5 @@ void Backend::populatePackageTreeWidget(QTreeWidget *tree){
   for(int i=0; i<categories.length(); i++){
     GeneratePackageItem(pkgObj.value(categories[i]).toObject(), tree,categories[i], 0); //top-level items
   }
+  tree->resizeColumnToContents(0);
 }

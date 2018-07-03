@@ -66,7 +66,7 @@ public:
 	// Information
 	QString generateSummary(){ return generateInstallConfig(); }
 	bool isLaptop();
-
+	QString system_information();
 
 	//Localization
 	QString lang();
@@ -74,7 +74,7 @@ public:
 	QStringList availableLanguages();
 	//Keyboard Settings
 	QStringList keyboard(); //layout, model, variant
-	void setKeyboard(QStringList); //layout, model, variant
+	void setKeyboard(QStringList, bool changenow = true); //layout, model, variant
 	QJsonObject availableKeyboardModels();
 	QJsonObject availableKeyboardLayouts();
 	//Time Settings
@@ -122,5 +122,5 @@ public:
 public slots:
 
 signals:
-
+	void keyboardInfoAvailable();
 };

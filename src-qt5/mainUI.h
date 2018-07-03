@@ -13,6 +13,8 @@
 #include <QProcess>
 #include <QShortcut>
 #include <QMessageBox>
+#include <QActionGroup>
+#include <QAction>
 
 #include "backend.h"
 
@@ -35,6 +37,8 @@ private:
 	Ui::MainUI *ui;
 	QList<QWidget*> page_list;
 	QTimer* slideshowTimer;
+	QActionGroup *sidebar_group;
+	int last_sidebar_size;
 	Backend *BACKEND;
 	bool DEBUG;
 
@@ -42,11 +46,22 @@ private:
 	bool savePageToBackend(QWidget *current, bool prompts = true);
 
 private slots:
+	// Sidebar slots
+	void collapse_sidebar();
+	void sidebar_item_changed();
+	void sidebar_size_changed();
+	void keyboard_layout_changed(QString variant = "");
+	void save_keyboard_layout();
+	void populateKeyboardInfo();
+	void localeChanged();
+
+	// Button frame slots
 	void nextClicked();
 	void prevClicked();
 	void startInstallClicked();
 	void installFinished();
 	void rebootClicked();
+	void shutdownClicked();
 	void updateButtonFrame();
 
 	//Internal button/timer slots
@@ -56,6 +71,7 @@ private slots:
 	bool validateUserInfo();
 	void autogenerateUsername();
 	void validateUserPage();
+	void pkg_item_changed(QTreeWidgetItem *item, int col);
 
 signals:
 
