@@ -273,7 +273,7 @@ void MainUI::sidebar_item_changed(){
   }else if(checked == ui->actionInfo){
     ui->stacked_sidebar->setCurrentWidget(ui->page_system);
     if(ui->text_system_info->toPlainText().isEmpty()){
-      ui->text_system_info->setPlainText( BACKEND->system_information() );
+      ui->text_system_info->setHtml( BACKEND->system_information() );
     }
 
   }else if(checked == ui->actionKeyboard){

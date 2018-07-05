@@ -53,6 +53,9 @@ private:
 	//Recursive generation functions
 	void GeneratePackageItem(QJsonObject json, QTreeWidget *tree, QString name, QTreeWidgetItem *parent = 0);
 
+	// General-use functions
+	QString bytesToHuman(QString bytes);
+
 private slots:
 
 public:

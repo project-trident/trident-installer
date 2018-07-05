@@ -101,10 +101,31 @@ inline QString partitionDataToConf(QString devtag, partitiondata data){
 }
 
 QString Backend::system_information(){
-  QString info;
-  info = "TEST";
+  //Note: Return this in HTML format (better text formatting in UI)
+  checkPciConf();
+  bool ok = false;
+  QStringList info;
+  info << "<b><u>Overview</u></b>";
+  info << QString("<b>System Type:</b> %1").arg( isLaptop() ? "Laptop" : "Workstation");
+  info << QString("<b>System Model:</b> %1").arg( runCommand(ok, "sysctl", QStringList()<< "-hn" << "hw.model") );
+  info << QString("<b>System Architecture:</b> %1").arg( runCommand(ok, "sysctl", QStringList()<< "-hn" << "hw.machine") );
+  info << "";
+  info << "<b><u>Basic Information</u></b>";
+  info << QString("<b>Number of CPUs:</b> %1").arg( runCommand(ok, "sysctl", QStringList()<< "-hn" << "hw.ncpu").remove("\n") );
+  info << QString("<b>Real Memory:</b> %1").arg( bytesToHuman(runCommand(ok, "sysctl", QStringList()<< "-n" << "hw.realmem")) );
+  info << QString("<b>Physical Memory:</b> %1").arg( bytesToHuman(runCommand(ok, "sysctl", QStringList()<< "-n" << "hw.physmem")) );
+  info << "";
+  info << "<b><u>Graphics Device Info</u></b>";
+  QStringList gpuList = pciconf.keys().filter("vgapci");
+  for(int i=0; i<gpuList.length(); i++){
+    info << QString("<b>GPU %1 Vendor:</b> %2").arg( QString::number(i+1), pciconf.value(gpuList[i]).toObject().value("vendor").toString() );
+    info << QString("<b>GPU %1 Device:</b> %2").arg( QString::number(i+1), pciconf.value(gpuList[i]).toObject().value("device").toString() );
+  }
+  info << "";
+  info << "<b><u>Full PCI Device List</u></b>";
+  info << QJsonDocument(pciconf).toJson(QJsonDocument::Indented).replace("\n","<br>");
   //TO-DO, generate human-readable system information
-  return info;
+  return info.join("<br>");
 }
 
 QString Backend::generateInstallConfig(){
@@ -302,6 +323,19 @@ void Backend::GeneratePackageItem(QJsonObject json, QTreeWidget *tree, QString n
     item->setFirstColumnSpanned(true);
     if(item->childCount()<1){ item->setHidden(true); }
   }
+}
+
+QString Backend::bytesToHuman(QString bytes){
+  QStringList units; units << "B" << "KB" << "MB" << "GB" << "TB" << "PB";
+  int unit = 0;
+  double bts = bytes.toDouble();
+  while(bts>1000 && unit<units.length()){
+    unit++;
+    bts = bts/1024.0;
+  }
+  //Round off remaining number to 2 decimel places
+  bts = qRound(bts*100.0)/100.0;
+  return (QString::number(bts)+units[unit] );
 }
 
 //Localization
