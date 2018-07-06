@@ -234,6 +234,9 @@ bool MainUI::savePageToBackend(QWidget *current, bool prompts){
     disk.partitions.prepend(part); //make sure this partition is always first
     //Now save it into the backend
     BACKEND->addDisk(disk);
+
+  }else if(current == ui->page_pkgs){
+    BACKEND->setInstallPackages(ui->tree_pkgs);
   }
   return true;
 }

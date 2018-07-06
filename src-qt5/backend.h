@@ -120,6 +120,8 @@ public:
 	QStringList availableShells(QTreeWidget *pkgtree);
 	QStringList defaultUserShell(); //list of defaults in order of importance
 	void populatePackageTreeWidget(QTreeWidget *tree);
+	void setInstallPackages(QStringList);
+	void setInstallPackages(QTreeWidget *tree); //overload - probe the tree widget for the list
 
 
 public slots:

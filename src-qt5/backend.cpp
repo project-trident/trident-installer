@@ -124,7 +124,6 @@ QString Backend::system_information(){
   info << "";
   info << "<b><u>Full PCI Device List</u></b>";
   info << QJsonDocument(pciconf).toJson(QJsonDocument::Indented).replace("\n","<br>");
-  //TO-DO, generate human-readable system information
   return info.join("<br>");
 }
 
@@ -200,6 +199,13 @@ QString Backend::generateInstallConfig(){
     contents << confString("userGroups", USER.groups.join(","));
     if(USER.autologin){ contents << confString("autoLoginUser", USER.name); }
     contents << "commitUser";
+  }
+
+  // Packages
+  if(!settings.value("install_packages").isNull() ){
+    contents << "";
+    contents << "# == PACKAGES ==";
+    contents << confString("installPackages", settings.value("install_packages").toString() );
   }
   return contents.join("\n");
 }
@@ -683,3 +689,22 @@ void Backend::populatePackageTreeWidget(QTreeWidget *tree){
   }
   tree->resizeColumnToContents(0);
 }
+
+void Backend::setInstallPackages(QStringList pkgs){
+  //Note that these are package names - not port origins
+  settings.insert("install_packages", pkgs.join(" "));
+}
+
+void Backend::setInstallPackages(QTreeWidget *tree){
+  QStringList list;
+  list << "trident-core"; //always required
+  QTreeWidgetItemIterator it(tree);
+  while(*it){
+    if( (*it)->checkState(0) == Qt::Checked && !(*it)->whatsThis(0).isEmpty() ){
+      list << (*it)->whatsThis(0);
+    }
+   ++it;
+  }
+  setInstallPackages(list);
+}
+
