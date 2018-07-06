@@ -12,6 +12,11 @@
 #define MIN_INSTALL_MB (10*1024)
 
 Backend::Backend(QObject *parent) : QObject(parent){
+  PROC = new QProcess(this);
+  connect(PROC, SIGNAL(readyRead()), this, SLOT(read_install_output()) );
+  connect(PROC, SIGNAL(started()), this, SIGNAL(install_started()) );
+  connect(PROC, SIGNAL(finished(int, QProcess::ExitStatus)), this, SLOT(install_finished(int, QProcess::ExitStatus)) );
+
   //Load the keyboard info cache in the background
   QtConcurrent::run(this, &Backend::checkKeyboardInfo);
 }
@@ -72,6 +77,15 @@ QString Backend::readFile(QString path){
   return contents;
 }
 
+bool Backend::writeFile(QString path, QString contents){
+  QFile file(path);
+  if( !file.open(QIODevice::WriteOnly | QIODevice::Truncate) ){ return false; }
+  QTextStream in(&file);
+  in << contents;
+  file.close();
+  return true;
+}
+
 bool Backend::isLaptop(){
   static int hasbat = -1;
   if(hasbat<0){
@@ -122,9 +136,19 @@ QString Backend::system_information(){
     info << QString("<b>GPU %1 Device:</b> %2").arg( QString::number(i+1), pciconf.value(gpuList[i]).toObject().value("device").toString() );
   }
   info << "";
-  info << "<b><u>Full PCI Device List</u></b>";
-  info << QJsonDocument(pciconf).toJson(QJsonDocument::Indented).replace("\n","<br>");
+  info << "<b><u>Network Device Info</u></b>";
+  QStringList netList = runCommand(ok, "ifconfig -l").split(" ",QString::SkipEmptyParts);
+  for(int i=0; i<netList.length(); i++){
+    if(!pciconf.contains(netList[i])){ continue; }
+    info << QString("<b>%1 Vendor:</b> %2").arg( netList[i], pciconf.value(netList[i]).toObject().value("vendor").toString() );
+    info << QString("<b>%1 Device:</b> %2").arg( netList[i], pciconf.value(netList[i]).toObject().value("device").toString() );
+  }
   return info.join("<br>");
+}
+
+QString Backend::pci_info(){
+  checkPciConf();
+  return QJsonDocument(pciconf).toJson(QJsonDocument::Indented);
 }
 
 QString Backend::generateInstallConfig(){
@@ -708,3 +732,28 @@ void Backend::setInstallPackages(QTreeWidget *tree){
   setInstallPackages(list);
 }
 
+void Backend::read_install_output(){
+  QString txt = PROC->readAll();
+  if(!txt.isEmpty()){
+    emit install_update(txt);
+  }
+}
+
+void Backend::install_finished(int retcode, QProcess::ExitStatus status){
+  read_install_output();
+  qDebug() << "Installation Finished:" <<retcode << status;
+  emit install_finished(retcode==0);
+}
+
+// == PUBLIC SLOTS ==
+void Backend::startInstallation(){
+  //Save the config file
+  bool ok = writeFile("/root/trident-sysinstall.conf", generateInstallConfig() );
+  if(!ok){
+    emit install_update("[ERROR] Cannot create installation config file: /root/trident-sysinstall.conf" );
+    emit install_finished(false);
+    return;
+  }
+  //Start the install process
+  PROC->start("pc-sysinstall", QStringList() << "start-autoinstall" << "/root/trident-sysinstall.conf");
+}

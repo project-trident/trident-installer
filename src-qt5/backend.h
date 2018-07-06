@@ -43,6 +43,7 @@ private:
 	QJsonObject settings, keyboardInfo, pciconf;
 	QList<userdata> USERS;
 	QList<diskdata> DISKS;
+	QProcess *PROC;
 
 	QString generateInstallConfig(); //turns JSON settings into a config file for pc-sysinstall
 
@@ -65,11 +66,13 @@ public:
 	static QString runCommand(bool &success, QString command, QStringList arguments = QStringList(), QString workdir = "", QStringList env = QStringList());
 	static QString mbToHuman(double);
 	static QString readFile(QString path);
+	static bool writeFile(QString path, QString contents);
 
 	// Information
 	QString generateSummary(){ return generateInstallConfig(); }
 	bool isLaptop();
 	QString system_information();
+	QString pci_info();
 
 	//Localization
 	QString lang();
@@ -123,9 +126,16 @@ public:
 	void setInstallPackages(QStringList);
 	void setInstallPackages(QTreeWidget *tree); //overload - probe the tree widget for the list
 
+	//Installation
+	void read_install_output();
+	void install_finished(int, QProcess::ExitStatus);
 
 public slots:
+	void startInstallation();
 
 signals:
 	void keyboardInfoAvailable();
+	void install_update(QString);
+	void install_started();
+	void install_finished(bool);
 };

@@ -59,7 +59,8 @@ private slots:
 	void nextClicked();
 	void prevClicked();
 	void startInstallClicked();
-	void installFinished();
+	void newInstallMessage(QString);
+	void installFinished(bool ok = true);
 	void rebootClicked();
 	void shutdownClicked();
 	void updateButtonFrame();

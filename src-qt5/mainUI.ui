@@ -125,23 +125,110 @@ background: transparent;
              <number>0</number>
             </property>
             <item>
-             <widget class="QTextEdit" name="text_system_info">
+             <widget class="QToolBox" name="toolBox_info">
+              <property name="styleSheet">
+               <string notr="true">QPlainTextEdit, QTextEdit{
+  background: transparent;
+}</string>
+              </property>
               <property name="frameShape">
                <enum>QFrame::NoFrame</enum>
               </property>
-              <property name="autoFormatting">
-               <set>QTextEdit::AutoAll</set>
+              <property name="currentIndex">
+               <number>0</number>
               </property>
-              <property name="readOnly">
-               <bool>true</bool>
-              </property>
-              <property name="html">
-               <string notr="true">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+              <widget class="QWidget" name="page_sys_info">
+               <property name="geometry">
+                <rect>
+                 <x>0</x>
+                 <y>0</y>
+                 <width>343</width>
+                 <height>334</height>
+                </rect>
+               </property>
+               <property name="styleSheet">
+                <string notr="true"/>
+               </property>
+               <attribute name="icon">
+                <iconset theme="system-help">
+                 <normaloff>.</normaloff>.</iconset>
+               </attribute>
+               <attribute name="label">
+                <string>Summary</string>
+               </attribute>
+               <layout class="QVBoxLayout" name="verticalLayout_10">
+                <property name="leftMargin">
+                 <number>0</number>
+                </property>
+                <property name="topMargin">
+                 <number>0</number>
+                </property>
+                <property name="rightMargin">
+                 <number>0</number>
+                </property>
+                <property name="bottomMargin">
+                 <number>0</number>
+                </property>
+                <item>
+                 <widget class="QTextEdit" name="text_system_info">
+                  <property name="frameShape">
+                   <enum>QFrame::NoFrame</enum>
+                  </property>
+                  <property name="autoFormatting">
+                   <set>QTextEdit::AutoAll</set>
+                  </property>
+                  <property name="readOnly">
+                   <bool>true</bool>
+                  </property>
+                  <property name="html">
+                   <string notr="true">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'DejaVu Sans'; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-              </property>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </widget>
+              <widget class="QWidget" name="page_pci_info">
+               <property name="geometry">
+                <rect>
+                 <x>0</x>
+                 <y>0</y>
+                 <width>343</width>
+                 <height>334</height>
+                </rect>
+               </property>
+               <attribute name="icon">
+                <iconset theme="logview">
+                 <normaloff>.</normaloff>.</iconset>
+               </attribute>
+               <attribute name="label">
+                <string>Raw PCI Info</string>
+               </attribute>
+               <layout class="QVBoxLayout" name="verticalLayout_11">
+                <property name="leftMargin">
+                 <number>0</number>
+                </property>
+                <property name="topMargin">
+                 <number>0</number>
+                </property>
+                <property name="rightMargin">
+                 <number>0</number>
+                </property>
+                <property name="bottomMargin">
+                 <number>0</number>
+                </property>
+                <item>
+                 <widget class="QPlainTextEdit" name="text_system_rawpci">
+                  <property name="frameShape">
+                   <enum>QFrame::NoFrame</enum>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </widget>
              </widget>
             </item>
            </layout>
@@ -251,7 +338,7 @@ p, li { white-space: pre-wrap; }
       </widget>
       <widget class="QStackedWidget" name="stackedWidget">
        <property name="currentIndex">
-        <number>4</number>
+        <number>3</number>
        </property>
        <widget class="QWidget" name="page_welcome">
         <layout class="QVBoxLayout" name="verticalLayout_6">
@@ -418,6 +505,9 @@ p, li { white-space: pre-wrap; }
          </item>
          <item row="2" column="1">
           <widget class="QTreeWidget" name="tree_disks">
+           <property name="frameShape">
+            <enum>QFrame::NoFrame</enum>
+           </property>
            <property name="indentation">
             <number>10</number>
            </property>
@@ -524,8 +614,8 @@ p, li { white-space: pre-wrap; }
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>377</width>
-              <height>360</height>
+              <width>631</width>
+              <height>401</height>
              </rect>
             </property>
             <layout class="QGridLayout" name="gridLayout_2">
@@ -864,6 +954,9 @@ p, li { white-space: pre-wrap; }
          </item>
          <item row="2" column="1">
           <widget class="QTreeWidget" name="tree_pkgs">
+           <property name="frameShape">
+            <enum>QFrame::NoFrame</enum>
+           </property>
            <property name="sizeAdjustPolicy">
             <enum>QAbstractScrollArea::AdjustToContents</enum>
            </property>
@@ -1000,6 +1093,9 @@ p, li { white-space: pre-wrap; }
          </item>
          <item row="2" column="1">
           <widget class="QTextEdit" name="text_summary">
+           <property name="frameShape">
+            <enum>QFrame::NoFrame</enum>
+           </property>
            <property name="readOnly">
             <bool>true</bool>
            </property>
@@ -1101,15 +1197,53 @@ p, li { white-space: pre-wrap; }
            <property name="currentIndex">
             <number>0</number>
            </property>
-           <widget class="QWidget" name="tab">
-            <attribute name="title">
-             <string>Tab 1</string>
+           <widget class="QWidget" name="tab_log">
+            <attribute name="icon">
+             <iconset theme="logviewer"/>
             </attribute>
-            <widget class="QLabel" name="label_17">
+            <attribute name="title">
+             <string>Log</string>
+            </attribute>
+            <layout class="QVBoxLayout" name="verticalLayout_12">
+             <property name="leftMargin">
+              <number>0</number>
+             </property>
+             <property name="topMargin">
+              <number>0</number>
+             </property>
+             <property name="rightMargin">
+              <number>0</number>
+             </property>
+             <property name="bottomMargin">
+              <number>0</number>
+             </property>
+             <item>
+              <widget class="QTextEdit" name="text_install_log">
+               <property name="autoFillBackground">
+                <bool>false</bool>
+               </property>
+               <property name="frameShape">
+                <enum>QFrame::NoFrame</enum>
+               </property>
+               <property name="readOnly">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+           <widget class="QWidget" name="tab_2">
+            <attribute name="icon">
+             <iconset theme="desktop"/>
+            </attribute>
+            <attribute name="title">
+             <string/>
+            </attribute>
+            <widget class="QLabel" name="label_18">
              <property name="geometry">
               <rect>
-               <x>50</x>
-               <y>40</y>
+               <x>280</x>
+               <y>280</y>
                <width>271</width>
                <height>19</height>
               </rect>
@@ -1119,15 +1253,18 @@ p, li { white-space: pre-wrap; }
              </property>
             </widget>
            </widget>
-           <widget class="QWidget" name="tab_2">
-            <attribute name="title">
-             <string>Tab 2</string>
+           <widget class="QWidget" name="tab_3">
+            <attribute name="icon">
+             <iconset theme="desktop"/>
             </attribute>
-            <widget class="QLabel" name="label_18">
+            <attribute name="title">
+             <string/>
+            </attribute>
+            <widget class="QLabel" name="label_17">
              <property name="geometry">
               <rect>
-               <x>280</x>
-               <y>280</y>
+               <x>90</x>
+               <y>40</y>
                <width>271</width>
                <height>19</height>
               </rect>
@@ -1167,6 +1304,9 @@ p, li { white-space: pre-wrap; }
              </property>
              <property name="text">
               <string>Installing...</string>
+             </property>
+             <property name="wordWrap">
+              <bool>false</bool>
              </property>
             </widget>
            </item>

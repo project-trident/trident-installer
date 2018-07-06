@@ -72,7 +72,7 @@
         "default" : false,
         "pciconf_match" : {
           "id_regex" : "vgapci[0-9]",
-          "vendor_regex" : "VMware"
+          "device_regex" : "VMware"
         }
       },
       "VirtualBox" : {
@@ -81,7 +81,7 @@
         "default" : false,
         "pciconf_match" : {
           "id_regex" : "vgapci[0-9]",
-          "vendor_regex" : "VirtualBox"
+          "device_regex" : "VirtualBox"
         }
       }
     }

@@ -8,6 +8,7 @@
 #include "ui_mainUI.h"
 #include <QDebug>
 #include <QLocale>
+#include <QScrollBar>
 
 MainUI::MainUI() : QMainWindow(), ui(new Ui::MainUI){
   ui->setupUi(this); //load the designer file
@@ -277,6 +278,8 @@ void MainUI::sidebar_item_changed(){
     ui->stacked_sidebar->setCurrentWidget(ui->page_system);
     if(ui->text_system_info->toPlainText().isEmpty()){
       ui->text_system_info->setHtml( BACKEND->system_information() );
+      ui->text_system_rawpci->setPlainText(BACKEND->pci_info() );
+      ui->toolBox_info->setCurrentWidget(ui->page_sys_info);
     }
 
   }else if(checked == ui->actionKeyboard){
@@ -358,13 +361,30 @@ void MainUI::populateKeyboardInfo(){
 }
 
 void MainUI::localeChanged(){
-  QString now = ui->list_locale->currentItem()->text().section(")",0,0).section("(",-1)+".UTF-8";
-  qDebug() << "TO-DO: Locale Changed:" << now;
-  if(now != BACKEND->lang()){
-    BACKEND->setLang(now);
+  QString now = ui->list_locale->currentItem()->text().section(")",0,0).section("(",-1);
+  //qDebug() << "Change Locale:" << now;
+  if((now+".UTF-8") != BACKEND->lang()){
+    BACKEND->setLang(now+".UTF-8");
   }
   //Still need to change the localization object for the UI
-  
+  QString localeDir="/usr/local/share/project-trident/i18n";
+  static QTranslator *curTrans = 0;
+  QTranslator *newTrans = new QTranslator(this);
+  QString lfile = localeDir+"/tri-install_"+now+".qm";
+  if( newTrans->load("tri-install_"+now, localeDir, "", ".qm") ){
+    QApplication::instance()->installTranslator(newTrans);
+  }else{
+    //Invalid locale file (en_US typically - default locale without a file)
+    newTrans->deleteLater();
+    newTrans = 0;
+  }
+  if(curTrans!=0){
+    QApplication::instance()->removeTranslator(curTrans);
+    curTrans->deleteLater();
+    curTrans = 0;
+  }
+  curTrans = newTrans; //save for later;
+  ui->retranslateUi(this);
 }
 
 void MainUI::nextClicked(){
@@ -400,18 +420,26 @@ void MainUI::prevClicked(){
 void MainUI::startInstallClicked(){
   ui->stackedWidget->setCurrentWidget(ui->page_installing);
   updateButtonFrame();
+  ui->tabWidget->setCurrentIndex(1);
   if(DEBUG){
     QTimer::singleShot(10000, this, SLOT(installFinished()));
   }else{
-    //Start Backend Process (TODO)
+    BACKEND->startInstallation();
   }
   slideshowTimer->start();
 }
 
-void MainUI::installFinished(){
+void MainUI::newInstallMessage(QString msg){
+  ui->label_installing->setText(msg.section("\n",-2,-1,QString::SectionSkipEmpty));
+  bool scrolldown = (ui->text_install_log->verticalScrollBar()->value()==ui->text_install_log->verticalScrollBar()->maximum());
+  ui->text_install_log->append(msg);
+  if(scrolldown){ ui->text_install_log->verticalScrollBar()->setValue( ui->text_install_log->verticalScrollBar()->maximum() ); }
+}
+
+void MainUI::installFinished(bool ok){
   slideshowTimer->stop();
-  if(!DEBUG){
-    //Do Error checking here (TODO)
+  if(!ok){
+    QMessageBox::warning(this, tr("Installation Failed"), tr("Please view the installation log for details") );
   }
   ui->stackedWidget->setCurrentWidget(ui->page_finished);
   updateButtonFrame();
@@ -461,7 +489,7 @@ void MainUI::updateButtonFrame(){
 void MainUI::nextSlideshowImage(){
   int ctab = ui->tabWidget->currentIndex();
   ctab++;
-  if(ctab >= ui->tabWidget->count()){ ctab = 0; } //rollback to the start
+  if(ctab >= ui->tabWidget->count()){ ctab = 1; } //rollback to the start (second tab - first tab is logs)
   ui->tabWidget->setCurrentIndex(ctab);
 }
 
