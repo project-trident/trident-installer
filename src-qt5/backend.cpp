@@ -120,6 +120,7 @@ QString Backend::system_information(){
   bool ok = false;
   QStringList info;
   info << "<b><u>Overview</u></b>";
+  info << QString("<b>Boot Method:</b> %1").arg( isUEFI() ? "UEFI" : "Legacy");
   info << QString("<b>System Type:</b> %1").arg( isLaptop() ? "Laptop" : "Workstation");
   info << QString("<b>System Model:</b> %1").arg( runCommand(ok, "sysctl", QStringList()<< "-hn" << "hw.model") );
   info << QString("<b>System Architecture:</b> %1").arg( runCommand(ok, "sysctl", QStringList()<< "-hn" << "hw.machine") );
@@ -149,6 +150,18 @@ QString Backend::system_information(){
 QString Backend::pci_info(){
   checkPciConf();
   return QJsonDocument(pciconf).toJson(QJsonDocument::Indented);
+}
+
+bool Backend::isUEFI(){
+  static int chk = -1;
+  if(chk<0){
+    bool ok = false;
+    QString result = runCommand(ok, "sysctl", QStringList()<< "-n" << "machdep.bootmethod").simplified().toLower();
+    qDebug() << "Got UEFI Check:" << result;
+    if(result=="uefi"){ chk = 0; } //booting with UEFI
+    else{ chk = 1; } //booting with legacy mode
+  }
+  return (chk==0);
 }
 
 QString Backend::generateInstallConfig(){

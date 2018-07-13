@@ -57,8 +57,6 @@ private:
 	// General-use functions
 	QString bytesToHuman(QString bytes);
 
-private slots:
-
 public:
 	Backend(QObject *parent);
 	~Backend();
@@ -73,6 +71,7 @@ public:
 	bool isLaptop();
 	QString system_information();
 	QString pci_info();
+	bool isUEFI();
 
 	//Localization
 	QString lang();
@@ -126,6 +125,7 @@ public:
 	void setInstallPackages(QStringList);
 	void setInstallPackages(QTreeWidget *tree); //overload - probe the tree widget for the list
 
+private slots:
 	//Installation
 	void read_install_output();
 	void install_finished(int, QProcess::ExitStatus);

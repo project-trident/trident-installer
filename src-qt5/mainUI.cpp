@@ -10,12 +10,14 @@
 #include <QLocale>
 #include <QScrollBar>
 
+#include <unistd.h>
+
 MainUI::MainUI() : QMainWindow(), ui(new Ui::MainUI){
   ui->setupUi(this); //load the designer file
   BACKEND = new Backend(this);
   connect(BACKEND, SIGNAL(keyboardInfoAvailable()), this, SLOT(populateKeyboardInfo()) );
   ui->actionKeyboard->setEnabled(false);
-  DEBUG = true;
+  DEBUG = (getuid()!=0) || !QFile::exists("/dist/");
   //PAGE ORDER
   page_list << ui->page_welcome << ui->page_partitions << ui->page_pkgs << ui->page_user << ui->page_summary;
   //NOTE: page_installing and page_finished are always at the end of the list;
@@ -38,6 +40,10 @@ MainUI::MainUI() : QMainWindow(), ui(new Ui::MainUI){
     sidebar_group->addAction(ui->actionInfo);
     sidebar_group->addAction(ui->actionKeyboard);
     sidebar_group->addAction(ui->actionLocale);
+    sidebar_group->addAction(ui->actionLog);
+  QWidget *spacer = new QWidget(this);
+    spacer->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
+  ui->toolBar->insertWidget(ui->actionLog, spacer); //put a spacer between the log and the other items
   collapse_sidebar();
   //ui->toolBar->widgetForAction(ui->actionInfo)->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
   //ui->toolBar->widgetForAction(ui->actionKeyboard)->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
@@ -51,6 +57,7 @@ MainUI::MainUI() : QMainWindow(), ui(new Ui::MainUI){
   }else{
     this->showMaximized();
   }
+  ui->label_debug->setVisible(DEBUG);
   //BACKEND->availableKeyboardModels();
 }
 
@@ -287,6 +294,9 @@ void MainUI::sidebar_item_changed(){
     //Note: The keyboard loading routine is asynchronous and this button will
     //  only become active when ready
 
+  }else if(checked == ui->actionLog){
+    ui->stacked_sidebar->setCurrentWidget(ui->page_log);
+
   }else{
     collapse_sidebar();
     return;
@@ -420,7 +430,7 @@ void MainUI::prevClicked(){
 void MainUI::startInstallClicked(){
   ui->stackedWidget->setCurrentWidget(ui->page_installing);
   updateButtonFrame();
-  ui->tabWidget->setCurrentIndex(1);
+  ui->tabWidget->setCurrentIndex(0); //start the slideshow on the first tab
   if(DEBUG){
     QTimer::singleShot(10000, this, SLOT(installFinished()));
   }else{
@@ -483,13 +493,14 @@ void MainUI::updateButtonFrame(){
     ui->progress_pages->setValue(page+1);
   }
   ui->progress_pages->setVisible(page>=0);
+  ui->actionLog->setVisible(page<0); //only show this on install/result pages
 }
 
 //Internal button/timer slots
 void MainUI::nextSlideshowImage(){
   int ctab = ui->tabWidget->currentIndex();
   ctab++;
-  if(ctab >= ui->tabWidget->count()){ ctab = 1; } //rollback to the start (second tab - first tab is logs)
+  if(ctab >= ui->tabWidget->count()){ ctab = 0; } //rollback to the start
   ui->tabWidget->setCurrentIndex(ctab);
 }
 

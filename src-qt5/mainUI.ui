@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1110</width>
-    <height>503</height>
+    <width>1611</width>
+    <height>789</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -32,6 +32,12 @@
     </property>
     <item>
      <widget class="QSplitter" name="splitter">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
       </property>
@@ -49,7 +55,7 @@
         <string notr="true">QFrame#frame_sidebar{
 background-color: palette(alternate-base);
 }
-QWidget#page_system, QWidget#page_keyboard, QWidget#page_locale{
+QWidget#page_system, QWidget#page_keyboard, QWidget#page_locale, QWidget#page_log{
 background: transparent;
 }</string>
        </property>
@@ -108,7 +114,7 @@ background: transparent;
            <string notr="true"/>
           </property>
           <property name="currentIndex">
-           <number>0</number>
+           <number>1</number>
           </property>
           <widget class="QWidget" name="page_system">
            <layout class="QVBoxLayout" name="verticalLayout_5">
@@ -142,8 +148,8 @@ background: transparent;
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>343</width>
-                 <height>334</height>
+                 <width>296</width>
+                 <height>340</height>
                 </rect>
                </property>
                <property name="styleSheet">
@@ -184,8 +190,8 @@ background: transparent;
                    <string notr="true">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'DejaVu Sans'; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Noto Sans'; font-size:10pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:'DejaVu Sans'; font-size:12pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                   </property>
                  </widget>
                 </item>
@@ -196,8 +202,8 @@ p, li { white-space: pre-wrap; }
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>343</width>
-                 <height>334</height>
+                 <width>296</width>
+                 <height>340</height>
                 </rect>
                </property>
                <attribute name="icon">
@@ -229,6 +235,29 @@ p, li { white-space: pre-wrap; }
                 </item>
                </layout>
               </widget>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="page_log">
+           <layout class="QVBoxLayout" name="verticalLayout_13">
+            <property name="leftMargin">
+             <number>0</number>
+            </property>
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <property name="rightMargin">
+             <number>0</number>
+            </property>
+            <property name="bottomMargin">
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="QTextEdit" name="text_install_log">
+              <property name="frameShape">
+               <enum>QFrame::NoFrame</enum>
+              </property>
              </widget>
             </item>
            </layout>
@@ -338,7 +367,7 @@ p, li { white-space: pre-wrap; }
       </widget>
       <widget class="QStackedWidget" name="stackedWidget">
        <property name="currentIndex">
-        <number>3</number>
+        <number>2</number>
        </property>
        <widget class="QWidget" name="page_welcome">
         <layout class="QVBoxLayout" name="verticalLayout_6">
@@ -482,6 +511,9 @@ p, li { white-space: pre-wrap; }
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
            </property>
+           <property name="sizeType">
+            <enum>QSizePolicy::Preferred</enum>
+           </property>
            <property name="sizeHint" stdset="0">
             <size>
              <width>40</width>
@@ -495,6 +527,9 @@ p, li { white-space: pre-wrap; }
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
            </property>
+           <property name="sizeType">
+            <enum>QSizePolicy::Preferred</enum>
+           </property>
            <property name="sizeHint" stdset="0">
             <size>
              <width>40</width>
@@ -507,6 +542,9 @@ p, li { white-space: pre-wrap; }
           <widget class="QTreeWidget" name="tree_disks">
            <property name="frameShape">
             <enum>QFrame::NoFrame</enum>
+           </property>
+           <property name="sizeAdjustPolicy">
+            <enum>QAbstractScrollArea::AdjustToContents</enum>
            </property>
            <property name="indentation">
             <number>10</number>
@@ -614,15 +652,15 @@ p, li { white-space: pre-wrap; }
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>631</width>
-              <height>401</height>
+              <width>1037</width>
+              <height>616</height>
              </rect>
             </property>
             <layout class="QGridLayout" name="gridLayout_2">
              <item row="1" column="1">
               <widget class="QGroupBox" name="groupBox">
                <property name="sizePolicy">
-                <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                  <horstretch>0</horstretch>
                  <verstretch>0</verstretch>
                 </sizepolicy>
@@ -637,6 +675,9 @@ p, li { white-space: pre-wrap; }
                 <string>Administrator Password</string>
                </property>
                <layout class="QFormLayout" name="formLayout">
+                <property name="fieldGrowthPolicy">
+                 <enum>QFormLayout::FieldsStayAtSizeHint</enum>
+                </property>
                 <property name="labelAlignment">
                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                 </property>
@@ -651,6 +692,12 @@ p, li { white-space: pre-wrap; }
                  <layout class="QHBoxLayout" name="horizontalLayout_3">
                   <item>
                    <widget class="QLineEdit" name="line_pass_root">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
                     <property name="echoMode">
                      <enum>QLineEdit::Password</enum>
                     </property>
@@ -695,6 +742,12 @@ p, li { white-space: pre-wrap; }
                  <layout class="QHBoxLayout" name="horizontalLayout_4">
                   <item>
                    <widget class="QLineEdit" name="line_passrepeat_root">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
                     <property name="echoMode">
                      <enum>QLineEdit::Password</enum>
                     </property>
@@ -734,32 +787,6 @@ p, li { white-space: pre-wrap; }
                </layout>
               </widget>
              </item>
-             <item row="1" column="0">
-              <spacer name="horizontalSpacer_4">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>40</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-             <item row="1" column="2">
-              <spacer name="horizontalSpacer_5">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>40</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
              <item row="2" column="1">
               <widget class="QGroupBox" name="groupBox_2">
                <property name="font">
@@ -769,7 +796,7 @@ p, li { white-space: pre-wrap; }
                 </font>
                </property>
                <property name="title">
-                <string>User Account (more can be created later)</string>
+                <string>Initial User Account</string>
                </property>
                <property name="flat">
                 <bool>false</bool>
@@ -786,7 +813,14 @@ p, li { white-space: pre-wrap; }
                  </widget>
                 </item>
                 <item row="0" column="1">
-                 <widget class="QLineEdit" name="line_user_comment"/>
+                 <widget class="QLineEdit" name="line_user_comment">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                 </widget>
                 </item>
                 <item row="1" column="0">
                  <widget class="QLabel" name="label_7">
@@ -796,7 +830,14 @@ p, li { white-space: pre-wrap; }
                  </widget>
                 </item>
                 <item row="1" column="1">
-                 <widget class="QLineEdit" name="line_user_name"/>
+                 <widget class="QLineEdit" name="line_user_name">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                 </widget>
                 </item>
                 <item row="2" column="0">
                  <widget class="QLabel" name="label_9">
@@ -809,6 +850,12 @@ p, li { white-space: pre-wrap; }
                  <layout class="QHBoxLayout" name="horizontalLayout_6">
                   <item>
                    <widget class="QLineEdit" name="line_user_pass">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
                     <property name="echoMode">
                      <enum>QLineEdit::Password</enum>
                     </property>
@@ -853,6 +900,12 @@ p, li { white-space: pre-wrap; }
                  <layout class="QHBoxLayout" name="horizontalLayout_5">
                   <item>
                    <widget class="QLineEdit" name="line_user_pass2">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
                     <property name="echoMode">
                      <enum>QLineEdit::Password</enum>
                     </property>
@@ -860,6 +913,12 @@ p, li { white-space: pre-wrap; }
                   </item>
                   <item>
                    <widget class="QToolButton" name="tool_user_pass_chk">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
                     <property name="focusPolicy">
                      <enum>Qt::NoFocus</enum>
                     </property>
@@ -888,7 +947,14 @@ p, li { white-space: pre-wrap; }
                  </widget>
                 </item>
                 <item row="4" column="1">
-                 <widget class="QComboBox" name="combo_user_shell"/>
+                 <widget class="QComboBox" name="combo_user_shell">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                 </widget>
                 </item>
                </layout>
               </widget>
@@ -899,7 +965,7 @@ p, li { white-space: pre-wrap; }
                 <enum>Qt::Vertical</enum>
                </property>
                <property name="sizeType">
-                <enum>QSizePolicy::Preferred</enum>
+                <enum>QSizePolicy::Expanding</enum>
                </property>
                <property name="sizeHint" stdset="0">
                 <size>
@@ -915,12 +981,38 @@ p, li { white-space: pre-wrap; }
                 <enum>Qt::Vertical</enum>
                </property>
                <property name="sizeType">
-                <enum>QSizePolicy::Preferred</enum>
+                <enum>QSizePolicy::Expanding</enum>
                </property>
                <property name="sizeHint" stdset="0">
                 <size>
                  <width>20</width>
                  <height>40</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item row="0" column="0">
+              <spacer name="horizontalSpacer_4">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item row="0" column="2">
+              <spacer name="horizontalSpacer_5">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
                 </size>
                </property>
               </spacer>
@@ -976,7 +1068,7 @@ p, li { white-space: pre-wrap; }
             <bool>true</bool>
            </property>
            <property name="headerHidden">
-            <bool>true</bool>
+            <bool>false</bool>
            </property>
            <property name="columnCount">
             <number>3</number>
@@ -1197,44 +1289,10 @@ p, li { white-space: pre-wrap; }
            <property name="currentIndex">
             <number>0</number>
            </property>
-           <widget class="QWidget" name="tab_log">
-            <attribute name="icon">
-             <iconset theme="logviewer"/>
-            </attribute>
-            <attribute name="title">
-             <string>Log</string>
-            </attribute>
-            <layout class="QVBoxLayout" name="verticalLayout_12">
-             <property name="leftMargin">
-              <number>0</number>
-             </property>
-             <property name="topMargin">
-              <number>0</number>
-             </property>
-             <property name="rightMargin">
-              <number>0</number>
-             </property>
-             <property name="bottomMargin">
-              <number>0</number>
-             </property>
-             <item>
-              <widget class="QTextEdit" name="text_install_log">
-               <property name="autoFillBackground">
-                <bool>false</bool>
-               </property>
-               <property name="frameShape">
-                <enum>QFrame::NoFrame</enum>
-               </property>
-               <property name="readOnly">
-                <bool>true</bool>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </widget>
            <widget class="QWidget" name="tab_2">
             <attribute name="icon">
-             <iconset theme="desktop"/>
+             <iconset theme="desktop">
+              <normaloff>.</normaloff>.</iconset>
             </attribute>
             <attribute name="title">
              <string/>
@@ -1255,7 +1313,8 @@ p, li { white-space: pre-wrap; }
            </widget>
            <widget class="QWidget" name="tab_3">
             <attribute name="icon">
-             <iconset theme="desktop"/>
+             <iconset theme="desktop">
+              <normaloff>.</normaloff>.</iconset>
             </attribute>
             <attribute name="title">
              <string/>
@@ -1508,6 +1567,13 @@ p, li { white-space: pre-wrap; }
         </spacer>
        </item>
        <item>
+        <widget class="QLabel" name="label_debug">
+         <property name="text">
+          <string notr="true">DEBUG MODE</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QToolButton" name="tool_reboot">
          <property name="text">
           <string>Reboot Now</string>
@@ -1554,6 +1620,9 @@ p, li { white-space: pre-wrap; }
      <verstretch>0</verstretch>
     </sizepolicy>
    </property>
+   <property name="contextMenuPolicy">
+    <enum>Qt::PreventContextMenu</enum>
+   </property>
    <property name="windowTitle">
     <string>toolBar</string>
    </property>
@@ -1581,6 +1650,7 @@ p, li { white-space: pre-wrap; }
    <addaction name="actionInfo"/>
    <addaction name="actionKeyboard"/>
    <addaction name="actionLocale"/>
+   <addaction name="actionLog"/>
   </widget>
   <action name="actionInfo">
    <property name="checkable">
@@ -1628,6 +1698,17 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="toolTip">
     <string>Localization</string>
+   </property>
+  </action>
+  <action name="actionLog">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset theme="logviewer"/>
+   </property>
+   <property name="text">
+    <string>View Log</string>
    </property>
   </action>
  </widget>
