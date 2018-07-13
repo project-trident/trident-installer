@@ -9,7 +9,7 @@ int main(int argc, char ** argv)
 {
     //Setup the environment for this app
     // - icon theme
-    QIcon::setThemeName("la-capitaine");
+    QIcon::setThemeName("le-trident");
     qputenv("QT_NO_GLIB","1");
     qputenv("QT_QPA_PLATFORMTHEME", "lthemeengine");
     //Create/start the application
