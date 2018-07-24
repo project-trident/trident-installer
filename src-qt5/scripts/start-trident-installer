@@ -6,12 +6,31 @@
 setupXorgConf(){
   #Inputs: $1 : driver to use
   _driver="$1"
-  #Have Xorg generate the basic template for this system hardware
-  Xorg -configure
-  #Now overwrite the video driver with the one designated 
-  _newconf="${HOME}/xorg.conf.new"
   _conf="/etc/X11/xorg.conf"
+  # Verify that an xorg.conf exists, and generate one as needed
+  if [ ! -e "${_conf}" ] ; then
+    #Get the bus ID for the video card
+    busid=`pciconf -lv vgapci0 | grep vgapci0 | cut -d : -f 2-4`
 
+    #Now copy over the xorg.conf template and replace the driver/busid in it
+    template="/usr/local/share/trident-installer/xorg.conf.template"
+    cp -f "${template}" "${_conf}"
+    sed -i '' "s|%%BUSID%%|${busid}|g" "${_conf}"
+    sed -i '' "s|%%DRIVER%%|${driver}|g" "${_conf}"
+  fi
+
+  # Check for extra kernel modules to load for video driver support
+  driver=`cat "${_conf}" | grep "Driver" | cut -d \" -f 2`
+  case ${driver} in
+	vboxvideo)
+		kld_load="vboxguest"
+		;;
+  esac
+  #Now load any modules
+  for _kmod in ${kld_load}
+  do
+	kldload -nq ${_kmod}
+  done
 }
 
 # Probe the system for UEFI /VBOX and setup the vesa/scfb display driver
@@ -19,21 +38,18 @@ _boot=`sysctl -n machdep.bootmethod` #BIOS or UEFI
 pciconf -lv | grep -q "VirtualBox Graphics"
 if [ $? -ne 0 ] ; then
   #Virtualbox environment
-  #setupXorgConf "vboxvideo"
+  setupXorgConf "vboxvideo"
 elif [ "${_boot}" = "UEFI" ] ; then
   #UEFI boot : use "scfb" driver
-  #setupXorgConf "scfb"
+  setupXorgConf "scfb"
 else
   #BIOS boot : use "vesa" driver
-  #setupXorgConf "vesa"
+  setupXorgConf "vesa"
 fi
 
 #Make sure the DBUS machine-id file exists (bug in Qt)
 dbus-uuidgen --ensure >/dev/null 2>/dev/null
 
-#Setup any environment variables
-export QT_QPA_PLATFORMTHEME="lthemeengine"
-
 #Start the graphical install
 xinit /usr/local/bin/trident-installer -- :0
-shutdown -r now
+#shutdown -r now

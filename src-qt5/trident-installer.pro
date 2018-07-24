@@ -94,4 +94,10 @@ QMAKE_DISTCLEAN += -r ./.build
 #Setup the default place for installing icons (use scalable dir for variable-size icons)
 icons.path = $${L_SHAREDIR}/icons/hicolor/scalable/apps
 
-INSTALLS += target dotrans
+script.path = /usr/local/bin
+script.files = scripts/start-trident-installer
+
+xorg.path = /usr/local/share/trident-installer
+xorg.files = files/xorg.conf.template
+
+INSTALLS += target dotrans script xorg
