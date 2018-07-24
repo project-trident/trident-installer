@@ -51,7 +51,7 @@ MainUI::MainUI() : QMainWindow(), ui(new Ui::MainUI){
   //Update the visuals and show the window
   setupConnections();
   updateButtonFrame();
-
+  ui->toolBox_disks->setCurrentIndex(0);
   if(DEBUG){
     this->show();
   }else{
@@ -59,6 +59,14 @@ MainUI::MainUI() : QMainWindow(), ui(new Ui::MainUI){
   }
   ui->label_debug->setVisible(DEBUG);
   //BACKEND->availableKeyboardModels();
+  // Disable all the UI elements that are not finished yet
+  ui->group_disk_encrypt->setVisible(false);
+  ui->group_disk_refind->setVisible(false);
+  ui->group_disk_swap->setVisible(false);
+  ui->radio_disk_mirror->setVisible(false);
+  ui->radio_disk_bootenv->setVisible(false);
+  ui->list_zpools->setVisible(false);
+
 }
 
 MainUI::~MainUI(){
