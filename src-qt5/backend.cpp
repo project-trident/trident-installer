@@ -199,27 +199,30 @@ QString Backend::generateInstallConfig(){
   contents << confString("netSaveDev", "AUTO-DHCP"); //DHCP for everything by default after install
 
   // Disks
-  contents << "";
-  contents << "# == DISK SETUP ==";
-  for(int i=0; i<DISKS.length(); i++){
-    diskdata DISK = DISKS[i];
-    QString tag = "disk"+QString::number(i);
-    contents << confString(tag, DISK.name);
-    if(!DISK.mirror_disk.isEmpty()){
-      contents << confString("mirror", DISK.mirror_disk);
+  if(!installToBE()){
+    //Only create this section if NOT installing to a boot environment
+    contents << "";
+    contents << "# == DISK SETUP ==";
+    for(int i=0; i<DISKS.length(); i++){
+      diskdata DISK = DISKS[i];
+      QString tag = "disk"+QString::number(i);
+      contents << confString(tag, DISK.name);
+      if(!DISK.mirror_disk.isEmpty()){
+        contents << confString("mirror", DISK.mirror_disk);
+      }
+      if(DISK.install_partition.isEmpty() || DISK.install_partition.toLower()=="all" ){
+        DISK.install_partition = "all";
+        contents << confString("partscheme", "GPT"); //always use GPT partitioning (MBR is legacy/outdated)
+      }
+      contents << confString("partition", DISK.install_partition);
+      contents << confString("bootManager", DISK.installBootManager ? "bsd" : "none");
+      contents << "commitDiskPart";
+      //Now assemble the partition layout lines
+      for(int j=0; j<DISK.partitions.length(); j++){
+        contents << partitionDataToConf(tag, DISK.partitions[j]);
+      }
+      contents << "commitDiskLabel";
     }
-    if(DISK.install_partition.isEmpty() || DISK.install_partition.toLower()=="all" ){
-      DISK.install_partition = "all";
-      contents << confString("partscheme", "GPT"); //always use GPT partitioning (MBR is legacy/outdated)
-    }
-    contents << confString("partition", DISK.install_partition);
-    contents << confString("bootManager", DISK.installBootManager ? "bsd" : "none");
-    contents << "commitDiskPart";
-    //Now assemble the partition layout lines
-    for(int j=0; j<DISK.partitions.length(); j++){
-      contents << partitionDataToConf(tag, DISK.partitions[j]);
-    }
-    contents << "commitDiskLabel";
   }
 
   // Users
@@ -589,6 +592,19 @@ bool Backend::checkValidSize(QJsonObject obj, bool installdrive, bool freespaceo
   if(installdrive){ min = MIN_INSTALL_MB; }
   else{ min = 1024; } //1GB bare minimum for things like swap and such
   return (sizemb >= min);
+}
+
+QStringList Backend::availableZPools(){
+  //Format: "name :: description"
+  QStringList pools;
+  bool ok = false;
+  QStringList tmp = runCommand(ok, "zpool import").split("\n").filter("pool: ");
+  qDebug() << "Got ZFS pool list:" << tmp;
+  for(int i=0; i<tmp.length(); i++){
+    QString pname = tmp[i].section(" ",1,1,QString::SectionSkipEmpty);
+    pools << pname+" :: "+tmp[i].section(" ", 1,-1, QString::SectionSkipEmpty);
+  }
+  return pools;
 }
 
 bool Backend::installToBE(){

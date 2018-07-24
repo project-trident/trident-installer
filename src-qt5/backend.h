@@ -106,6 +106,7 @@ public:
 	QString diskInfoObjectToShortString(QJsonObject obj);
 	bool checkValidSize(QJsonObject obj, bool installdrive = true, bool freespaceonly = false);
 	// ZFS Install to BE option
+	QStringList availableZPools();
 	bool installToBE(); //will report true if a valid ZFS pool was designated
 	QString zpoolName(); //will return the designated ZFS pool name
 	void setInstallToBE(QString pool); //set to an empty string to disable installing to a BE
