@@ -81,8 +81,8 @@ TRANSLATIONS =  i18n/tri-install_af.ts \
                 i18n/tri-install_zh_TW.ts \
                 i18n/tri-install_zu.ts
 
-dotrans.path=/usr/local/share/project-trident/i18n/
-dotrans.extra=cd $$PWD/i18n && lrelease -nounfinished *.ts && cp *.qm $(INSTALL_ROOT)/usr/local/share/project-trident/i18n/
+dotrans.path=/usr/local/share/trident-installer/i18n/
+dotrans.extra=cd $$PWD/i18n && lrelease -nounfinished *.ts && cp *.qm $(INSTALL_ROOT)/usr/local/share/trident-installer/i18n/
 
 #Some conf to redirect intermediate stuff in separate dirs
 UI_DIR=./.build/ui/
