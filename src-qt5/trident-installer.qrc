@@ -2,4 +2,8 @@
   <qresource prefix="list">
     <file>packages.json</file>
   </qresource>
+  <qresource prefix="images">
+    <file>images/Trident-wallpaper4-darkgrey.png</file>
+    <file>images/PROJECTTRIDENT-banner4-blue-blue.svg</file>
+  </qresource>
 </RCC>

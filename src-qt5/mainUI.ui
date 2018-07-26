@@ -6,17 +6,31 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1611</width>
-    <height>789</height>
+    <width>1083</width>
+    <height>616</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">QToolButton#tool_encrypt_passcheck, QToolButton#tool_encrypt_passcheck:hover{
+   <string notr="true">QWidget#centralwidget{
+border-image: url(&quot;:/images/images/Trident-wallpaper4-darkgrey.png&quot;);
+background-position: center;
+}
+QWidget#stackedWidget, QWidget#page_welcome, QWidget#page_partitions, QWidget#page_user, QWidget#page_pkgs, QWidget#page_summary, QWidget#page_installing, QWidget#page_finished{
+background: transparent;
+}
+QToolButton#tool_encrypt_passcheck, QToolButton#tool_encrypt_passcheck:hover{
 background: transparent;
 border: none;
+}
+
+QFrame#frame_sidebar{
+background-color: palette(alternate-base);
+}
+QWidget#page_system, QWidget#page_keyboard, QWidget#page_locale, QWidget#page_log{
+background: transparent;
 }</string>
   </property>
   <widget class="QWidget" name="centralwidget">
@@ -58,12 +72,7 @@ border: none;
       </property>
       <widget class="QFrame" name="frame_sidebar">
        <property name="styleSheet">
-        <string notr="true">QFrame#frame_sidebar{
-background-color: palette(alternate-base);
-}
-QWidget#page_system, QWidget#page_keyboard, QWidget#page_locale, QWidget#page_log{
-background: transparent;
-}</string>
+        <string notr="true"/>
        </property>
        <property name="frameShape">
         <enum>QFrame::NoFrame</enum>
@@ -373,7 +382,7 @@ p, li { white-space: pre-wrap; }
       </widget>
       <widget class="QStackedWidget" name="stackedWidget">
        <property name="currentIndex">
-        <number>1</number>
+        <number>0</number>
        </property>
        <widget class="QWidget" name="page_welcome">
         <layout class="QVBoxLayout" name="verticalLayout_6">
@@ -385,35 +394,6 @@ p, li { white-space: pre-wrap; }
          </property>
          <item>
           <spacer name="verticalSpacer_6">
-           <property name="orientation">
-            <enum>Qt::Vertical</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>20</width>
-             <height>40</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item>
-          <widget class="QLabel" name="label_3">
-           <property name="font">
-            <font>
-             <pointsize>16</pointsize>
-             <italic>true</italic>
-            </font>
-           </property>
-           <property name="text">
-            <string>Welcome to Project Trident!</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <spacer name="verticalSpacer_5">
            <property name="orientation">
             <enum>Qt::Vertical</enum>
            </property>
@@ -493,6 +473,9 @@ p, li { white-space: pre-wrap; }
           <spacer name="verticalSpacer_4">
            <property name="orientation">
             <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeType">
+            <enum>QSizePolicy::Preferred</enum>
            </property>
            <property name="sizeHint" stdset="0">
             <size>
@@ -598,7 +581,7 @@ p, li { white-space: pre-wrap; }
             <string notr="true"/>
            </property>
            <property name="currentIndex">
-            <number>1</number>
+            <number>0</number>
            </property>
            <widget class="QWidget" name="tabWidget_disksPage1" native="true">
             <attribute name="icon">
@@ -951,8 +934,8 @@ p, li { white-space: pre-wrap; }
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>292</width>
-              <height>380</height>
+              <width>841</width>
+              <height>492</height>
              </rect>
             </property>
             <layout class="QGridLayout" name="gridLayout_2">
