@@ -10,11 +10,12 @@ COMMENT=	Graphical ISO installer for Project Trident
 LICENSE=	BSD2CLAUSE
 
 RUN_DEPENDS=	lumina-coreutils>=0:x11/lumina-coreutils \
-		xorg-minimal>=0:x11/xorg-minimal \
-		/boot/modules/drm.ko:graphics/drm-next-kmod \
 		trident-icons>=0:trident/trident-icons \
 		cursor-chameleon-pearl>=0:x11-themes/cursor-chameleon-pearl \
-		xinit>=0:x11/xinit
+		xinit>=0:x11/xinit \
+		/boot/modules/drm.ko:graphics/drm-next-kmod \
+		xorg-minimal>=0:x11/xorg-minimal \
+		xf86-video-scfb>=0:x11-drivers/xf86-video-scfb
 
 USES=	qmake qt:5
 USE_QT=	core gui widgets svg concurrent \
