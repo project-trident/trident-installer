@@ -22,7 +22,8 @@ struct userdata{
 };
 
 struct partitiondata{
-	QString install_type; //install_type: "ZFS", "SWAP", "UFS"
+	QString install_type; //install_type: "ZFS", "SWAP", "UFS" (*.eli for GELI encrypted version)
+	QString encrypt_pass;
 	QStringList create_partitions; //datasets if using ZFS, partitions if using something else
 	double sizeMB; //size in MB; set to <=0 for automatic
 	QString extrasetup;

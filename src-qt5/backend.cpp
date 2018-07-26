@@ -8,8 +8,8 @@
 #include <QtMath>
 
 // Set the bare-minimum partition install size for Trident
-//  Current at 10GB
-#define MIN_INSTALL_MB (10*1024)
+//  Current at 5GB
+#define MIN_INSTALL_MB (5*1024)
 
 Backend::Backend(QObject *parent) : QObject(parent){
   PROC = new QProcess(this);
@@ -211,6 +211,7 @@ QString Backend::generateInstallConfig(){
         contents << confString("mirror", DISK.mirror_disk);
       }
       if(DISK.install_partition.isEmpty() || DISK.install_partition.toLower()=="all" ){
+        //Full-disk install
         DISK.install_partition = "all";
         contents << confString("partscheme", "GPT"); //always use GPT partitioning (MBR is legacy/outdated)
       }

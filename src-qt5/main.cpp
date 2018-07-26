@@ -3,11 +3,12 @@
 #include <QDebug>
 #include <QFile>
 #include <QProcess>
+#include <QTextStream>
 #include "mainUI.h"
 
-void setupCursorTheme(QString theme){
+inline void setupCursorTheme(QString theme){
   //Ensure dir existance but file deletion
-  QString path = "/usr/local/share/icons/default/index.theme"
+  QString path = "/usr/local/share/icons/default/index.theme";
   if( QFile::exists(path)){ QFile::remove(path); }
   else{
     //Verify that the directory exists - or make it as needed
@@ -16,10 +17,10 @@ void setupCursorTheme(QString theme){
   }
   //Assemble the file contents
   QStringList contents;
-  contents << "[Icon Theme]"
-  contents << "Name=Default"
-  contents << "Comment=Default Cursor Theme"
-  contents << "Inherits="+theme
+  contents << "[Icon Theme]";
+  contents << "Name=Default";
+  contents << "Comment=Default Cursor Theme";
+  contents << "Inherits="+theme;
   //Now create the file
   QFile file(path);
   if(file.open(QIODevice::WriteOnly | QIODevice::Text)){

@@ -148,6 +148,11 @@
       "icon" : "git-gui",
       "required" : false,
       "default" : true
+    },
+    "Pianobar" : {
+      "pkgname" : "pianobar",
+      "icon" : "applications-multimedia",
+      "default" : true
     }
   },
   "Power Management" : {
@@ -207,7 +212,7 @@
       "icon" : "utilities-terminal",
       "default" : true
     }
-  }
+  },
   "Multimedia Support" : {
     "icon" : "applications-multimedia",
     "H.264 (Internet Video)" : {
@@ -223,11 +228,6 @@
     "Blueray Support" : {
       "pkgname" : "libbluray",
       "icon" : "media-optical-blu-ray",
-      "default" : true
-    },
-    "Pandora Online Radio" : {
-      "pkgname" : "pianobar",
-      "icon" : "applications-multimedia",
       "default" : true
     }
   }

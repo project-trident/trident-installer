@@ -51,7 +51,7 @@ MainUI::MainUI() : QMainWindow(), ui(new Ui::MainUI){
   //Update the visuals and show the window
   setupConnections();
   updateButtonFrame();
-  ui->toolBox_disks->setCurrentIndex(0);
+  ui->tabWidget_disks->setCurrentIndex(0);
   if(DEBUG){
     this->show();
   }else{
@@ -60,13 +60,13 @@ MainUI::MainUI() : QMainWindow(), ui(new Ui::MainUI){
   ui->label_debug->setVisible(DEBUG);
   //BACKEND->availableKeyboardModels();
   // Disable all the UI elements that are not finished yet
-  ui->group_disk_encrypt->setVisible(false);
   ui->group_disk_refind->setVisible(false);
-  ui->group_disk_swap->setVisible(false);
   ui->radio_disk_mirror->setVisible(false);
-  ui->radio_disk_bootenv->setVisible(false);
-  ui->list_zpools->setVisible(false);
 
+  //Setup the default SWAP size based on amount of memory in the system
+  int swapsize = 1024; //MB
+  //Default size adjustment TO-DO
+  swap_size_changed(swapsize);
 }
 
 MainUI::~MainUI(){
@@ -102,6 +102,16 @@ void MainUI::setupConnections(){
   connect(ui->line_user_comment, SIGNAL(editingFinished()), this, SLOT(autogenerateUsername()) );
   //Package Page
   connect(ui->tree_pkgs, SIGNAL(itemChanged(QTreeWidgetItem*, int)), this, SLOT(pkg_item_changed(QTreeWidgetItem*,int)) );
+  //Disk Page
+  connect(ui->radio_disk_single, SIGNAL(toggled(bool)), this, SLOT(radio_disk_toggled()) );
+  connect(ui->radio_disk_bootenv, SIGNAL(toggled(bool)), this, SLOT(radio_disk_toggled()) );
+  connect(ui->radio_disk_mirror, SIGNAL(toggled(bool)), this, SLOT(radio_disk_toggled()) );
+  connect(ui->slider_disk_swap, SIGNAL(valueChanged(int)), this, SLOT(swap_size_changed(int)) );
+  connect(ui->line_disk_pass, SIGNAL(textChanged(QString)), this, SLOT(validateDiskPage()) );
+  connect(ui->line_disk_pass_chk, SIGNAL(textChanged(QString)), this, SLOT(validateDiskPage()) );
+  connect(ui->group_disk_encrypt, SIGNAL(toggled(bool)), this, SLOT(validateDiskPage()) );
+  connect(ui->tree_disks, SIGNAL(currentItemChanged(QTreeWidgetItem*, QTreeWidgetItem*)), this, SLOT(validateDiskPage()) );
+
 }
 
 // ===============
@@ -160,6 +170,22 @@ void MainUI::loadPageFromBackend(QWidget *current){
     if(ui->tree_disks->currentItem()==0){
       ui->tree_disks->setCurrentItem( ui->tree_disks->topLevelItem(0) ); //first item
     }
+    //ZPOOL List (Boot Environment options)
+    disks = BACKEND->availableZPools();
+    ui->list_zpools->clear();
+    QString current = BACKEND->zpoolName();
+    for(int i=0; i<disks.length(); i++){
+      ui->list_zpools->addItem(disks[i].section(" :: ", 1,-1));
+      ui->list_zpools->item(i)->setWhatsThis(disks[i].section(" :: ", 0,0));
+      if(disks[i].startsWith(current+" :: ")){ ui->list_zpools->setCurrentRow(i); }
+    }
+    if(ui->list_zpools->currentRow()<0 && !disks.isEmpty()){ ui->list_zpools->setCurrentRow(0); }
+    //Now see if the boot environment option is even available
+    if(disks.isEmpty()){
+      ui->radio_disk_bootenv->setEnabled(false);
+      ui->radio_disk_bootenv->setChecked(false);
+    }
+    radio_disk_toggled(); //Make sure the page items are updated appropriately
 
   }else if(current == ui->page_user){
     //Need to fill the list of available shells
@@ -215,41 +241,51 @@ bool MainUI::savePageToBackend(QWidget *current, bool prompts){
     BACKEND->setRootPass(ui->line_pass_root->text());
 
   }else if(current == ui->page_partitions){
-    if(ui->tree_disks->currentItem()==0){ return false; }
-    QString sel = ui->tree_disks->currentItem()->whatsThis(0);
-    double totalMB = ui->tree_disks->currentItem()->data(0, Qt::UserRole).toString().toDouble();
-    if(BACKEND->disks().isEmpty() && sel.endsWith("all") && prompts){
-      //Full disk selected. Verify that this is what the user intends
-      bool ok = (QMessageBox::Yes == QMessageBox::warning(this, tr("Verify Hard Disk"), QString(tr("This will destroy any existing partitions and all data on the selected hard drive. Are you sure you want to continue? ")+"\n\n %1").arg(sel.section(":",0,0).simplified()), QMessageBox::Yes | QMessageBox::Cancel, QMessageBox::Yes ) );
-      if(!ok){ return false; }
-    }
-    //Create the disk/partition entry for the backend
-    BACKEND->clearDisks();
-    diskdata disk;
-      disk.name = sel.section(":",0,0).simplified();
-      disk.install_partition = sel.section(":",1,1).simplified();
-      disk.mirror_disk.clear(); //unset this
-      disk.installBootManager = (disk.install_partition=="all");
-    //Setup partitions for the disk
-    if(disk.install_partition=="all"){
-      double swapsize = 1024;
-      if(totalMB<(15*1024)){ swapsize=512; } //small disk - decrease the swap size accordingly
-      else if(totalMB>(200*1024)){ swapsize=2048; } //large disk - increase swap a bit more
-      //create a SWAP partition on full-disk installs
-      partitiondata swap;
-        swap.install_type = "SWAP.eli"; //make sure we use encrypted swap by default
-        swap.sizeMB = swapsize; //1GB swap by default
-      disk.partitions << swap;
-      totalMB-=swapsize; //decrease the total size a bit to account for the swap partition
-    }
-    //Now setup the main partition for ZFS
-    partitiondata part;
-      part.install_type = "ZFS";
-      part.sizeMB = totalMB - 10; //Make it 10MB smaller than calculated to account for rounding errors and such
-      part.create_partitions  = BACKEND->generateDefaultZFSPartitions();
-    disk.partitions.prepend(part); //make sure this partition is always first
-    //Now save it into the backend
-    BACKEND->addDisk(disk);
+    if(ui->radio_disk_bootenv->isChecked()){
+      BACKEND->setInstallToBE( ui->list_zpools->currentItem()->whatsThis() );
+    }else{
+      //Single-disk setup
+      BACKEND->setInstallToBE(""); //disable this
+      if(ui->tree_disks->currentItem()==0){ return false; }
+      QString sel = ui->tree_disks->currentItem()->whatsThis(0);
+      double totalMB = ui->tree_disks->currentItem()->data(0, Qt::UserRole).toString().toDouble();
+      if(BACKEND->disks().isEmpty() && sel.endsWith("all") && prompts){
+        //Full disk selected. Verify that this is what the user intends
+        bool ok = (QMessageBox::Yes == QMessageBox::warning(this, tr("Verify Hard Disk"), QString(tr("This will destroy any existing partitions and all data on the selected hard drive. Are you sure you want to continue? ")+"\n\n %1").arg(sel.section(":",0,0).simplified()), QMessageBox::Yes | QMessageBox::Cancel, QMessageBox::Yes ) );
+        if(!ok){ return false; }
+      }
+      //Create the disk/partition entry for the backend
+      BACKEND->clearDisks();
+      diskdata disk;
+        disk.name = sel.section(":",0,0).simplified();
+        disk.install_partition = sel.section(":",1,1).simplified();
+        disk.mirror_disk.clear(); //unset this
+        disk.installBootManager = (disk.install_partition=="all");
+      //Setup partitions for the disk
+      if(disk.install_partition=="all" && ui->group_disk_swap->isChecked()){
+        double swapsize = ui->slider_disk_swap->value();
+        //create a SWAP partition on full-disk installs
+        partitiondata swap;
+          swap.install_type = "SWAP.eli"; //make sure we use encrypted swap by default
+          swap.sizeMB = swapsize; //1GB swap by default
+        disk.partitions << swap;
+        totalMB-=swapsize; //decrease the total size a bit to account for the swap partition
+      }
+      //Now setup the main partition for ZFS
+      partitiondata part;
+        if(ui->group_disk_encrypt->isChecked()){
+          part.install_type = "ZFS.eli";
+          part.encrypt_pass = ui->line_disk_pass->text();
+        }else{
+          part.install_type = "ZFS";
+          part.encrypt_pass = "";
+        }
+        part.sizeMB = totalMB - 10; //Make it 10MB smaller than calculated to account for rounding errors and such
+        part.create_partitions  = BACKEND->generateDefaultZFSPartitions();
+      disk.partitions.prepend(part); //make sure this partition is always first
+      //Now save it into the backend
+      BACKEND->addDisk(disk);
+    } //end single-disk setup
 
   }else if(current == ui->page_pkgs){
     BACKEND->setInstallPackages(ui->tree_pkgs);
@@ -510,6 +546,48 @@ void MainUI::nextSlideshowImage(){
   ctab++;
   if(ctab >= ui->tabWidget->count()){ ctab = 0; } //rollback to the start
   ui->tabWidget->setCurrentIndex(ctab);
+}
+
+//Radio button toggles
+void MainUI::radio_disk_toggled(){
+  // Main intall type area
+  ui->list_zpools->setVisible(ui->radio_disk_bootenv->isChecked());
+  ui->tree_disks->setVisible(ui->radio_disk_single->isChecked());
+  // Advanced options
+  ui->group_disk_encrypt->setEnabled(ui->radio_disk_single->isChecked());
+  ui->group_disk_refind->setEnabled(BACKEND->isUEFI() && ui->radio_disk_single->isChecked());
+  ui->group_disk_swap->setEnabled(ui->radio_disk_single->isChecked());
+  validateDiskPage();
+}
+
+void MainUI::swap_size_changed(int mb){
+  ui->label_disk_swap->setText( QString::number(mb)+" MB" );
+  QTimer::singleShot(5, this, SLOT(validateDiskPage()) );
+}
+
+void MainUI::validateDiskPage(){
+  bool ok = true;
+  // Disk Space check (5GB + SWAP)
+  if(ui->radio_disk_single->isChecked()){
+    double minsize_mb = 5120 + (ui->group_disk_swap->isChecked() ? ui->slider_disk_swap->value() : 0);
+    QTreeWidgetItem *item = ui->tree_disks->currentItem();
+    if(item!=0){
+      double size_mb = item->data(0, Qt::UserRole).toString().toDouble();
+      ok = ok && (size_mb > minsize_mb);
+    }else{
+      ok = false;
+    }
+  }
+  // Encryption key validation
+  bool passok = ( ui->line_disk_pass->text().isEmpty() || (ui->line_disk_pass->text() == ui->line_disk_pass_chk->text()) );
+  //qDebug() << "Got Enc Pass OK:" << passok;
+  ui->tool_encrypt_passcheck->setVisible(!passok);
+  if(ui->group_disk_encrypt->isChecked() && ui->group_disk_encrypt->isEnabled()){
+    ok = ok && passok && !ui->line_disk_pass->text().isEmpty();
+  }
+  if(ui->stackedWidget->currentWidget()==ui->page_partitions){
+    ui->tool_next->setEnabled(ok);
+  }
 }
 
 void MainUI::userDT_changed(){

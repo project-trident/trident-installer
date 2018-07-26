@@ -65,6 +65,11 @@ private slots:
 	void shutdownClicked();
 	void updateButtonFrame();
 
+	//Radio button toggles
+	void radio_disk_toggled();
+	void swap_size_changed(int);
+	void validateDiskPage();
+
 	//Internal button/timer slots
 	void nextSlideshowImage();
 	void userDT_changed(); //user changed datetime or timezone
