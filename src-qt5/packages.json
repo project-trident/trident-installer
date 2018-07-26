@@ -89,12 +89,6 @@
   "Applications" : {
     "single_selection" : false,
     "icon" : "app-launcher",
-    "Lumina Desktop" : {
-      "pkgname" : "lumina",
-      "icon" : "desktop",
-      "required" : true,
-      "default" : true
-    },
     "VLC" : {
       "pkgname" : "vlc",
       "icon" : "vlc",
@@ -130,6 +124,30 @@
       "icon" : "falkon",
       "required" : false,
       "default" : true
+    },
+    "Lynx" : {
+      "pkgname" : "lynx-current",
+      "icon" : "applications-internet",
+      "required" : false,
+      "default" : false
+    },
+    "QTerminal" : {
+      "pkgname" : "qterminal",
+      "icon" : "qterminal",
+      "required" : false,
+      "default" : true
+    },
+    "OpenVPN" : {
+      "pkgname" : "openvpn",
+      "icon" : "network-vpn",
+      "required" : false,
+      "default" : false
+    },
+    "Git" : {
+      "pkgname" : "git",
+      "icon" : "git-gui",
+      "required" : false,
+      "default" : true
     }
   },
   "Power Management" : {
@@ -149,6 +167,29 @@
       "default_laptop" : true
     }
   },
+  "Filesystem Support" : {
+    "icon" : "harddrive",
+    "NTFS (Windows)" : {
+      "pkgname" : "fusefs-ntfs",
+      "icon" : "wine",
+      "default" : true
+    },
+    "exFAT (Windows)" : {
+      "pkgname" : "fusefs-exfat",
+      "icon" : "wine",
+      "default" : false
+    },
+    "EXT (Linux)" : {
+      "pkgname" : "fusefs-ext2",
+      "icon" : "drive-removable-media",
+      "default" : true
+    },
+    "MTPFS (Android)" : {
+      "pkgname" : "fusefs-simple-mtpfs",
+      "icon" : "android-file-transfer",
+      "default" : true
+    }
+  },
   "Shells" : {
     "icon" : "utilities-terminal",
     "bash" : {
@@ -164,6 +205,29 @@
     "zsh" : {
       "pkgname" : "zsh",
       "icon" : "utilities-terminal",
+      "default" : true
+    }
+  }
+  "Multimedia Support" : {
+    "icon" : "applications-multimedia",
+    "H.264 (Internet Video)" : {
+      "pkgname" : "openh264",
+      "icon" : "totem",
+      "default" : true
+    },
+    "DVD Support" : {
+      "pkgname" : "libdvdcss",
+      "icon" : "media-optical-dvd",
+      "default" : true
+    },
+    "Blueray Support" : {
+      "pkgname" : "libbluray",
+      "icon" : "media-optical-blu-ray",
+      "default" : true
+    },
+    "Pandora Online Radio" : {
+      "pkgname" : "pianobar",
+      "icon" : "applications-multimedia",
       "default" : true
     }
   }
