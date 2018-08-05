@@ -100,4 +100,7 @@ script.files = scripts/start-trident-installer
 xorg.path = /usr/local/share/trident-installer
 xorg.files = files/xorg.conf.template
 
-INSTALLS += target dotrans script xorg
+machid.path = /etc
+machid.files = files/machine-id
+
+INSTALLS += target dotrans script xorg machid

@@ -2,11 +2,16 @@
 # Simple script to setup the graphical install environment and 
 #  launch the Qt5 installer.
 
+#NOTE: When the ISO boots most of the filesystem is read-only except for /tmp
+
+ _conf="/tmp/xorg.conf"
+_logfile-"/tmp/xorg.log"
+
 #Function: Setup the default xorg.conf file
 setupXorgConf(){
   #Inputs: $1 : driver to use
   _driver="$1"
-  _conf="/etc/X11/xorg.conf"
+
   # Verify that an xorg.conf exists, and generate one as needed
   if [ ! -e "${_conf}" ] ; then
     #Get the bus ID for the video card
@@ -16,7 +21,7 @@ setupXorgConf(){
     template="/usr/local/share/trident-installer/xorg.conf.template"
     cp -f "${template}" "${_conf}"
     sed -i '' "s|%%BUSID%%|${busid}|g" "${_conf}"
-    sed -i '' "s|%%DRIVER%%|${driver}|g" "${_conf}"
+    sed -i '' "s|%%DRIVER%%|${_driver}|g" "${_conf}"
   fi
 
   # Check for extra kernel modules to load for video driver support
@@ -48,8 +53,9 @@ else
 fi
 
 #Make sure the DBUS machine-id file exists (bug in Qt)
-dbus-uuidgen --ensure >/dev/null 2>/dev/null
+# CANNOT RUN ON ISO (read-only filesystem) - hard-coded /etc/machine-id in install files
+#dbus-uuidgen --ensure >/dev/null 2>/dev/null
 
 #Start the graphical install
-xinit /usr/local/bin/trident-installer -- :0
+xinit /usr/local/bin/trident-installer -- -config ${_conf} -logfile ${_logfile} :0
 #shutdown -r now

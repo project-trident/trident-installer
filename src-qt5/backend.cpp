@@ -778,12 +778,13 @@ void Backend::install_finished(int retcode, QProcess::ExitStatus status){
 // == PUBLIC SLOTS ==
 void Backend::startInstallation(){
   //Save the config file
-  bool ok = writeFile("/root/trident-sysinstall.conf", generateInstallConfig() );
+  QString configfile = "/tmp/trident-sysinstall.conf";
+  bool ok = writeFile(configfile, generateInstallConfig() );
   if(!ok){
-    emit install_update("[ERROR] Cannot create installation config file: /root/trident-sysinstall.conf" );
+    emit install_update("[ERROR] Cannot create installation config file: "+configfile );
     emit install_finished(false);
     return;
   }
   //Start the install process
-  PROC->start("pc-sysinstall", QStringList() << "start-autoinstall" << "/root/trident-sysinstall.conf");
+  PROC->start("pc-sysinstall", QStringList() << "start-autoinstall" << configfile);
 }
