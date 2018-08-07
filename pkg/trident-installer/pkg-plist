@@ -1,5 +1,6 @@
 bin/trident-installer
 bin/start-trident-installer
+share/icons/default/index.theme
 share/trident-installer/xorg.conf.template
 share/trident-installer/i18n/tri-install_af.qm
 share/trident-installer/i18n/tri-install_ar.qm

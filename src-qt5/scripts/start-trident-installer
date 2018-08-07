@@ -5,7 +5,7 @@
 #NOTE: When the ISO boots most of the filesystem is read-only except for /tmp
 
  _conf="/tmp/xorg.conf"
-_logfile-"/tmp/xorg.log"
+_logfile="/tmp/xorg.log"
 
 #Function: Setup the default xorg.conf file
 setupXorgConf(){

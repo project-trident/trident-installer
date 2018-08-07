@@ -6,7 +6,9 @@
 #include <QTextStream>
 #include "mainUI.h"
 
-inline void setupCursorTheme(QString theme){
+// THIS WILL NOT WORK ON AN ISO (read-only filesystem)
+// === Add this as a static install file instead (files/index.theme)
+/*inline void setupCursorTheme(QString theme){
   //Ensure dir existance but file deletion
   QString path = "/usr/local/share/icons/default/index.theme";
   if( QFile::exists(path)){ QFile::remove(path); }
@@ -29,7 +31,7 @@ inline void setupCursorTheme(QString theme){
     str << "\n";
     file.close();
   }
-}
+}*/
 
 int main(int argc, char ** argv)
 {
@@ -38,9 +40,14 @@ int main(int argc, char ** argv)
 
     //Setup the environment for this app
     // - Icon theme
-    QIcon::setThemeName("le-trident");
+    QStringList themes; themes << "le-trident" << "la-capitaine";
+    for(int i=0; i<themes.length(); i++){
+      if(QFile::exists("/usr/local/share/icons/"+themes[i])){
+        QIcon::setThemeName(themes[i]); break;
+      }
+    }
     // - Cursor Theme
-    setupCursorTheme("chameleon-pearl-regular");
+    //setupCursorTheme("chameleon-pearl-regular");
 
     //Regular performance improvements
     qputenv("QT_NO_GLIB","1");

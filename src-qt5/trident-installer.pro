@@ -103,4 +103,7 @@ xorg.files = files/xorg.conf.template
 machid.path = /etc
 machid.files = files/machine-id
 
-INSTALLS += target dotrans script xorg machid
+curtheme.path = /usr/local/share/icons/default
+curtheme.files = files/index.theme
+
+INSTALLS += target dotrans script xorg machid curtheme

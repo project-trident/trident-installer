@@ -401,7 +401,7 @@ QStringList Backend::availableLanguages(){
   //Probe the list of available translation files for this info
   QStringList langs;
   langs << "en_US.UTF-8"; //this is always available (default)
-  QDir _dir("/usr/local/share/project-trident/i18n");
+  QDir _dir("/usr/local/share/trident-installer/i18n");
   QStringList files = _dir.entryList(QStringList()<<"tri-install_*.qm", QDir::Files, QDir::Name);
   for(int i=0; i<files.length(); i++){
     langs << files[i].section("_",1,-1).section(".qm",0,-2)+".UTF-8";
@@ -693,7 +693,7 @@ QJsonObject Backend::package_info(QString pkgname){
   if(files.isEmpty()){ return QJsonObject(); } //no info available - package not found?
   QJsonObject obj;
   for(int i=0; i<files.length() && obj.isEmpty(); i++){
-    QString filepath = _dir.absoluteFilePath(files.first());
+    QString filepath = _dir.absoluteFilePath(files[i]);
     bool ok = false;
     QStringList info = runCommand(ok, "pkg", QStringList() << "query" << "-F" << filepath << "%o|%n|%v|%c|%e").split("|");
     if(!ok || info.length()<5 || info[1]!=pkgname ){ continue; }
@@ -734,7 +734,7 @@ QStringList Backend::defaultUserShell(){
 
 void Backend::populatePackageTreeWidget(QTreeWidget *tree){
   QJsonObject pkgObj = QJsonDocument::fromJson( readFile(":/list/packages.json").toUtf8() ).object();
-  qDebug() << "Got Package Dist Dir:" << dist_package_dir();
+  //qDebug() << "Got Package Dist Dir:" << dist_package_dir();
   //qDebug() << "Got Package Object:" << pkgObj;
   tree->clear();
   QStringList categories = pkgObj.keys();

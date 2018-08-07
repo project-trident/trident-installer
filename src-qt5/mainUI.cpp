@@ -16,6 +16,9 @@ MainUI::MainUI() : QMainWindow(), ui(new Ui::MainUI){
   ui->setupUi(this); //load the designer file
   BACKEND = new Backend(this);
   connect(BACKEND, SIGNAL(keyboardInfoAvailable()), this, SLOT(populateKeyboardInfo()) );
+  connect(BACKEND, SIGNAL(install_update(QString)), this, SLOT(newInstallMessage(QString)) );
+  //connect(BACKEND, SIGNAL(install_started()), this, SLOT(newInstallMessage(QString)) );
+  connect(BACKEND, SIGNAL(install_finished()), this, SLOT(installFinished()) );
   ui->actionKeyboard->setEnabled(false);
   DEBUG = (getuid()!=0) || !QFile::exists("/dist/");
   //PAGE ORDER
