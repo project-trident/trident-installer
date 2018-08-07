@@ -9,6 +9,7 @@
 #include <QDebug>
 #include <QLocale>
 #include <QScrollBar>
+#include <QScreen>
 
 #include <unistd.h>
 
@@ -58,8 +59,11 @@ MainUI::MainUI() : QMainWindow(), ui(new Ui::MainUI){
   if(DEBUG){
     this->show();
   }else{
+    QRect size = QApplication::screens().first()->geometry();
+    this->setGeometry(size);
     this->showMaximized();
   }
+  this->show();
   ui->label_debug->setVisible(DEBUG);
   //BACKEND->availableKeyboardModels();
   // Disable all the UI elements that are not finished yet
