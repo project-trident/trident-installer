@@ -18,7 +18,7 @@ MainUI::MainUI() : QMainWindow(), ui(new Ui::MainUI){
   connect(BACKEND, SIGNAL(keyboardInfoAvailable()), this, SLOT(populateKeyboardInfo()) );
   connect(BACKEND, SIGNAL(install_update(QString)), this, SLOT(newInstallMessage(QString)) );
   //connect(BACKEND, SIGNAL(install_started()), this, SLOT(newInstallMessage(QString)) );
-  connect(BACKEND, SIGNAL(install_finished()), this, SLOT(installFinished()) );
+  connect(BACKEND, SIGNAL(install_finished(bool)), this, SLOT(installFinished()) );
   ui->actionKeyboard->setEnabled(false);
   DEBUG = (getuid()!=0) || !QFile::exists("/dist/");
   //PAGE ORDER
