@@ -102,7 +102,7 @@ public:
 
 	//Disk Partitioning
 	// - Information functions
-	QJsonObject availableDisks();
+	QJsonObject availableDisks(bool fromcache = true);
 	QString diskInfoObjectToString(QJsonObject obj);
 	QString diskInfoObjectToShortString(QJsonObject obj);
 	bool checkValidSize(QJsonObject obj, bool installdrive = true, bool freespaceonly = false);

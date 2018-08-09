@@ -21,11 +21,12 @@ background-position: center;
 QWidget#stackedWidget, QWidget#page_welcome, QWidget#page_partitions, QWidget#page_user, QWidget#page_pkgs, QWidget#page_summary, QWidget#page_installing, QWidget#page_finished{
 background: transparent;
 }
-QToolButton#tool_encrypt_passcheck, QToolButton#tool_encrypt_passcheck:hover{
+QToolButton#tool_encrypt_passcheck, QToolButton#tool_encrypt_passcheck:hover,
+QToolButton#tool_root_pass_chk, QToolButton#tool_root_pass_chk:hover,
+QToolButton#tool_user_pass_chk, QToolButton#tool_user_pass_chk:hover{
 background: transparent;
 border: none;
 }
-
 QFrame#frame_sidebar{
 background-color: palette(base);
 }
@@ -38,6 +39,28 @@ color: palette(alternate-base);
 }
 QRadioButton, QTabBar::tab{
 color: palette(button-text);
+}
+QTabWidget QGroupBox, QTabWidget QGroupBox:checked QLabel{
+color: palette(button-text);
+}
+QTabWidget QGroupBox QLabel:disabled{
+color: palette(button);
+}
+QTreeWidget{
+color: palette(button-text);
+}
+QMenu::item{
+background-color: transparent;
+color: palette(highlight);
+}
+QMenu::item:selected{
+background-color: palette(highlight);
+color: palette(highlight-text);
+}
+QComboBox QAbstractItemView{
+border-color: palette(highlight);
+background-color: palette(base);
+color: palette(alternate-base);
 }</string>
   </property>
   <widget class="QWidget" name="centralwidget">
@@ -389,7 +412,7 @@ p, li { white-space: pre-wrap; }
       </widget>
       <widget class="QStackedWidget" name="stackedWidget">
        <property name="currentIndex">
-        <number>0</number>
+        <number>3</number>
        </property>
        <widget class="QWidget" name="page_welcome">
         <layout class="QVBoxLayout" name="verticalLayout_6">
@@ -661,7 +684,7 @@ p, li { white-space: pre-wrap; }
                 <enum>QAbstractScrollArea::AdjustToContents</enum>
                </property>
                <property name="indentation">
-                <number>10</number>
+                <number>20</number>
                </property>
                <property name="rootIsDecorated">
                 <bool>true</bool>
@@ -935,6 +958,9 @@ p, li { white-space: pre-wrap; }
          </item>
          <item>
           <widget class="QScrollArea" name="scrollArea">
+           <property name="frameShape">
+            <enum>QFrame::NoFrame</enum>
+           </property>
            <property name="widgetResizable">
             <bool>true</bool>
            </property>
@@ -943,7 +969,7 @@ p, li { white-space: pre-wrap; }
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>1423</width>
+              <width>1425</width>
               <height>603</height>
              </rect>
             </property>
@@ -1016,6 +1042,9 @@ p, li { white-space: pre-wrap; }
                       <normaloff>.</normaloff>.</iconset>
                     </property>
                     <property name="checkable">
+                     <bool>true</bool>
+                    </property>
+                    <property name="autoRaise">
                      <bool>true</bool>
                     </property>
                    </widget>
@@ -1174,6 +1203,9 @@ p, li { white-space: pre-wrap; }
                       <normaloff>.</normaloff>.</iconset>
                     </property>
                     <property name="checkable">
+                     <bool>true</bool>
+                    </property>
+                    <property name="autoRaise">
                      <bool>true</bool>
                     </property>
                    </widget>
@@ -1344,7 +1376,7 @@ p, li { white-space: pre-wrap; }
             <enum>QAbstractScrollArea::AdjustToContents</enum>
            </property>
            <property name="indentation">
-            <number>10</number>
+            <number>20</number>
            </property>
            <property name="uniformRowHeights">
             <bool>true</bool>
@@ -1365,9 +1397,12 @@ p, li { white-space: pre-wrap; }
             <number>3</number>
            </property>
            <attribute name="headerVisible">
-            <bool>false</bool>
+            <bool>true</bool>
            </attribute>
            <attribute name="headerCascadingSectionResizes">
+            <bool>true</bool>
+           </attribute>
+           <attribute name="headerShowSortIndicator" stdset="0">
             <bool>true</bool>
            </attribute>
            <column>

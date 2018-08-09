@@ -19,6 +19,8 @@ Backend::Backend(QObject *parent) : QObject(parent){
 
   //Load the keyboard info cache in the background
   QtConcurrent::run(this, &Backend::checkKeyboardInfo);
+  //Load the disk info cache in the background
+  QtConcurrent::run(this, &Backend::availableDisks, true);
 }
 
 Backend::~Backend(){
@@ -534,38 +536,42 @@ void Backend::clearUsers(){
 }
 
 //Disk Partitioning
-QJsonObject Backend::availableDisks(){
-  bool ok = false;
-  QStringList disks = runCommand(ok, "pc-sysinstall disk-list").split("\n");
-  QJsonObject obj;
-  for(int i=0; i<disks.length() && ok; i++){
-    if(disks[i].simplified().isEmpty()){ continue; }
-    bool ok2 = false;
-    QJsonObject diskObj;
-    QString diskID = disks[i].section(":",0,0).simplified();
-    QString diskInfo = disks[i].section(":",1,-1).simplified();
-    QStringList info = runCommand(ok2, "pc-sysinstall", QStringList() << "disk-part" << diskID).split("\n");
-    double totalMB = 0;
-    for(int j=0; j<info.length() && ok2; j++){
-      if(info[j].simplified().isEmpty()){ continue; }
-      QString var = info[j].section(": ",0,0);
-      QString val = info[j].section(": ",1,-1);
-      QString partition = var.section("-",0,0); var = var.section("-",1,-1);
-      if(var=="sizemb"){ totalMB+= val.toDouble(); }
-      QJsonObject tmp = diskObj.value(partition).toObject();
-      tmp.insert(var, val);
-      diskObj.insert(partition, tmp);
-    }
-    if(ok2){
-      //Add any extra info into the main diskID info object
-      QJsonObject tmp = diskObj.value(diskID).toObject();
-        tmp.insert("label", diskInfo);
-        if(!tmp.contains("sizemb")){ tmp.insert("sizemb", QString::number( qRound(totalMB) ) ); }
-      diskObj.insert(diskID, tmp);
-      obj.insert(diskID, diskObj);
-    }
-  } //end loop over disks
-  return obj;
+QJsonObject Backend::availableDisks(bool fromcache){
+  static QJsonObject diskObj;
+  if(diskObj.isEmpty() || !fromcache){
+    bool ok = false;
+    QStringList disks = runCommand(ok, "pc-sysinstall disk-list").split("\n");
+    QJsonObject obj;
+    for(int i=0; i<disks.length() && ok; i++){
+      if(disks[i].simplified().isEmpty()){ continue; }
+      bool ok2 = false;
+      QJsonObject diskObj;
+      QString diskID = disks[i].section(":",0,0).simplified();
+      QString diskInfo = disks[i].section(":",1,-1).simplified();
+      QStringList info = runCommand(ok2, "pc-sysinstall", QStringList() << "disk-part" << diskID).split("\n");
+      double totalMB = 0;
+      for(int j=0; j<info.length() && ok2; j++){
+        if(info[j].simplified().isEmpty()){ continue; }
+        QString var = info[j].section(": ",0,0);
+        QString val = info[j].section(": ",1,-1);
+        QString partition = var.section("-",0,0); var = var.section("-",1,-1);
+        if(var=="sizemb"){ totalMB+= val.toDouble(); }
+        QJsonObject tmp = diskObj.value(partition).toObject();
+        tmp.insert(var, val);
+        diskObj.insert(partition, tmp);
+      }
+      if(ok2){
+        //Add any extra info into the main diskID info object
+        QJsonObject tmp = diskObj.value(diskID).toObject();
+          tmp.insert("label", diskInfo);
+          if(!tmp.contains("sizemb")){ tmp.insert("sizemb", QString::number( qRound(totalMB) ) ); }
+        diskObj.insert(diskID, tmp);
+        obj.insert(diskID, diskObj);
+      }
+    } //end loop over disks
+    diskObj = obj;
+  }
+  return diskObj;
 }
 
 QString Backend::diskInfoObjectToString(QJsonObject obj){
@@ -786,5 +792,5 @@ void Backend::startInstallation(){
     return;
   }
   //Start the install process
-  PROC->start("pc-sysinstall", QStringList() << "start-autoinstall" << configfile);
+  PROC->start("pc-sysinstall", QStringList() << "-c" << configfile );
 }
