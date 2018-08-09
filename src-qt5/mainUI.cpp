@@ -372,9 +372,18 @@ void MainUI::keyboard_layout_changed(QString variant){
   ui->combo_key_variant->clear();
   ui->combo_key_variant->addItem("----");
   QStringList ids = obj.keys();
+  QJsonObject sorted;
+  //Sort the list
   for(int i=0; i<ids.length(); i++){
-    ui->combo_key_variant->addItem(obj.value(ids[i]).toString(), ids[i]);
-    if(variant == ids[i]){ ui->combo_key_variant->setCurrentIndex(i+1); }
+    //reverse the variable/value
+    sorted.insert(obj.value(ids[i]).toString(), ids[i]);
+  }
+  //Now add the sorted items to the combo box
+  ids = sorted.keys();
+  for(int i=0; i<ids.length(); i++){
+    QString index=sorted.value(ids[i]).toString();
+    ui->combo_key_variant->addItem(ids[i], index);
+    if(variant == index){ ui->combo_key_variant->setCurrentIndex(i+1); }
   }
   save_keyboard_layout();
 }
@@ -402,11 +411,21 @@ void MainUI::populateKeyboardInfo(){
   }
   json = BACKEND->availableKeyboardLayouts();
   tmp  = json.keys();
+  QJsonObject sorted;
   //qDebug() << "Got Keyboard Layouts:" << json;
+  // Sort the keyboard objects
   for(int i=0; i<tmp.length(); i++){
     QJsonObject tobj = json.value(tmp[i]).toObject();
-    ui->combo_key_layout->addItem(tobj.value("description").toString(), tmp[i]);
-    if(current[0] == tmp[i]){ ui->combo_key_layout->setCurrentIndex(i); }
+    tobj.insert("id", tmp[i]);
+    sorted.insert(tobj.value("description").toString(), tobj);
+  }
+  //Now add the sorted items to the combo box
+  tmp = sorted.keys();
+  for(int i=0; i<tmp.length(); i++){
+    QJsonObject tobj = sorted.value(tmp[i]).toObject();
+    QString id = tobj.value("id").toString();
+    ui->combo_key_layout->addItem(tmp[i], id );
+    if(current[0] == id){ ui->combo_key_layout->setCurrentIndex(i); }
     if(!tobj.value("variants").toObject().isEmpty()){
       ui->combo_key_layout->setItemData(i, QJsonDocument(tobj.value("variants").toObject()).toJson(), 100);
       //qDebug() << "Got Variants:" << tmp[i] << tobj;
