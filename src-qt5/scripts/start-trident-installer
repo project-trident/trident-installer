@@ -41,7 +41,7 @@ setupXorgConf(){
 # Probe the system for UEFI /VBOX and setup the vesa/scfb display driver
 _boot=`sysctl -n machdep.bootmethod` #BIOS or UEFI
 pciconf -lv | grep -q "VirtualBox Graphics"
-if [ $? -ne 0 ] ; then
+if [ $? -eq 0 ] ; then
   #Virtualbox environment
   setupXorgConf "vboxvideo"
 elif [ "${_boot}" = "UEFI" ] ; then
