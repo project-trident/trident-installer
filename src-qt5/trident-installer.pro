@@ -106,4 +106,7 @@ machid.files = files/machine-id
 curtheme.path = /usr/local/share/icons/default
 curtheme.files = files/index.theme
 
-INSTALLS += target dotrans script xorg machid curtheme
+loadcfg.path = /boot
+loadcfg.files = files/loader.conf.local
+
+INSTALLS += target dotrans script xorg machid curtheme loadcfg
