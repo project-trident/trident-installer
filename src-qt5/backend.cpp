@@ -100,9 +100,11 @@ bool Backend::isLaptop(){
   return (hasbat==1);
 }
 
-inline QString confString(QString var, QString val){
-  QString tmp = var.append("=\"%1\"");
-  return tmp.arg(val);
+inline QString confString(QString var, QString val, bool needquotes = false){
+  QString tmp=var.append("=%1");
+  if(needquotes){ tmp = tmp.arg("\""+val+"\""); }
+  else{ tmp = tmp.arg(val); }
+  return tmp;
 }
 
 
@@ -179,6 +181,12 @@ QString Backend::generateInstallConfig(){
   }else{
     contents << confString("installMode", "fresh");
   }
+  if(use_4k_alignment()){
+    contents << confString("zfsForce4k","YES");
+  }
+  contents << confString("efiloader","bsd"); //can also be "refind"
+  contents << confString("hostname", hostname() );
+
   // Localization
   contents << "";
   contents << "# == LOCALIZATION ==";
@@ -250,6 +258,10 @@ QString Backend::generateInstallConfig(){
     contents << "# == PACKAGES ==";
     contents << confString("installPackages", settings.value("install_packages").toString() );
   }
+  //Additional Setup
+  contents << "";
+  contents << "# == FINAL SETUP ==";
+  contents << confString("runCommand", "/usr/local/share/trident/scripts/sys-init.sh");
   return contents.join("\n");
 }
 
@@ -507,6 +519,20 @@ void Backend::setUseNTP(bool use){
   settings.insert("useNTP", use ? "true" : "false" );
 }
 
+//Hostname
+QString Backend::hostname(){
+  if(!settings.contains("system_hostname")){
+    //Generate a random hostname (trident-XXXX)
+    setHostname("trident-" + QString::number( qrand() %8999 + 1000 ) );
+  }
+  return settings.value("system_hostname").toString();
+}
+
+void Backend::setHostname(QString name){
+  //Provide user-input validation here (TO-DO)
+  settings.insert("system_hostname", name);
+}
+
 // USERS
 QString Backend::rootPass(){ return settings.value("root_password").toString(); }
 void Backend::setRootPass(QString pass){ settings.insert("root_password", pass); }
@@ -673,6 +699,20 @@ QStringList Backend::generateDefaultZFSPartitions(){
   return parts;
 }
 
+// - 4K Disk alignment
+bool Backend::use_4k_alignment(){
+  //enabled by default
+  bool set = true;
+  if(settings.contains("force_4k_alignment")){
+    set = settings.value("force_4k_alignment").toBool(true);
+  }
+  return set;
+}
+
+void Backend::set4k_alignment(bool set){
+  settings.insert("force_4k_alignment", set);
+}
+
 // == Packages ==
 QString Backend::dist_package_dir(){
   static QString dist_dir = "";
@@ -784,7 +824,7 @@ void Backend::install_finished(int retcode, QProcess::ExitStatus status){
 // == PUBLIC SLOTS ==
 void Backend::startInstallation(){
   //Save the config file
-  QString configfile = "/tmp/trident-sysinstall.conf";
+  QString configfile = INSTALLCONF;
   bool ok = writeFile(configfile, generateInstallConfig() );
   if(!ok){
     emit install_update("[ERROR] Cannot create installation config file: "+configfile );

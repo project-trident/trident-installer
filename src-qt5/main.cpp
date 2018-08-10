@@ -4,6 +4,8 @@
 #include <QFile>
 #include <QProcess>
 #include <QTextStream>
+#include <QDateTime>
+
 #include "mainUI.h"
 
 // THIS WILL NOT WORK ON AN ISO (read-only filesystem)
@@ -117,6 +119,7 @@ int main(int argc, char ** argv)
     qputenv("QT_NO_GLIB","1");
     qunsetenv("QT_QPA_PLATFORMTHEME");
     //Create/start the application
+    qsrand(QDateTime::currentMSecsSinceEpoch());
     QApplication a(argc, argv);
     QFont font("noto-sans");
     a.setFont(font);

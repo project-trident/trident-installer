@@ -15,6 +15,9 @@
 #include <QTreeWidget>
 #include <QTreeWidgetItem>
 
+#define INSTALLLOG "/tmp/.pc-sysinstall/pc-sysinstall.log"
+#define INSTALLCONF "/tmp/trident-sysinstall.conf"
+
 struct userdata{
 	QString name, comment, pass, shell, home;
 	QStringList groups;
@@ -73,6 +76,9 @@ public:
 	QString system_information();
 	QString pci_info();
 	bool isUEFI();
+	// Post-install information
+	QString fullInstallLog(){ return readFile(INSTALLLOG); }
+	QString fullInstallConf(){ return readFile(INSTALLCONF); }
 
 	//Localization
 	QString lang();
@@ -91,6 +97,9 @@ public:
 	QStringList availableTimezones();
 	bool useNTP();
 	void setUseNTP(bool);
+	//Hostname
+	QString hostname();
+	void setHostname(QString);
 
 	//System Users
 	QString rootPass();
@@ -106,17 +115,20 @@ public:
 	QString diskInfoObjectToString(QJsonObject obj);
 	QString diskInfoObjectToShortString(QJsonObject obj);
 	bool checkValidSize(QJsonObject obj, bool installdrive = true, bool freespaceonly = false);
-	// ZFS Install to BE option
+	// - ZFS Install to BE option
 	QStringList availableZPools();
 	bool installToBE(); //will report true if a valid ZFS pool was designated
 	QString zpoolName(); //will return the designated ZFS pool name
 	void setInstallToBE(QString pool); //set to an empty string to disable installing to a BE
-	//Individual disk setup
+	// - Individual disk setup
 	QList<diskdata> disks(){ return DISKS; }
 	void addDisk(diskdata); //will overwrite existing disk with the same name
 	void removeDisk(QString name);
 	void clearDisks();
 	QStringList generateDefaultZFSPartitions();
+	// - 4K Disk alignment
+	bool use_4k_alignment(); //enabled by default
+	void set4k_alignment(bool set);
 
 	//Packages
 	QString dist_package_dir();
