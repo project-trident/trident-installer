@@ -82,9 +82,9 @@ QPalette colorPalette(){
   P.setColor(QPalette::Disabled, QPalette::Highlight, QColor("#1a59c3"));
   P.setColor(QPalette::Inactive, QPalette::Highlight, QColor("#1a59c3"));
   //HighlightedText Color
-  P.setColor(QPalette::Active, QPalette::HighlightedText, QColor("#b3b3b3"));
-  P.setColor(QPalette::Disabled, QPalette::HighlightedText, QColor("#b3b3b3"));
-  P.setColor(QPalette::Inactive, QPalette::HighlightedText, QColor("#b3b3b3"));
+  P.setColor(QPalette::Active, QPalette::HighlightedText, QColor("#a2a2a2"));
+  P.setColor(QPalette::Disabled, QPalette::HighlightedText, QColor("#a2a2a2"));
+  P.setColor(QPalette::Inactive, QPalette::HighlightedText, QColor("#a2a2a2"));
   //Link Color
   P.setColor(QPalette::Active, QPalette::Link, QColor("#1a59c3"));
   P.setColor(QPalette::Disabled, QPalette::Link, QColor("#1a59c3"));

@@ -46,8 +46,14 @@ color: palette(button-text);
 QTabWidget QGroupBox QLabel:disabled{
 color: palette(button);
 }
+QTabWidget QGroupBox:disabled{
+color: palette(button);
+}
 QTreeWidget{
 color: palette(button-text);
+}
+QTreeWidget::item:disabled{
+color: palette(highlighted-text);
 }
 QMenu::item{
 background-color: transparent;
@@ -55,7 +61,7 @@ color: palette(highlight);
 }
 QMenu::item:selected{
 background-color: palette(highlight);
-color: palette(highlight-text);
+color: palette(highlighted-text);
 }
 QComboBox QAbstractItemView{
 border-color: palette(highlight);
@@ -969,7 +975,7 @@ p, li { white-space: pre-wrap; }
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>1425</width>
+              <width>503</width>
               <height>603</height>
              </rect>
             </property>
