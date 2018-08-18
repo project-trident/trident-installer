@@ -32,7 +32,7 @@ MainUI::MainUI() : QMainWindow(), ui(new Ui::MainUI){
   loadPageFromBackend(page_list.first());
   //Create internal timers/objects
   slideshowTimer = new QTimer(this);
-    slideshowTimer->setInterval(3000);
+    slideshowTimer->setInterval(5000);
 
   //Only load the package page once
   BACKEND->populatePackageTreeWidget(ui->tree_pkgs);
@@ -502,7 +502,7 @@ void MainUI::startInstallClicked(){
   updateButtonFrame();
   ui->tabWidget->setCurrentIndex(0); //start the slideshow on the first tab
   if(DEBUG){
-    QTimer::singleShot(10000, this, SLOT(installFinished()));
+    QTimer::singleShot(20000, this, SLOT(installFinished()));
   }else{
     BACKEND->startInstallation();
   }

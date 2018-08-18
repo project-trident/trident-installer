@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1855</width>
-    <height>658</height>
+    <width>1083</width>
+    <height>639</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,6 +17,34 @@
    <string notr="true">QWidget#centralwidget{
 border-image: url(&quot;:/images/images/Trident-wallpaper4-darkgrey.png&quot;);
 background-position: center;
+}
+QWidget#tab_slide_1{
+border-image: url(:/images/images/Trident-wallpaper4-corner-lightgrey.png);
+background-position: bottom right;
+}
+QWidget#tab_slide_1 QLabel{
+color: palette(button-text);
+}
+QWidget#tab_slide_2{
+border-image: url(:/images/images/Trident-wallpaper3-corner-lightgrey.png);
+background-position: bottom left;
+}
+QWidget#tab_slide_2 QLabel{
+color: palette(button-text);
+}
+QWidget#tab_slide_3{
+border-image: url(:/images/images/Trident-wallpaper-corner-lightgrey.png);
+background-position: bottom right;
+}
+QWidget#tab_slide_3 QLabel{
+color: palette(button-text);
+}
+QWidget#tab_slide_4{
+border-image: url(:/images/images/Trident-wallpaper2-corner-lightgrey.png);
+background-position: bottom right;
+}
+QWidget#tab_slide_4 QLabel{
+color: palette(button-text);
 }
 QWidget#stackedWidget, QWidget#page_welcome, QWidget#page_partitions, QWidget#page_user, QWidget#page_pkgs, QWidget#page_summary, QWidget#page_installing, QWidget#page_finished{
 background: transparent;
@@ -199,8 +227,8 @@ color: palette(alternate-base);
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>86</width>
-                 <height>86</height>
+                 <width>84</width>
+                 <height>50</height>
                 </rect>
                </property>
                <property name="styleSheet">
@@ -241,8 +269,8 @@ color: palette(alternate-base);
                    <string notr="true">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Noto Sans'; font-size:10pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:'DejaVu Sans'; font-size:12pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'DejaVu Sans'; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                   </property>
                  </widget>
                 </item>
@@ -253,8 +281,8 @@ p, li { white-space: pre-wrap; }
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>86</width>
-                 <height>86</height>
+                 <width>84</width>
+                 <height>50</height>
                 </rect>
                </property>
                <attribute name="icon">
@@ -418,7 +446,7 @@ p, li { white-space: pre-wrap; }
       </widget>
       <widget class="QStackedWidget" name="stackedWidget">
        <property name="currentIndex">
-        <number>3</number>
+        <number>5</number>
        </property>
        <widget class="QWidget" name="page_welcome">
         <layout class="QVBoxLayout" name="verticalLayout_6">
@@ -975,8 +1003,8 @@ p, li { white-space: pre-wrap; }
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>503</width>
-              <height>603</height>
+              <width>292</width>
+              <height>380</height>
              </rect>
             </property>
             <layout class="QGridLayout" name="gridLayout_2">
@@ -1403,7 +1431,7 @@ p, li { white-space: pre-wrap; }
             <number>3</number>
            </property>
            <attribute name="headerVisible">
-            <bool>true</bool>
+            <bool>false</bool>
            </attribute>
            <attribute name="headerCascadingSectionResizes">
             <bool>true</bool>
@@ -1621,7 +1649,7 @@ p, li { white-space: pre-wrap; }
            <property name="currentIndex">
             <number>0</number>
            </property>
-           <widget class="QWidget" name="tab_2">
+           <widget class="QWidget" name="tab_slide_1">
             <attribute name="icon">
              <iconset theme="desktop">
               <normaloff>.</normaloff>.</iconset>
@@ -1629,41 +1657,110 @@ p, li { white-space: pre-wrap; }
             <attribute name="title">
              <string/>
             </attribute>
-            <widget class="QLabel" name="label_18">
-             <property name="geometry">
-              <rect>
-               <x>280</x>
-               <y>280</y>
-               <width>271</width>
-               <height>19</height>
-              </rect>
-             </property>
-             <property name="text">
-              <string>Install Slide 1</string>
-             </property>
-            </widget>
+            <layout class="QVBoxLayout" name="verticalLayout_15">
+             <item>
+              <widget class="QLabel" name="label_18">
+               <property name="text">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:22pt; font-weight:600;&quot;&gt;Installation Proceeding&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Thank you for installing Project Trident!&lt;/p&gt;&lt;p&gt;To view the details of the ongoing installation, please click the &amp;quot;View Log&amp;quot; button in the bottom-left corner at any time.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
+               <property name="scaledContents">
+                <bool>true</bool>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+               </property>
+               <property name="wordWrap">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+            </layout>
            </widget>
-           <widget class="QWidget" name="tab_3">
+           <widget class="QWidget" name="tab_slide_2">
             <attribute name="icon">
-             <iconset theme="desktop">
-              <normaloff>.</normaloff>.</iconset>
+             <iconset theme="github"/>
             </attribute>
             <attribute name="title">
-             <string/>
+             <string>Open Source</string>
             </attribute>
-            <widget class="QLabel" name="label_17">
-             <property name="geometry">
-              <rect>
-               <x>90</x>
-               <y>40</y>
-               <width>271</width>
-               <height>19</height>
-              </rect>
-             </property>
-             <property name="text">
-              <string>Install Slide 2</string>
-             </property>
-            </widget>
+            <layout class="QVBoxLayout" name="verticalLayout_14">
+             <item>
+              <widget class="QLabel" name="label_17">
+               <property name="text">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:22pt; font-weight:600;&quot;&gt;Did You Know?&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Project Trident is 100% free and open-source. Anybody is welcome to view or provide changes through our organization on GitHub:&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:14pt; font-style:italic;&quot;&gt;https://github.com/project-trident&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
+               <property name="scaledContents">
+                <bool>true</bool>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignHCenter|Qt::AlignTop</set>
+               </property>
+               <property name="wordWrap">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+           <widget class="QWidget" name="tab_slide_3">
+            <attribute name="icon">
+             <iconset theme="preferences-system-firewall"/>
+            </attribute>
+            <attribute name="title">
+             <string>Private</string>
+            </attribute>
+            <layout class="QVBoxLayout" name="verticalLayout_16">
+             <item>
+              <widget class="QLabel" name="label_3">
+               <property name="text">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:22pt; font-weight:600;&quot;&gt;Privacy Focused&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:20pt; font-style:italic;&quot;&gt;No-Tracking Guarantee&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;We believe that every person should be allowed to use their computer without fear of the operating system monitoring and reporting everything you do to some external entity (be it a government or a corporation).&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Project Trident never tracks or maintains a list of users or activity in any way.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Period&lt;/span&gt;.&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
+               <property name="scaledContents">
+                <bool>true</bool>
+               </property>
+               <property name="wordWrap">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+           <widget class="QWidget" name="tab_slide_4">
+            <attribute name="icon">
+             <iconset theme="preferences-system-notifications"/>
+            </attribute>
+            <attribute name="title">
+             <string>Community</string>
+            </attribute>
+            <layout class="QVBoxLayout" name="verticalLayout_17">
+             <item>
+              <widget class="QLabel" name="label_15">
+               <property name="text">
+                <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'DejaVu Sans'; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:22pt; font-weight:600;&quot;&gt;Join the Community!&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Project Trident has a welcoming and friendly community of users all over the world. Join us for help, suggestions, or even some light-hearted frivolity!&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Forums, Telegram ,Twitter, and More!&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;You can find all the various ways of joining the community on our website:&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:16pt; font-style:italic;&quot;&gt;www.project-trident.org&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
+               <property name="scaledContents">
+                <bool>true</bool>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignHCenter|Qt::AlignTop</set>
+               </property>
+               <property name="wordWrap">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+            </layout>
            </widget>
           </widget>
          </item>
