@@ -165,7 +165,7 @@
       "default_laptop" : true
     },
     "intel_backlight" : {
-      "pkgname" : "intel_backlight",
+      "pkgname" : "intel-backlight",
       "icon" : "redshift",
       "required" : "false",
       "default" : false,
