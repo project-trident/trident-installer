@@ -93,8 +93,10 @@ bool Backend::isLaptop(){
   if(hasbat<0){
     //Not probed yet
     bool ok = false;
-    int ret = runCommand(ok, "apm -a").toInt();
-    if(ret<0 || ret>2 || !ok){ hasbat = 0; } //no battery found
+    QStringList info = runCommand(ok, "apm -a").split("\n").filter("Number of batteries:");
+    int bat = 0;
+    if(!info.isEmpty()){ bat = info.first().section(":",-1).simplified().toInt(); }
+    if(bat<=0 || !ok){ hasbat = 0; } //no battery found
     else{ hasbat = 1; } //found a battery
   }
   return (hasbat==1);
@@ -376,9 +378,9 @@ void Backend::GeneratePackageItem(QJsonObject json, QTreeWidget *tree, QString n
         QJsonObject info = pciconf.value(ids[i]).toObject();
         bool match = true;
         if(conf.contains("vendor_regex")){ match = match && info.value("vendor").toString().contains(QRegExp(conf.value("vendor_regex").toString())); }
-        else if(conf.contains("device_regex")){ setChecked = info.value("device").toString().contains(QRegExp(conf.value("device_regex").toString())); }
-        else if(conf.contains("class_regex")){ setChecked = info.value("class").toString().contains(QRegExp(conf.value("class_regex").toString())); }
-        else if(conf.contains("subclass_regex")){ setChecked = info.value("subclass").toString().contains(QRegExp(conf.value("subclass_regex").toString())); }
+        if(conf.contains("device_regex")){ match = match && info.value("device").toString().contains(QRegExp(conf.value("device_regex").toString())); }
+        if(conf.contains("class_regex")){ match = match && info.value("class").toString().contains(QRegExp(conf.value("class_regex").toString())); }
+        if(conf.contains("subclass_regex")){ match = match && info.value("subclass").toString().contains(QRegExp(conf.value("subclass_regex").toString())); }
         setChecked = match;
       }
     }

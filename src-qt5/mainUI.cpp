@@ -61,6 +61,7 @@ MainUI::MainUI() : QMainWindow(), ui(new Ui::MainUI){
   }else{
     QRect size = QApplication::screens().first()->geometry();
     this->setGeometry(size);
+    this->setFixedSize(size.size());
     this->showMaximized();
   }
   this->show();
@@ -510,16 +511,21 @@ void MainUI::startInstallClicked(){
 }
 
 void MainUI::newInstallMessage(QString msg){
-  ui->label_installing->setText(msg.section("\n",-2,-1,QString::SectionSkipEmpty));
+  //Add the new text to the log
   bool scrolldown = (ui->text_install_log->verticalScrollBar()->value()==ui->text_install_log->verticalScrollBar()->maximum());
-  ui->text_install_log->append(msg);
+  ui->text_install_log->insertPlainText(msg);
   if(scrolldown){ ui->text_install_log->verticalScrollBar()->setValue( ui->text_install_log->verticalScrollBar()->maximum() ); }
+  //Now grab the last line and put it next to the progressbar
+  QString shortstring = ui->text_install_log->toPlainText().section("\n",-2,-1,QString::SectionSkipEmpty);
+  if(shortstring.length()>30){ shortstring = shortstring.left(27)+"..."; }
+  ui->label_installing->setText(shortstring);
 }
 
 void MainUI::installFinished(bool ok){
   slideshowTimer->stop();
-  if(!ok){
-    QMessageBox::warning(this, tr("Installation Failed"), tr("Please view the installation log for details") );
+  QStringList logerrors = ui->text_install_log->toPlainText().split("\n").filter("EXITERROR:");
+  if(!ok || !logerrors.isEmpty()){
+    ui->label_result->setText(tr("Installation Failed")+"\n\n"+tr("Please view the installation log for details"));
   }
   ui->stackedWidget->setCurrentWidget(ui->page_finished);
   updateButtonFrame();

@@ -446,7 +446,7 @@ p, li { white-space: pre-wrap; }
       </widget>
       <widget class="QStackedWidget" name="stackedWidget">
        <property name="currentIndex">
-        <number>5</number>
+        <number>6</number>
        </property>
        <widget class="QWidget" name="page_welcome">
         <layout class="QVBoxLayout" name="verticalLayout_6">
@@ -1425,7 +1425,7 @@ p, li { white-space: pre-wrap; }
             <bool>true</bool>
            </property>
            <property name="headerHidden">
-            <bool>false</bool>
+            <bool>true</bool>
            </property>
            <property name="columnCount">
             <number>3</number>
@@ -1678,7 +1678,8 @@ p, li { white-space: pre-wrap; }
            </widget>
            <widget class="QWidget" name="tab_slide_2">
             <attribute name="icon">
-             <iconset theme="github"/>
+             <iconset theme="github">
+              <normaloff>.</normaloff>.</iconset>
             </attribute>
             <attribute name="title">
              <string>Open Source</string>
@@ -1704,7 +1705,8 @@ p, li { white-space: pre-wrap; }
            </widget>
            <widget class="QWidget" name="tab_slide_3">
             <attribute name="icon">
-             <iconset theme="preferences-system-firewall"/>
+             <iconset theme="preferences-system-firewall">
+              <normaloff>.</normaloff>.</iconset>
             </attribute>
             <attribute name="title">
              <string>Private</string>
@@ -1727,7 +1729,8 @@ p, li { white-space: pre-wrap; }
            </widget>
            <widget class="QWidget" name="tab_slide_4">
             <attribute name="icon">
-             <iconset theme="preferences-system-notifications"/>
+             <iconset theme="preferences-system-notifications">
+              <normaloff>.</normaloff>.</iconset>
             </attribute>
             <attribute name="title">
              <string>Community</string>
@@ -1808,11 +1811,13 @@ p, li { white-space: pre-wrap; }
           <number>0</number>
          </property>
          <item>
-          <widget class="QLabel" name="label_14">
+          <widget class="QLabel" name="label_result">
            <property name="font">
             <font>
-             <pointsize>16</pointsize>
+             <pointsize>22</pointsize>
+             <weight>75</weight>
              <italic>true</italic>
+             <bold>true</bold>
             </font>
            </property>
            <property name="text">
