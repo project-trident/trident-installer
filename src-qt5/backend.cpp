@@ -183,9 +183,19 @@ QString Backend::generateInstallConfig(){
   }
   if(use_4k_alignment()){
     contents << confString("zfsForce4k","YES");
+    contents << confString("ashift","12");
   }
   contents << confString("efiloader","bsd"); //can also be "refind"
   contents << confString("hostname", hostname() );
+
+  //Settings for loading files from the ISO
+  contents << "";
+  contents << "# == INSTALL FROM ISO ==";
+  contents << confString("packageType","pkg");
+  contents << confString("installType","FreeBSD");
+  contents << confString("installMedium","local");
+  contents << confString("localPath", getLocalDistPath());
+  contents << confString("distFiles","base doc kernel lib32");
 
   // Localization
   contents << "";
@@ -263,6 +273,15 @@ QString Backend::generateInstallConfig(){
   contents << "# == FINAL SETUP ==";
   contents << confString("runCommand", "/usr/local/share/trident/scripts/sys-init.sh");
   return contents.join("\n");
+}
+
+QString Backend::getLocalDistPath(){
+  QDir dir("/dist");
+  QStringList list = dir.entryList(QStringList() << "FreeBSD*", QDir::Dirs | QDir::NoDotAndDotDot);
+  for(int i=0; i<list.length(); i++){
+    if(dir.exists(list[i]+"/latest")){ return dir.absoluteFilePath(list[i]+"/latest"); }
+  }
+  return dir.absolutePath(); //no FreeBSD subdir? - should never happen but try using just /dist
 }
 
 void Backend::checkKeyboardInfo(){

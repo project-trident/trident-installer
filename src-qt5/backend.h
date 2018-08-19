@@ -50,6 +50,7 @@ private:
 	QProcess *PROC;
 
 	QString generateInstallConfig(); //turns JSON settings into a config file for pc-sysinstall
+	QString getLocalDistPath(); //Determine the dir path to the dist files for install
 
 	//Functions for filling the private variables as needed (always run them before using)
 	void checkKeyboardInfo();
