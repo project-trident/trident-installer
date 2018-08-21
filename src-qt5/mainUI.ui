@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1083</width>
-    <height>639</height>
+    <width>1855</width>
+    <height>731</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -95,6 +95,36 @@ QComboBox QAbstractItemView{
 border-color: palette(highlight);
 background-color: palette(base);
 color: palette(alternate-base);
+}
+/* SCROLLBARS (NOTE: Changing 1 subcontrol means you have to change all of them)*/
+QScrollBar{
+  background: palette(alternate-base);
+}
+QScrollBar:horizontal{
+  margin: 0px 0px 0px 0px;
+}
+QScrollBar:vertical{
+  margin: 0px 0px 0px 0px;
+}
+QScrollBar::handle{
+  background: palette(base);
+  border: 1px solid transparent;
+  border-radius: 1px;
+}
+QScrollBar::handle:hover, QScrollBar::add-line:hover, QScrollBar::sub-line:hover{
+  background: palette(highlight);
+}
+QScrollBar::add-line{
+subcontrol-origin: none;
+}
+QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical{
+height: 0px;
+}
+QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal{
+width: 0px;
+}
+QScrollBar::sub-line{
+subcontrol-origin: none;
 }</string>
   </property>
   <widget class="QWidget" name="centralwidget">
@@ -227,8 +257,8 @@ color: palette(alternate-base);
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>84</width>
-                 <height>50</height>
+                 <width>179</width>
+                 <height>472</height>
                 </rect>
                </property>
                <property name="styleSheet">
@@ -269,8 +299,8 @@ color: palette(alternate-base);
                    <string notr="true">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'DejaVu Sans'; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Noto Sans'; font-size:10pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:'DejaVu Sans'; font-size:12pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                   </property>
                  </widget>
                 </item>
@@ -281,8 +311,8 @@ p, li { white-space: pre-wrap; }
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>84</width>
-                 <height>50</height>
+                 <width>86</width>
+                 <height>86</height>
                 </rect>
                </property>
                <attribute name="icon">
@@ -324,18 +354,21 @@ p, li { white-space: pre-wrap; }
              <number>0</number>
             </property>
             <property name="topMargin">
-             <number>0</number>
+             <number>2</number>
             </property>
             <property name="rightMargin">
-             <number>0</number>
+             <number>2</number>
             </property>
             <property name="bottomMargin">
-             <number>0</number>
+             <number>2</number>
             </property>
             <item>
              <widget class="QTextEdit" name="text_install_log">
               <property name="frameShape">
                <enum>QFrame::NoFrame</enum>
+              </property>
+              <property name="sizeAdjustPolicy">
+               <enum>QAbstractScrollArea::AdjustToContents</enum>
               </property>
               <property name="readOnly">
                <bool>true</bool>
@@ -426,18 +459,27 @@ p, li { white-space: pre-wrap; }
              <number>0</number>
             </property>
             <property name="topMargin">
-             <number>0</number>
+             <number>2</number>
             </property>
             <property name="rightMargin">
-             <number>0</number>
+             <number>2</number>
             </property>
             <property name="bottomMargin">
-             <number>0</number>
+             <number>2</number>
             </property>
             <item>
              <widget class="QListWidget" name="list_locale">
               <property name="frameShape">
                <enum>QFrame::NoFrame</enum>
+              </property>
+              <property name="verticalScrollBarPolicy">
+               <enum>Qt::ScrollBarAsNeeded</enum>
+              </property>
+              <property name="horizontalScrollBarPolicy">
+               <enum>Qt::ScrollBarAsNeeded</enum>
+              </property>
+              <property name="sizeAdjustPolicy">
+               <enum>QAbstractScrollArea::AdjustToContents</enum>
               </property>
              </widget>
             </item>
@@ -449,7 +491,7 @@ p, li { white-space: pre-wrap; }
       </widget>
       <widget class="QStackedWidget" name="stackedWidget">
        <property name="currentIndex">
-        <number>6</number>
+        <number>2</number>
        </property>
        <widget class="QWidget" name="page_welcome">
         <layout class="QVBoxLayout" name="verticalLayout_6">
@@ -1006,8 +1048,8 @@ p, li { white-space: pre-wrap; }
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>292</width>
-              <height>380</height>
+              <width>1425</width>
+              <height>603</height>
              </rect>
             </property>
             <layout class="QGridLayout" name="gridLayout_2">

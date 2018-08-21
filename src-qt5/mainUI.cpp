@@ -224,6 +224,8 @@ void MainUI::loadPageFromBackend(QWidget *current){
       ui->line_user_name->setText(users[0].name);
     }
     validateUserPage();
+    //Make sure the root password box has input focus initially (for pure-keyboard setup)
+    ui->line_pass_root->setFocus();
 
   }else if(current == ui->page_summary){
     ui->text_summary->clear();
