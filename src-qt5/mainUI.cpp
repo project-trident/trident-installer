@@ -350,7 +350,10 @@ void MainUI::sidebar_item_changed(){
 
   }else if(checked == ui->actionLog){
     ui->stacked_sidebar->setCurrentWidget(ui->page_log);
-
+    if(ui->text_install_config->toPlainText().isEmpty()){
+      //Need to load the config used for the install into the viewer
+      ui->text_install_config->setPlainText( BACKEND->fullInstallConf() );
+    }
   }else{
     collapse_sidebar();
     return;
