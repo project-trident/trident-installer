@@ -163,7 +163,7 @@ bool Backend::isUEFI(){
   if(chk<0){
     bool ok = false;
     QString result = runCommand(ok, "sysctl", QStringList()<< "-n" << "machdep.bootmethod").simplified().toLower();
-    qDebug() << "Got UEFI Check:" << result;
+    //qDebug() << "Got UEFI Check:" << result;
     if(result=="uefi"){ chk = 0; } //booting with UEFI
     else{ chk = 1; } //booting with legacy mode
   }
@@ -361,7 +361,7 @@ void Backend::GeneratePackageItem(QJsonObject json, QTreeWidget *tree, QString n
     item->setWhatsThis(0, json.value("pkgname").toString());
     QJsonObject infoObj = package_info(item->whatsThis(0));
     if(infoObj.isEmpty()){
-      qDebug() << "Package not found:" << item->whatsThis(0);
+      //qDebug() << "Package not found:" << item->whatsThis(0);
       delete item;
       return;
     }
@@ -653,7 +653,7 @@ QStringList Backend::availableZPools(){
   QStringList pools;
   bool ok = false;
   QStringList tmp = runCommand(ok, "zpool import").split("\n").filter("pool: ");
-  qDebug() << "Got ZFS pool list:" << tmp;
+  //qDebug() << "Got ZFS pool list:" << tmp;
   for(int i=0; i<tmp.length(); i++){
     QString pname = tmp[i].section(" ",1,1,QString::SectionSkipEmpty);
     pools << pname+" :: "+tmp[i].section(" ", 1,-1, QString::SectionSkipEmpty);
@@ -838,7 +838,7 @@ void Backend::read_install_output(){
 
 void Backend::install_finished(int retcode, QProcess::ExitStatus status){
   read_install_output();
-  qDebug() << "Installation Finished:" <<retcode << status;
+  //qDebug() << "Installation Finished:" <<retcode << status;
   emit install_finished(retcode==0);
 }
 
