@@ -522,7 +522,7 @@ void MainUI::newInstallMessage(QString msg){
   ui->text_install_log->insertPlainText(msg);
   if(scrolldown){ ui->text_install_log->verticalScrollBar()->setValue( ui->text_install_log->verticalScrollBar()->maximum() ); }
   //Now grab the last line and put it next to the progressbar
-  QString shortstring = ui->text_install_log->toPlainText().section("\n",-2,-1,QString::SectionSkipEmpty);
+  QString shortstring = ui->text_install_log->toPlainText().section("\n",-1,-1,QString::SectionSkipEmpty);
   if(shortstring.length()>50){ shortstring = shortstring.left(47)+"..."; }
   ui->label_installing->setText(shortstring);
 }
