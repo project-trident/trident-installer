@@ -218,7 +218,7 @@ QString Backend::generateInstallConfig(){
   // Networking
   contents << "";
   contents << "# == NETWORKING ==";
-  contents << confString("netSaveDev", "AUTO-DHCP"); //DHCP for everything by default after install
+  contents << confString("netSaveDev", "AUTO-DHCP-SLAAC"); //DHCP for everything by default after install
 
   // Disks
   if(!installToBE()){
@@ -274,6 +274,7 @@ QString Backend::generateInstallConfig(){
   contents << "";
   contents << "# == FINAL SETUP ==";
   contents << confString("runCommand", "/usr/local/share/trident/scripts/sys-init.sh");
+  contents << ""; //always end the config with an empty line - otherwise the last instruction will not be used
   return contents.join("\n");
 }
 
@@ -507,7 +508,7 @@ void Backend::setTimezone(QString tz){
 QDateTime Backend::localDateTime(){
   QDateTime cdt = QDateTime::currentDateTime();
   //qDebug() << cdt;
-  if(settings.contains("timezone")){ cdt = cdt.toTimeZone( QTimeZone( settings.value("timezone").toString().toUtf8() ) ); }
+  if(settings.contains("timezone")){ cdt.setTimeZone( QTimeZone( settings.value("timezone").toString().toUtf8() ) ); }
   //qDebug() << cdt;
   if(settings.contains("time_offset_secs")){ cdt = cdt.addSecs( settings.value("time_offset_secs").toInt() ); }
   //qDebug() << "Local Date Time:" << cdt;

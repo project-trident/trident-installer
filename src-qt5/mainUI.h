@@ -63,6 +63,7 @@ private slots:
 	void installFinished(bool ok = true);
 	void rebootClicked();
 	void shutdownClicked();
+	void closeGuiClicked();
 	void updateButtonFrame();
 
 	//Radio button toggles

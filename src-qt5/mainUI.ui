@@ -377,7 +377,8 @@ p, li { white-space: pre-wrap; }
                 </rect>
                </property>
                <attribute name="icon">
-                <iconset theme="terminal"/>
+                <iconset theme="terminal">
+                 <normaloff>.</normaloff>.</iconset>
                </attribute>
                <attribute name="label">
                 <string>Log</string>
@@ -415,12 +416,13 @@ p, li { white-space: pre-wrap; }
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>177</width>
-                 <height>504</height>
+                 <width>86</width>
+                 <height>86</height>
                 </rect>
                </property>
                <attribute name="icon">
-                <iconset theme="system-config-services"/>
+                <iconset theme="system-config-services">
+                 <normaloff>.</normaloff>.</iconset>
                </attribute>
                <attribute name="label">
                 <string>Config</string>
@@ -2122,6 +2124,19 @@ p, li { white-space: pre-wrap; }
         <widget class="QLabel" name="label_debug">
          <property name="text">
           <string notr="true">DEBUG MODE</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QToolButton" name="tool_close_gui">
+         <property name="text">
+          <string>Go to Terminal</string>
+         </property>
+         <property name="icon">
+          <iconset theme="terminal"/>
+         </property>
+         <property name="toolButtonStyle">
+          <enum>Qt::ToolButtonTextBesideIcon</enum>
          </property>
         </widget>
        </item>

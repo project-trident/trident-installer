@@ -93,6 +93,7 @@ void MainUI::setupConnections(){
   connect(ui->tool_startinstall, SIGNAL(clicked()), this, SLOT(startInstallClicked()) );
   connect(ui->tool_reboot, SIGNAL(clicked()), this, SLOT(rebootClicked()) );
   connect(ui->tool_shutdown, SIGNAL(clicked()), this, SLOT(shutdownClicked()) );
+  connect(ui->tool_close_gui, SIGNAL(clicked()), this, SLOT(closeGuiClicked()) );
   connect(slideshowTimer, SIGNAL(timeout()), this, SLOT(nextSlideshowImage()) );
   connect(ui->tabWidget, SIGNAL(tabBarClicked(int)), slideshowTimer, SLOT(stop()) );
   //Welcome Page
@@ -522,7 +523,7 @@ void MainUI::newInstallMessage(QString msg){
   if(scrolldown){ ui->text_install_log->verticalScrollBar()->setValue( ui->text_install_log->verticalScrollBar()->maximum() ); }
   //Now grab the last line and put it next to the progressbar
   QString shortstring = ui->text_install_log->toPlainText().section("\n",-2,-1,QString::SectionSkipEmpty);
-  if(shortstring.length()>30){ shortstring = shortstring.left(27)+"..."; }
+  if(shortstring.length()>50){ shortstring = shortstring.left(47)+"..."; }
   ui->label_installing->setText(shortstring);
 }
 
@@ -546,6 +547,10 @@ void MainUI::shutdownClicked(){
   QApplication::exit(0);
 }
 
+void MainUI::closeGuiClicked(){
+  QApplication::exit(0);
+}
+
 void MainUI::updateButtonFrame(){
   QWidget *cur = ui->stackedWidget->currentWidget();
   bool showNext, showPrev, showStart, showReboot;
@@ -566,6 +571,7 @@ void MainUI::updateButtonFrame(){
   ui->tool_startinstall->setVisible(showStart);
   ui->tool_reboot->setVisible(showReboot);
   ui->tool_shutdown->setVisible(showReboot || showNext || showStart);
+  ui->tool_close_gui->setVisible(showReboot); //only show this at the same time (finished page)
 
   //Now setup the progress bar
   int page = page_list.indexOf(cur);
@@ -587,13 +593,14 @@ void MainUI::nextSlideshowImage(){
 
 //Radio button toggles
 void MainUI::radio_disk_toggled(){
-  // Main intall type area
+  // Main install type area
   ui->list_zpools->setVisible(ui->radio_disk_bootenv->isChecked());
   ui->tree_disks->setVisible(ui->radio_disk_single->isChecked());
   // Advanced options
   ui->group_disk_encrypt->setEnabled(ui->radio_disk_single->isChecked());
   ui->group_disk_refind->setEnabled(BACKEND->isUEFI() && ui->radio_disk_single->isChecked());
   ui->group_disk_swap->setEnabled(ui->radio_disk_single->isChecked());
+  swap_size_changed(ui->slider_disk_swap->value());
   validateDiskPage();
 }
 

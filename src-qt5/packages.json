@@ -121,7 +121,7 @@
     },
     "Falkon" : {
       "pkgname" : "falkon",
-      "icon" : "falkon",
+      "icon" : "browser",
       "required" : false,
       "default" : true
     },
@@ -228,6 +228,14 @@
     "Blueray Support" : {
       "pkgname" : "libbluray",
       "icon" : "media-optical-blu-ray",
+      "default" : true
+    }
+  },
+  "Security" : {
+    "icon" : "security-high",
+    "Microcode Updates" : {
+      "pkgname" : "devcpu-data",
+      "icon" : "cpu",
       "default" : true
     }
   }
