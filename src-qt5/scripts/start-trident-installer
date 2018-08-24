@@ -7,6 +7,23 @@
  _conf="/tmp/xorg.conf"
 _logfile="/tmp/xorg.log"
 
+setupXorgFonts(){
+  #Automatically probe for all the installed fonts
+  local _tmp=""
+  for _font in `find /usr/local/share/fonts | grep fonts.dir`
+  do
+    _fontdir=`dirname ${_font}`
+    if [ -z "${_tmp}" ] ; then
+      _tmp="  FontPath     \"${_fontdir}\""
+    else
+      _tmp="${_tmp}
+  FontPath     \"${_fontdir}\""
+    fi
+  done
+  #Now save this list into the xorg conf
+  sed -i '' "s|%%FONTS%%|${_tmp}|g" "${_conf}"
+}
+
 #Function: Setup the default xorg.conf file
 setupXorgConf(){
   #Inputs: $1 : driver to use
@@ -22,6 +39,7 @@ setupXorgConf(){
     cp -f "${template}" "${_conf}"
     sed -i '' "s|%%BUSID%%|${busid}|g" "${_conf}"
     sed -i '' "s|%%DRIVER%%|${_driver}|g" "${_conf}"
+    setupXorgFonts
   fi
 
   # Check for extra kernel modules to load for video driver support
