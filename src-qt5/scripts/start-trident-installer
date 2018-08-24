@@ -10,16 +10,22 @@ _logfile="/tmp/xorg.log"
 setupXorgFonts(){
   #Automatically probe for all the installed fonts
   local _tmp=""
-  for _font in `find /usr/local/share/fonts | grep fonts.dir`
-  do
-    _fontdir=`dirname ${_font}`
+#Now probe for installed fonts and add them to the list
+for _fontdir in `ls /usr/local/share/fonts`
+do
+  _fontdir="/usr/local/share/fonts/${_fontdir}"
+  ls "${_fontdir}" | grep -qE ".ttf"
+  if [ $? -eq 0 ] ; then
+    #Got a good font directory
     if [ -z "${_tmp}" ] ; then
       _tmp="  FontPath     \"${_fontdir}\""
     else
       _tmp="${_tmp}
   FontPath     \"${_fontdir}\""
     fi
-  done
+  fi
+done
+
   #Now save this list into the xorg conf
   sed -i '' "s|%%FONTS%%|${_tmp}|g" "${_conf}"
 }
