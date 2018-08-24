@@ -218,7 +218,7 @@ QString Backend::generateInstallConfig(){
   // Networking
   contents << "";
   contents << "# == NETWORKING ==";
-  contents << confString("netSaveDev", "AUTO-DHCP-SLAAC"); //DHCP for everything by default after install
+  contents << confString("netSaveDev", "AUTO-DHCP"); //DHCP for everything by default after install
 
   // Disks
   if(!installToBE()){
