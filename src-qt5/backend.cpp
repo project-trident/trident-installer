@@ -612,7 +612,7 @@ QJsonObject Backend::availableDisks(bool fromcache){
         //Add any extra info into the main diskID info object
         QJsonObject tmp = diskObj.value(diskID).toObject();
           tmp.insert("label", diskInfo);
-          if(!tmp.contains("sizemb")){ tmp.insert("sizemb", QString::number( qRound(totalMB) ) ); }
+          tmp.insert("sizemb", QString::number( qRound(totalMB) ) );
         diskObj.insert(diskID, tmp);
         obj.insert(diskID, diskObj);
       }
