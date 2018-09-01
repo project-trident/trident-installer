@@ -72,6 +72,12 @@ else
   setupXorgConf "vesa"
 fi
 
+#Ensure that needed services are started
+services="moused"
+for svc in ${services}
+do
+  service --ifnotstarted ${svc} start
+done
 #Make sure the DBUS machine-id file exists (bug in Qt)
 # CANNOT RUN ON ISO (read-only filesystem) - hard-coded /etc/machine-id in install files
 #dbus-uuidgen --ensure >/dev/null 2>/dev/null
