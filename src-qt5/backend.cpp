@@ -170,6 +170,13 @@ bool Backend::isUEFI(){
   return (chk==0);
 }
 
+QString Backend::isodate(){
+  bool ok = false;
+  QString result = runCommand(ok, "uname", QStringList()<< "-v").simplified();
+  qDebug() << "Got uname:" << result;
+  return result.section(" ", 4, -2);
+}
+
 QString Backend::generateInstallConfig(){
   // Turns JSON settings into a config file for pc-sysinstall
   QStringList contents, tmpL;

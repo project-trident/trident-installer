@@ -32,7 +32,7 @@ MainUI::MainUI() : QMainWindow(), ui(new Ui::MainUI){
   loadPageFromBackend(page_list.first());
   //Create internal timers/objects
   slideshowTimer = new QTimer(this);
-    slideshowTimer->setInterval(5000);
+    slideshowTimer->setInterval(8000);
 
   //Only load the package page once
   BACKEND->populatePackageTreeWidget(ui->tree_pkgs);
@@ -53,6 +53,8 @@ MainUI::MainUI() : QMainWindow(), ui(new Ui::MainUI){
   //ui->toolBar->widgetForAction(ui->actionKeyboard)->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
   //ui->toolBar->widgetForAction(ui->actionLocale)->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
   //Update the visuals and show the window
+  QString isodate= BACKEND->isodate();
+  ui->label_iso_date->setText( QString(tr("ISO Created: %1")).arg(isodate) );
   setupConnections();
   updateButtonFrame();
   ui->tabWidget_disks->setCurrentIndex(0);
@@ -66,7 +68,6 @@ MainUI::MainUI() : QMainWindow(), ui(new Ui::MainUI){
   }
   this->show();
   ui->label_debug->setVisible(DEBUG);
-  //BACKEND->availableKeyboardModels();
   // Disable all the UI elements that are not finished yet
   ui->group_disk_refind->setVisible(false);
   ui->radio_disk_mirror->setVisible(false);
@@ -509,7 +510,7 @@ void MainUI::startInstallClicked(){
   updateButtonFrame();
   ui->tabWidget->setCurrentIndex(0); //start the slideshow on the first tab
   if(DEBUG){
-    QTimer::singleShot(20000, this, SLOT(installFinished()));
+    QTimer::singleShot(30000, this, SLOT(installFinished()));
   }else{
     BACKEND->startInstallation();
   }

@@ -77,6 +77,7 @@ public:
 	QString system_information();
 	QString pci_info();
 	bool isUEFI();
+	QString isodate();
 	// Post-install information
 	QString fullInstallLog(){ return readFile(INSTALLLOG); }
 	QString fullInstallConf(){ return readFile(INSTALLCONF); }
