@@ -572,7 +572,7 @@ void MainUI::updateButtonFrame(){
   ui->tool_startinstall->setVisible(showStart);
   ui->tool_reboot->setVisible(showReboot);
   ui->tool_shutdown->setVisible(showReboot || showNext || showStart);
-  ui->tool_close_gui->setVisible(showReboot); //only show this at the same time (finished page)
+  ui->tool_close_gui->setVisible(true);
 
   //Now setup the progress bar
   int page = page_list.indexOf(cur);
