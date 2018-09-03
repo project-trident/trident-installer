@@ -1300,7 +1300,7 @@ p, li { white-space: pre-wrap; }
                      <enum>Qt::NoFocus</enum>
                     </property>
                     <property name="toolTip">
-                     <string>Passwords do not match!!</string>
+                     <string>Passwords do not match!</string>
                     </property>
                     <property name="text">
                      <string notr="true"/>
@@ -1458,7 +1458,7 @@ p, li { white-space: pre-wrap; }
                      <enum>Qt::NoFocus</enum>
                     </property>
                     <property name="toolTip">
-                     <string>Passwords do not match!!</string>
+                     <string>Passwords do not match!</string>
                     </property>
                     <property name="text">
                      <string notr="true"/>
