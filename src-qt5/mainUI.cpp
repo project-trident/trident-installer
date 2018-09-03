@@ -100,6 +100,7 @@ void MainUI::setupConnections(){
   //Welcome Page
   connect(ui->dateTimeEdit, SIGNAL(dateTimeChanged(const QDateTime&)), this, SLOT(userDT_changed()) );
   connect(ui->combo_welcome_timezone, SIGNAL(currentTextChanged(const QString&)), this, SLOT(userDT_changed()) );
+  connect(ui->line_hostname, SIGNAL(textEdited(const QString&)), this, SLOT(hostname_changed()) );
   //User Page
   connect(ui->line_pass_root, SIGNAL(textEdited(const QString&)), this, SLOT(validateUserPage()) );
   connect(ui->line_passrepeat_root, SIGNAL(textEdited(const QString&)), this, SLOT(validateUserPage()) );
@@ -143,6 +144,7 @@ void MainUI::loadPageFromBackend(QWidget *current){
     int index = ui->combo_welcome_timezone->findText( dt.timeZone().id() );
     if(index>=0){ ui->combo_welcome_timezone->setCurrentIndex(index); }
     ui->dateTimeEdit->setDateTime(dt);
+    ui->line_hostname->setText( BACKEND->hostname() );
 
   }else if(current == ui->page_partitions){
     QJsonObject obj = BACKEND->availableDisks();
@@ -196,6 +198,7 @@ void MainUI::loadPageFromBackend(QWidget *current){
       ui->radio_disk_bootenv->setChecked(false);
     }
     radio_disk_toggled(); //Make sure the page items are updated appropriately
+    ui->check_force_4kblocks->setChecked(BACKEND->use_4k_alignment());
 
   }else if(current == ui->page_user){
     //Need to fill the list of available shells
@@ -239,7 +242,10 @@ void MainUI::loadPageFromBackend(QWidget *current){
 
 bool MainUI::savePageToBackend(QWidget *current, bool prompts){
   //Note: This will never run for the installation/finished pages
-  if(current == ui->page_user){
+  if(current == ui->page_welcome){
+    BACKEND->setHostname(ui->line_hostname->text());
+
+  }else if(current == ui->page_user){
     BACKEND->clearUsers();
     userdata data;
       data.name = ui->line_user_name->text();
@@ -253,6 +259,7 @@ bool MainUI::savePageToBackend(QWidget *current, bool prompts){
     BACKEND->setRootPass(ui->line_pass_root->text());
 
   }else if(current == ui->page_partitions){
+    BACKEND->set4k_alignment(ui->check_force_4kblocks->isChecked());
     if(ui->radio_disk_bootenv->isChecked()){
       BACKEND->setInstallToBE( ui->list_zpools->currentItem()->whatsThis() );
     }else{
@@ -642,6 +649,19 @@ void MainUI::userDT_changed(){
   dt.setTimeZone( QTimeZone( ui->combo_welcome_timezone->currentText().toUtf8() ) );
   //qDebug() << " - After changing TZ:" << dt;
   BACKEND->setDateTime(dt);
+}
+
+void MainUI::hostname_changed(){
+  //ensure the user-input hostname is valid
+  QString name = ui->line_hostname->text();
+  QRegExp re("[a-zA-Z0-9-_]");
+  for(int i=0; i<name.length(); i++){
+    if(!re.exactMatch( QString(name[i]) )){
+      name.remove(i,1);
+      i--;
+    }
+  }
+  if(name!=ui->line_hostname->text()){ ui->line_hostname->setText(name); } //fixed input
 }
 
 bool MainUI::validateRootPassword(){

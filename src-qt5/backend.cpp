@@ -173,7 +173,7 @@ bool Backend::isUEFI(){
 QString Backend::isodate(){
   bool ok = false;
   QString result = runCommand(ok, "uname", QStringList()<< "-v").simplified();
-  qDebug() << "Got uname:" << result;
+  //qDebug() << "Got uname:" << result;
   return result.section(" ", 4, -2);
 }
 
