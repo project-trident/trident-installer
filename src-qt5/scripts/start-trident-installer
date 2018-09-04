@@ -64,6 +64,7 @@ setupXorgConf(){
 
 # Probe the system for UEFI /VBOX and setup the vesa/scfb display driver
 _boot=`sysctl -n machdep.bootmethod` #BIOS or UEFI
+echo "Detecting system info: ${_boot}"
 if [ "${_boot}" = "UEFI" ] ; then
   #UEFI boot : use "scfb" driver
   setupXorgConf "scfb"
@@ -73,7 +74,8 @@ else
 fi
 
 #Ensure that needed services are started
-services="moused"
+echo "Starting required services..."
+services="devd moused"
 for svc in ${services}
 do
   service --ifnotstarted ${svc} start
@@ -84,5 +86,8 @@ done
 
 #Start the graphical install
 echo "Starting Trident Installer...."
-(xinit /usr/local/bin/trident-installer -- -config ${_conf} -logfile ${_logfile} :0) &
-#shutdown -r now
+xinit /usr/local/bin/trident-installer -- -config ${_conf} -logfile ${_logfile} :0
+echo "============================"
+echo "To login: Use \"root\" user (no password)"
+echo "To restart installer: `start-trident-installer`"
+echo "============================"
