@@ -279,7 +279,7 @@ bool MainUI::savePageToBackend(QWidget *current, bool prompts){
         disk.name = sel.section(":",0,0).simplified();
         disk.install_partition = sel.section(":",1,1).simplified();
         disk.mirror_disk.clear(); //unset this
-        disk.installBootManager = true; //(disk.install_partition=="all");
+        disk.installBootManager = (disk.install_partition=="all");
       //Setup partitions for the disk
       if(disk.install_partition=="all" && ui->group_disk_swap->isChecked()){
         double swapsize = ui->slider_disk_swap->value();
@@ -669,6 +669,7 @@ bool MainUI::validateRootPassword(){
   bool match = (pass == ui->line_passrepeat_root->text() );
   ui->tool_root_pass_chk->setVisible(!match);
   ui->line_pass_root->setEchoMode( ui->tool_showpass_root->isChecked() ? QLineEdit::Normal : QLineEdit::Password);
+  ui->line_passrepeat_root->setEchoMode( ui->tool_showpass_root->isChecked() ? QLineEdit::Normal : QLineEdit::Password);
   return (!pass.isEmpty() && match);
 }
 
@@ -679,6 +680,7 @@ bool MainUI::validateUserInfo(){
   //qDebug() << "validate User Info:" << match << pass;
   ui->tool_user_pass_chk->setVisible(!match);
   ui->line_user_pass->setEchoMode( ui->tool_user_showpass->isChecked() ? QLineEdit::Normal : QLineEdit::Password);
+  ui->line_user_pass2->setEchoMode( ui->tool_user_showpass->isChecked() ? QLineEdit::Normal : QLineEdit::Password);
   //User name/comment text validation
   ui->line_user_name->setText( ui->line_user_name->text().toLower().remove(" ") );
 
