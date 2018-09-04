@@ -177,7 +177,7 @@ QString Backend::isodate(){
   return result.section(" ", 4, -2);
 }
 
-QString Backend::generateInstallConfig(){
+QString Backend::generateInstallConfig(bool internal){
   // Turns JSON settings into a config file for pc-sysinstall
   QStringList contents, tmpL;
   QString tmp;
@@ -258,12 +258,12 @@ QString Backend::generateInstallConfig(){
   // Users
   contents << "";
   contents << "# == USER ACCOUNTS ==";
-  if(!rootPass().isEmpty()){ contents << confString("rootPass", rootPass()); }
+  if(!rootPass().isEmpty()){ contents << confString("rootPass", (internal ? rootPass() : "******") ); }
   for(int i=0; i<USERS.length(); i++){
     userdata USER = USERS[i];
     contents << confString("userName", USER.name);
     contents << confString("userComment", USER.comment);
-    contents << confString("userPass", USER.pass);
+    contents << confString("userPass", (internal ? USER.pass : "******") );
     contents << confString("userShell", USER.shell);
     contents << confString("userHome", USER.home);
     contents << confString("userGroups", USER.groups.join(","));

@@ -49,7 +49,7 @@ private:
 	QList<diskdata> DISKS;
 	QProcess *PROC;
 
-	QString generateInstallConfig(); //turns JSON settings into a config file for pc-sysinstall
+	QString generateInstallConfig(bool internal = true); //turns JSON settings into a config file for pc-sysinstall
 	QString getLocalDistPath(); //Determine the dir path to the dist files for install
 
 	//Functions for filling the private variables as needed (always run them before using)
@@ -72,7 +72,7 @@ public:
 	static bool writeFile(QString path, QString contents);
 
 	// Information
-	QString generateSummary(){ return generateInstallConfig(); }
+	QString generateSummary(){ return generateInstallConfig(false); }
 	bool isLaptop();
 	QString system_information();
 	QString pci_info();
