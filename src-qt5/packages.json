@@ -153,6 +153,12 @@
       "pkgname" : "pianobar",
       "icon" : "applications-multimedia",
       "default" : true
+    },
+    "W3M" : {
+      "pkgname" : "w3m",
+      "icon" : "applications-internet",
+      "required" : false,
+      "default" : false
     }
   },
   "Power Management" : {
@@ -161,8 +167,7 @@
       "pkgname" : "powerdxx",
       "icon" : "battery",
       "required" : "false",
-      "default" : false,
-      "default_laptop" : true
+      "default" : true
     },
     "intel_backlight" : {
       "pkgname" : "intel-backlight",
