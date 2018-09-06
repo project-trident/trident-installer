@@ -1,0 +1,20 @@
+#!/bin/sh
+#===============
+# Script to activate the newest created boot environment
+#  For use after an install to BE
+#===============
+
+#Get the name of the most recent boot environment
+_be=$(beadm list -H 2>/dev/null | 
+  while read line
+  do
+    #Boot environments are always listed in time order (oldest->newest)
+    name=`echo ${line} | cut -w -f 1`
+  done
+  #return the last boot environment listed
+  echo "${name}"
+  )
+
+if [ -n "${_be}" ] ; then
+  beadm activate "${_be}"
+fi

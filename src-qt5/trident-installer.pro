@@ -95,7 +95,8 @@ QMAKE_DISTCLEAN += -r ./.build
 icons.path = $${L_SHAREDIR}/icons/hicolor/scalable/apps
 
 script.path = /usr/local/bin
-script.files = scripts/start-trident-installer
+script.files = scripts/start-trident-installer \
+		scripts/activateNewBE
 
 xorg.path = /usr/local/share/trident-installer
 xorg.files = files/xorg.conf.template
