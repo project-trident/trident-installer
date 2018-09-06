@@ -142,13 +142,25 @@ QString Backend::system_information(){
     info << QString("<b>GPU %1 Vendor:</b> %2").arg( QString::number(i+1), pciconf.value(gpuList[i]).toObject().value("vendor").toString() );
     info << QString("<b>GPU %1 Device:</b> %2").arg( QString::number(i+1), pciconf.value(gpuList[i]).toObject().value("device").toString() );
   }
-  info << "";
-  info << "<b><u>Network Device Info</u></b>";
   QStringList netList = runCommand(ok, "ifconfig -l").split(" ",QString::SkipEmptyParts);
-  for(int i=0; i<netList.length(); i++){
-    if(!pciconf.contains(netList[i])){ continue; }
-    info << QString("<b>%1 Vendor:</b> %2").arg( netList[i], pciconf.value(netList[i]).toObject().value("vendor").toString() );
-    info << QString("<b>%1 Device:</b> %2").arg( netList[i], pciconf.value(netList[i]).toObject().value("device").toString() );
+  if(!netList.isEmpty()){
+    info << "";
+    info << "<b><u>Network Device Info</u></b>";
+    for(int i=0; i<netList.length(); i++){
+      if(!pciconf.contains(netList[i])){ continue; }
+      info << QString("<b>%1 Vendor:</b> %2").arg( netList[i], pciconf.value(netList[i]).toObject().value("vendor").toString() );
+      info << QString("<b>%1 Device:</b> %2").arg( netList[i], pciconf.value(netList[i]).toObject().value("device").toString() );
+    }
+  }
+  netList = runCommand(ok, "sysctl -n net.wlan.devices").split(" ",QString::SkipEmptyParts);
+  if(!netList.isEmpty()){
+    info << "";
+    info << "<b><u>Wireless Device Info</u></b>";
+    for(int i=0; i<netList.length(); i++){
+      if(!pciconf.contains(netList[i])){ continue; }
+      info << QString("<b>%1 Vendor:</b> %2").arg( netList[i], pciconf.value(netList[i]).toObject().value("vendor").toString() );
+      info << QString("<b>%1 Device:</b> %2").arg( netList[i], pciconf.value(netList[i]).toObject().value("device").toString() );
+    }
   }
   return info.join("<br>");
 }
@@ -620,6 +632,7 @@ QJsonObject Backend::availableDisks(bool fromcache){
         //Add any extra info into the main diskID info object
         QJsonObject tmp = diskObj.value(diskID).toObject();
           tmp.insert("label", diskInfo);
+          if(tmp.contains("freemb")){ totalMB+=tmp.value("freemb").toDouble(); }
           tmp.insert("sizemb", QString::number( qRound(totalMB) ) );
         diskObj.insert(diskID, tmp);
         obj.insert(diskID, diskObj);

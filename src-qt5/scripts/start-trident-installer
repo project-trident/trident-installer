@@ -75,7 +75,7 @@ fi
 
 #Ensure that needed services are started
 echo "Starting required services..."
-services="devd moused"
+services="modules apm devd moused"
 for svc in ${services}
 do
   service --ifnotstarted ${svc} start
@@ -91,3 +91,4 @@ echo "============================"
 echo "To login: Use \"root\" user (no password)"
 echo "To restart installer: `start-trident-installer`"
 echo "============================"
+return 0
