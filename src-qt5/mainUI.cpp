@@ -279,7 +279,7 @@ bool MainUI::savePageToBackend(QWidget *current, bool prompts){
         disk.name = sel.section(":",0,0).simplified();
         disk.install_partition = sel.section(":",1,1).simplified();
         disk.mirror_disk.clear(); //unset this
-        disk.installBootManager = (disk.install_partition=="all");
+        disk.installBootManager = true; //(disk.install_partition=="all");
       //Setup partitions for the disk
       if(disk.install_partition=="all" && ui->group_disk_swap->isChecked()){
         double swapsize = ui->slider_disk_swap->value();
@@ -649,6 +649,8 @@ void MainUI::userDT_changed(){
   dt.setTimeZone( QTimeZone( ui->combo_welcome_timezone->currentText().toUtf8() ) );
   //qDebug() << " - After changing TZ:" << dt;
   BACKEND->setDateTime(dt);
+  //qDebug() << " - New Local Time:" << BACKEND->localDateTime();
+  //qDebug() << " -  UTC:" << BACKEND->localDateTime().toUTC().toString("yyyyMMddHHmm");
 }
 
 void MainUI::hostname_changed(){

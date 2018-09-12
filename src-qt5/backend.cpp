@@ -293,9 +293,9 @@ QString Backend::generateInstallConfig(bool internal){
   contents << "";
   contents << "# == FINAL SETUP ==";
   contents << confString("runCommand", "/usr/local/share/trident/scripts/sys-init.sh");
-  contents << confString("runCommand", "touch /usr/local/share/etc/trident/.firstboot");
+  contents << confString("runCommand", "touch /usr/local/etc/trident/.firstboot");
   if(installToBE()){
-    contents << confString("runExtCommand", "/usr/local/bin/activateNewBE");
+    contents << confString("runScript", "/usr/local/bin/activateNewBE");
   }
   contents << ""; //always end the config with an empty line - otherwise the last instruction will not be used
   return contents.join("\n");
