@@ -79,13 +79,18 @@ fi
 #Start the graphical install
 echo "Starting Trident Installer...."
 xinit /usr/local/bin/trident-installer -- -config ${_conf} -logfile ${_logfile} :0
-#Make sure that xinit is properly stopped
-killall xinit
-killall X
-#Now clear the display and print the info message
-clear
-echo "============================"
-echo "To login: Use \"root\" user (no password)"
-echo "To restart installer: `start-trident-installer`"
-echo "============================"
+#Startup a login session if needed
+CLISESSION="/tmp/.runningsession"
+if [ ! -e "${CLISESSION}" ] ; then
+  #Now clear the display and print the info message
+  clear
+  echo "============================"
+  echo "To shutdown computer: `shutdown -p now`"
+  echo "To restart graphical installer: `start-trident-installer`"
+  echo "To run TrueOS command-line installer: `pc-installdialog`"
+  echo "============================"
+  touch "${CLISESSION}"
+  /usr/sbin/login -f root
+  rm "${CLISESSION}"
+fi
 return 0
