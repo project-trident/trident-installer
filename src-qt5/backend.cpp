@@ -93,10 +93,8 @@ bool Backend::isLaptop(){
   if(hasbat<0){
     //Not probed yet
     bool ok = false;
-    QStringList info = runCommand(ok, "apm -a").split("\n").filter("Number of batteries:");
-    int bat = 0;
-    if(!info.isEmpty()){ bat = info.first().section(":",-1).simplified().toInt(); }
-    if(bat<=0 || !ok){ hasbat = 0; } //no battery found
+    QStringList info = runCommand(ok, "devinfo").split("\n").filter("acpi_acad0");
+    if( info.isEmpty() || !ok){ hasbat = 0; } //no battery found
     else{ hasbat = 1; } //found a battery
   }
   return (hasbat==1);
