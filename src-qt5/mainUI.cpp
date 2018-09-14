@@ -137,11 +137,14 @@ void MainUI::loadPageFromBackend(QWidget *current){
   //Note: This will never run for the installation/finished pages
   if(current == ui->page_welcome){
     //qDebug() << "Load Welcome Page Settings";
+    QByteArray tzid = QTimeZone::systemTimeZoneId();
+    QDateTime dt = BACKEND->localDateTime();
     if(ui->combo_welcome_timezone->count()==0){
       ui->combo_welcome_timezone->addItems(BACKEND->availableTimezones());
+    }else{
+      tzid = dt.timeZone().id();
     }
-    QDateTime dt = BACKEND->localDateTime();
-    int index = ui->combo_welcome_timezone->findText( dt.timeZone().id() );
+    int index = ui->combo_welcome_timezone->findText( tzid );
     if(index>=0){ ui->combo_welcome_timezone->setCurrentIndex(index); }
     ui->dateTimeEdit->setDateTime(dt);
     ui->line_hostname->setText( BACKEND->hostname() );
