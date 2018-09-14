@@ -16,5 +16,6 @@ _be=$(beadm list -H 2>/dev/null |
   )
 
 if [ -n "${_be}" ] ; then
+  echo "Activating Boot Environment: ${_be}"
   beadm activate "${_be}"
 fi
