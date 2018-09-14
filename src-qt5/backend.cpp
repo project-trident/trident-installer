@@ -233,9 +233,9 @@ QString Backend::generateInstallConfig(bool internal){
   contents << confString("runCommand", QString("date -nu %1").arg( localDateTime().toUTC().toString("yyyyMMddHHmm") ) );
 
   // Networking
-  contents << "";
-  contents << "# == NETWORKING ==";
-  contents << confString("netSaveDev", "AUTO-DHCP"); //DHCP for everything by default after install
+  //contents << "";
+  //contents << "# == NETWORKING ==";
+  //contents << confString("netSaveDev", "AUTO-DHCP"); //DHCP for everything by default after install
 
   // Disks
   if(!installToBE()){
@@ -293,7 +293,7 @@ QString Backend::generateInstallConfig(bool internal){
   contents << confString("runCommand", "/usr/local/share/trident/scripts/sys-init.sh");
   contents << confString("runCommand", "touch /usr/local/etc/trident/.firstboot");
   if(installToBE()){
-    contents << confString("runScript", "/usr/local/bin/activateNewBE");
+    contents << confString("runExtCommand", "/usr/local/bin/activateNewBE "+zpoolName());
   }
   contents << ""; //always end the config with an empty line - otherwise the last instruction will not be used
   return contents.join("\n");

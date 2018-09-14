@@ -90,7 +90,7 @@ if [ ! -e "${CLISESSION}" ] ; then
   echo "To run TrueOS command-line installer: `pc-installdialog`"
   echo "============================"
   touch "${CLISESSION}"
-  /usr/sbin/login -f root
+  /bin/csh
   rm "${CLISESSION}"
 fi
 return 0
