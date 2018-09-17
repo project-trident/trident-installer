@@ -160,7 +160,7 @@ void MainUI::loadPageFromBackend(QWidget *current){
         disk->setIcon(0, QIcon::fromTheme(disks[i].startsWith("da") ? "media-removable" : "harddrive"));
         disk->setToolTip(0, BACKEND->diskInfoObjectToString(info.value(disks[i]).toObject()) );
         disk->setWhatsThis(0, disks[i] + " : all"); //disk ID, partition type
-        disk->setData(0, Qt::UserRole, info.value(disks[i]).toObject().value("sizemb").toString());
+        double sizemb = 0; //info.value(disks[i]).toObject().value("sizemb").toString().toDouble();
         disk->setExpanded(true);
       QStringList parts = info.keys();
       for(int p=0; p<parts.length(); p++){
@@ -173,14 +173,17 @@ void MainUI::loadPageFromBackend(QWidget *current){
              part->setToolTip(0, tr("Unpartitioned free space"));
              part->setDisabled(!BACKEND->checkValidSize(pinfo, true, true) );
              part->setData(0, Qt::UserRole, pinfo.value("freemb").toString());
+             sizemb+= pinfo.value("freemb").toString().toDouble();
         }else{
           QTreeWidgetItem *part = new QTreeWidgetItem(disk, QStringList() << parts[p]+" ("+BACKEND->diskInfoObjectToShortString(pinfo)+")" );
             part->setWhatsThis(0, disks[i] + " : " + parts[p].remove(disks[i]) ); //disk ID, partition type
             part->setToolTip( 0, BACKEND->diskInfoObjectToString(pinfo) );
             part->setDisabled(!BACKEND->checkValidSize(pinfo, true) );
             part->setData(0, Qt::UserRole, pinfo.value("sizemb").toString());
+            sizemb+= pinfo.value("sizemb").toString().toDouble();
         }
       }
+      disk->setData(0, Qt::UserRole, sizemb); //Make sure this is the combined total of all partition sizes
     }
     if(ui->tree_disks->currentItem()==0){
       ui->tree_disks->setCurrentItem( ui->tree_disks->topLevelItem(0) ); //first item
