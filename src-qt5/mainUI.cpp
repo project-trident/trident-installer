@@ -611,7 +611,7 @@ void MainUI::radio_disk_toggled(){
   ui->list_zpools->setVisible(ui->radio_disk_bootenv->isChecked());
   ui->tree_disks->setVisible(ui->radio_disk_single->isChecked());
   // Advanced options
-  ui->group_disk_encrypt->setEnabled(ui->radio_disk_single->isChecked());
+  ui->group_disk_encrypt->setEnabled(false); //ui->radio_disk_single->isChecked());
   ui->group_disk_refind->setEnabled(BACKEND->isUEFI() && ui->radio_disk_single->isChecked());
   ui->group_disk_swap->setEnabled(ui->radio_disk_single->isChecked());
   swap_size_changed(ui->slider_disk_swap->value());
@@ -632,8 +632,10 @@ void MainUI::validateDiskPage(){
     if(item!=0){
       double size_mb = item->data(0, Qt::UserRole).toString().toDouble();
       ok = ok && (size_mb > minsize_mb);
+      ui->label_legacy_partition->setVisible( !BACKEND->isUEFI() && item->childCount()>0 );
     }else{
       ok = false;
+      ui->label_legacy_partition->setVisible(false);
     }
   }
   // Encryption key validation

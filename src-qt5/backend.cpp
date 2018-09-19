@@ -309,20 +309,27 @@ QString Backend::getLocalDistPath(){
 }
 
 void Backend::checkKeyboardInfo(){
-  if(keyboardInfo.keys().isEmpty()){
+  bool loaded = false;
+  bool ok = false;
+  if(!keyboardInfo.contains("models")){
     //Need to probe/cache the information about the available keyboards
-    bool ok = false;
     QStringList models = runCommand(ok, "pc-sysinstall xkeyboard-models").replace("\t"," ").split("\n");
-    QStringList layouts = runCommand(ok, "pc-sysinstall xkeyboard-layouts").replace("\t"," ").split("\n");
-    QStringList variants = runCommand(ok, "pc-sysinstall xkeyboard-variants").replace("\t"," ").split("\n");
     //Now put them into the cache
     QJsonObject modelObj;
     for(int i=0; i<models.length(); i++){
       if(models[i].simplified().isEmpty()){ continue; }
       modelObj.insert(models[i].section(" ",0,0).simplified(), models[i].section(" ",1,-1).simplified() ); //id : description
     }
-    keyboardInfo.insert("models", modelObj);
+    if(!modelObj.isEmpty()){
+      keyboardInfo.insert("models", modelObj);
+      loaded = true;
+    }
+  }
+  if(!keyboardInfo.contains("layouts")){
     QJsonObject layObj;
+    QStringList layouts = runCommand(ok, "pc-sysinstall xkeyboard-layouts").replace("\t"," ").split("\n");
+    QStringList variants = runCommand(ok, "pc-sysinstall xkeyboard-variants").replace("\t"," ").split("\n");
+    //Now put it into the cache
     for(int i=0; i<layouts.length(); i++){
       if(layouts[i].simplified().isEmpty()){ continue; }
       QString id = layouts[i].section(" ",0,0).simplified();
@@ -338,10 +345,13 @@ void Backend::checkKeyboardInfo(){
         obj.insert("variants", var);
       layObj.insert(id, obj);
     }
-    keyboardInfo.insert("layouts", layObj);
-    emit keyboardInfoAvailable();
+    if(!layObj.isEmpty()){
+      keyboardInfo.insert("layouts", layObj);
+      loaded = true;
+    }
     //qDebug() << "Got Keyboard info:" << keyboardInfo;
   }
+  if(loaded){ emit keyboardInfoAvailable(); }
 }
 
 void Backend::checkPciConf(){
