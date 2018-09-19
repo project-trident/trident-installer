@@ -242,6 +242,11 @@
       "pkgname" : "devcpu-data",
       "icon" : "cpu",
       "default" : true
+    },
+    "Personacrypt" : {
+      "pkgname" : "personacrypt",
+      "icon" : "cs-firewall",
+      "default" : false
     }
   }
 }
