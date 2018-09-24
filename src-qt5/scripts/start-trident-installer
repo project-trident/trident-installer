@@ -78,27 +78,6 @@ fi
 
 #Start the graphical install
 clear
-echo "Starting graphical installer in 5 seconds"
-echo " - Push [Enter] to drop to a terminal - "
-read -t 5 tmp
-if [ 0 -eq $? ] ; then
-  #Key Pressed - go to terminal
-  #Startup a login session if needed
-  CLISESSION="/tmp/.runningsession"
-  if [ ! -e "${CLISESSION}" ] ; then
-    #Now clear the display and print the info message
-    clear
-    echo "============================"
-    echo "To shutdown computer: `shutdown -p now`"
-    echo "To restart graphical installer: `start-trident-installer`"
-    echo "To run TrueOS command-line installer: `pc-installdialog`"
-    echo "============================"
-    touch "${CLISESSION}"
-    /bin/csh
-    rm "${CLISESSION}"
-  fi
-else
-  echo "Launching Trident Installer...."
-  xinit /usr/local/bin/trident-installer -- -config ${_conf} -logfile ${_logfile} :0
-fi
+echo "Launching Trident Installer...."
+xinit /usr/local/bin/trident-installer -- -config ${_conf} -logfile ${_logfile} :0
 return 0

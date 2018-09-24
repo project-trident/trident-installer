@@ -156,7 +156,7 @@ void MainUI::loadPageFromBackend(QWidget *current){
     QStringList disks = obj.keys();
     for(int i=0; i<disks.length(); i++){
       QJsonObject info = obj.value(disks[i]).toObject();
-      QTreeWidgetItem *disk = new QTreeWidgetItem(ui->tree_disks, QStringList() << disks[i]+" ("+Backend::mbToHuman(info.value(disks[i]).toObject().value("sizemb").toString().toDouble())+")");
+      QTreeWidgetItem *disk = new QTreeWidgetItem(ui->tree_disks, QStringList());
         disk->setIcon(0, QIcon::fromTheme(disks[i].startsWith("da") ? "media-removable" : "harddrive"));
         disk->setToolTip(0, BACKEND->diskInfoObjectToString(info.value(disks[i]).toObject()) );
         disk->setWhatsThis(0, disks[i] + " : all"); //disk ID, partition type
@@ -167,13 +167,16 @@ void MainUI::loadPageFromBackend(QWidget *current){
         QJsonObject pinfo = info.value(parts[p]).toObject();
         if(disks[i] == parts[p]){
            disk->setToolTip( 0, BACKEND->diskInfoObjectToString(pinfo) );
-           //Need to create the treewidgetitem for the freespace too (freemb)
-           QTreeWidgetItem *part = new QTreeWidgetItem(disk, QStringList() << "Free Space ("+Backend::mbToHuman(pinfo.value("freemb").toString().toDouble())+")");
+           //Only show free space like a partition if there are actual partitions on the disk already (otherwise just select the full disk)
+           if(parts.length()>1){
+             //Need to create the treewidgetitem for the freespace too (freemb)
+             QTreeWidgetItem *part = new QTreeWidgetItem(disk, QStringList() << "Free Space ("+Backend::mbToHuman(pinfo.value("freemb").toString().toDouble())+")");
              part->setWhatsThis(0, disks[i]+" : free");
              part->setToolTip(0, tr("Unpartitioned free space"));
              part->setDisabled(!BACKEND->checkValidSize(pinfo, true, true) );
              part->setData(0, Qt::UserRole, pinfo.value("freemb").toString());
-             sizemb+= pinfo.value("freemb").toString().toDouble();
+           }
+           sizemb+= pinfo.value("freemb").toString().toDouble();
         }else{
           QTreeWidgetItem *part = new QTreeWidgetItem(disk, QStringList() << parts[p]+" ("+BACKEND->diskInfoObjectToShortString(pinfo)+")" );
             part->setWhatsThis(0, disks[i] + " : " + parts[p].remove(disks[i]) ); //disk ID, partition type
@@ -184,6 +187,7 @@ void MainUI::loadPageFromBackend(QWidget *current){
         }
       }
       disk->setData(0, Qt::UserRole, sizemb); //Make sure this is the combined total of all partition sizes
+      disk->setText(0, disks[i]+" ("+Backend::mbToHuman(sizemb)+")");
     }
     if(ui->tree_disks->currentItem()==0){
       ui->tree_disks->setCurrentItem( ui->tree_disks->topLevelItem(0) ); //first item
@@ -632,7 +636,7 @@ void MainUI::validateDiskPage(){
     if(item!=0){
       double size_mb = item->data(0, Qt::UserRole).toString().toDouble();
       ok = ok && (size_mb > minsize_mb);
-      ui->label_legacy_partition->setVisible( !BACKEND->isUEFI() && item->childCount()>0 );
+      ui->label_legacy_partition->setVisible( !BACKEND->isUEFI() && item->parent()!=0 );
     }else{
       ok = false;
       ui->label_legacy_partition->setVisible(false);

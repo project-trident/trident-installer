@@ -152,10 +152,14 @@ QString Backend::system_information(){
   }
   netList = runCommand(ok, "sysctl -n net.wlan.devices").split(" ",QString::SkipEmptyParts);
   if(!netList.isEmpty()){
-    info << "";
-    info << "<b><u>Wireless Device Info</u></b>";
+    bool first = true;
     for(int i=0; i<netList.length(); i++){
       if(!pciconf.contains(netList[i])){ continue; }
+      if(first){ //first valid wifi device - go ahead and generate the header/label
+        info << "";
+        info << "<b><u>Wireless Device Info</u></b>";
+        first = false;
+      }
       info << QString("<b>%1 Vendor:</b> %2").arg( netList[i], pciconf.value(netList[i]).toObject().value("vendor").toString() );
       info << QString("<b>%1 Device:</b> %2").arg( netList[i], pciconf.value(netList[i]).toObject().value("device").toString() );
     }
@@ -173,9 +177,11 @@ bool Backend::isUEFI(){
   if(chk<0){
     bool ok = false;
     QString result = runCommand(ok, "sysctl", QStringList()<< "-n" << "machdep.bootmethod").simplified().toLower();
-    //qDebug() << "Got UEFI Check:" << result;
-    if(result=="uefi"){ chk = 0; } //booting with UEFI
-    else{ chk = 1; } //booting with legacy mode
+    if(ok){
+      //qDebug() << "Got UEFI Check:" << result;
+      if(result=="uefi"){ chk = 0; } //booting with UEFI
+      else{ chk = 1; } //booting with legacy mode
+    }
   }
   return (chk==0);
 }
@@ -622,10 +628,11 @@ QJsonObject Backend::availableDisks(bool fromcache){
     QStringList disks = runCommand(ok, "pc-sysinstall disk-list").split("\n");
     QJsonObject obj;
     for(int i=0; i<disks.length() && ok; i++){
-      if(disks[i].simplified().isEmpty()){ continue; }
+      if(disks[i].simplified().isEmpty() ){ continue; }
       bool ok2 = false;
-      QJsonObject diskObj;
+      QJsonObject dObj;
       QString diskID = disks[i].section(":",0,0).simplified();
+      if( !QFile::exists("/dev/"+diskID) ){ continue; }
       QString diskInfo = disks[i].section(":",1,-1).simplified();
       QStringList info = runCommand(ok2, "pc-sysinstall", QStringList() << "disk-part" << diskID).split("\n");
       double totalMB = 0;
@@ -635,18 +642,18 @@ QJsonObject Backend::availableDisks(bool fromcache){
         QString val = info[j].section(": ",1,-1);
         QString partition = var.section("-",0,0); var = var.section("-",1,-1);
         if(var=="sizemb"){ totalMB+= val.toDouble(); }
-        QJsonObject tmp = diskObj.value(partition).toObject();
+        QJsonObject tmp = dObj.value(partition).toObject();
         tmp.insert(var, val);
-        diskObj.insert(partition, tmp);
+        dObj.insert(partition, tmp);
       }
       if(ok2){
         //Add any extra info into the main diskID info object
-        QJsonObject tmp = diskObj.value(diskID).toObject();
+        QJsonObject tmp = dObj.value(diskID).toObject();
           tmp.insert("label", diskInfo);
           if(tmp.contains("freemb")){ totalMB+=tmp.value("freemb").toDouble(); }
           tmp.insert("sizemb", QString::number( qRound(totalMB) ) );
-        diskObj.insert(diskID, tmp);
-        obj.insert(diskID, diskObj);
+        dObj.insert(diskID, tmp);
+        obj.insert(diskID, dObj);
       }
     } //end loop over disks
     diskObj = obj;
