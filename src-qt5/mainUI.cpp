@@ -122,6 +122,7 @@ void MainUI::setupConnections(){
   connect(ui->line_disk_pass_chk, SIGNAL(textChanged(QString)), this, SLOT(validateDiskPage()) );
   connect(ui->group_disk_encrypt, SIGNAL(toggled(bool)), this, SLOT(validateDiskPage()) );
   connect(ui->tree_disks, SIGNAL(currentItemChanged(QTreeWidgetItem*, QTreeWidgetItem*)), this, SLOT(validateDiskPage()) );
+  connect(ui->line_zpool_name, SIGNAL(textEdited(const QString&)), this, SLOT(poolname_changed()) );
 
 }
 
@@ -315,6 +316,7 @@ bool MainUI::savePageToBackend(QWidget *current, bool prompts){
       //Now save it into the backend
       BACKEND->addDisk(disk);
     } //end single-disk setup
+    BACKEND->setCustomPoolName( ui->line_zpool_name->text() );
 
   }else if(current == ui->page_pkgs){
     BACKEND->setInstallPackages(ui->tree_pkgs);
@@ -676,6 +678,29 @@ void MainUI::hostname_changed(){
     }
   }
   if(name!=ui->line_hostname->text()){ ui->line_hostname->setText(name); } //fixed input
+}
+
+void MainUI::poolname_changed(){
+  //ensure the user-input hostname is valid
+  QString name = ui->line_zpool_name->text();
+  if(name.isEmpty()){ return; } //nothing to check/change
+  QRegExp re_first("[a-zA-Z]");
+  QRegExp re("[a-zA-Z0-9-_]");
+  for(int i=0; i<name.length(); i++){
+    bool ok = true;
+    if(i==0){ ok = re_first.exactMatch( QString(name[i]) ); }
+    else{ ok = re.exactMatch( QString(name[i]) ); }
+    if(!ok){
+      name.remove(i,1);
+      i--;
+    }
+  }
+  //Now make sure we exclude the restricted ZFS names
+  QRegExp badNames("(c[0-9].*|log|mirror.*|raidz.*|spare.*)");
+  if(badNames.exactMatch(name)){
+    name.prepend("pool_");
+  }
+  if(name!=ui->line_zpool_name->text()){ ui->line_zpool_name->setText(name); } //fixed input
 }
 
 bool MainUI::validateRootPassword(){

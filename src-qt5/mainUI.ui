@@ -68,14 +68,17 @@ color: palette(alternate-base);
 QRadioButton, QTabBar::tab{
 color: palette(button-text);
 }
-QTabWidget QGroupBox, QTabWidget QGroupBox:checked QLabel, QTabWidget QCheckBox{
+QTabWidget QScrollArea QGroupBox, QTabWidget QScrollArea QGroupBox:checked QLabel, QTabWidget QScrollArea QCheckBox{
 color: palette(button-text);
 }
-QTabWidget QGroupBox QLabel:disabled{
+QTabWidget QScrollArea QGroupBox QLabel:disabled{
 color: palette(button);
 }
-QTabWidget QGroupBox:disabled{
+QTabWidget QScrollArea QGroupBox:disabled{
 color: palette(button);
+}
+QTabWidget QScrollArea, QTabWidget QScrollArea .QWidget{
+background: transparent;
 }
 QTreeWidget{
 color: palette(button-text);
@@ -416,8 +419,8 @@ p, li { white-space: pre-wrap; }
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>84</width>
-                 <height>50</height>
+                 <width>238</width>
+                 <height>393</height>
                 </rect>
                </property>
                <attribute name="icon">
@@ -816,7 +819,7 @@ p, li { white-space: pre-wrap; }
             <string notr="true"/>
            </property>
            <property name="currentIndex">
-            <number>0</number>
+            <number>1</number>
            </property>
            <widget class="QWidget" name="tabWidget_disksPage1">
             <attribute name="icon">
@@ -941,217 +944,334 @@ p, li { white-space: pre-wrap; }
              <string>Advanced Options</string>
             </attribute>
             <layout class="QGridLayout" name="gridLayout_6">
-             <item row="3" column="0">
-              <spacer name="verticalSpacer_14">
-               <property name="orientation">
-                <enum>Qt::Vertical</enum>
+             <item row="0" column="1">
+              <widget class="QScrollArea" name="scrollArea_3">
+               <property name="frameShape">
+                <enum>QFrame::NoFrame</enum>
                </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>20</width>
-                 <height>274</height>
-                </size>
+               <property name="sizeAdjustPolicy">
+                <enum>QAbstractScrollArea::AdjustToContents</enum>
                </property>
-              </spacer>
-             </item>
-             <item row="3" column="3">
-              <spacer name="horizontalSpacer_14">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>40</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-             <item row="1" column="0">
-              <widget class="QGroupBox" name="group_disk_swap">
-               <property name="title">
-                <string>Create SWAP Partition (single, full disk only)</string>
-               </property>
-               <property name="checkable">
+               <property name="widgetResizable">
                 <bool>true</bool>
                </property>
-               <property name="checked">
-                <bool>false</bool>
+               <property name="alignment">
+                <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
                </property>
-               <layout class="QHBoxLayout" name="horizontalLayout_10">
-                <item>
-                 <widget class="QLabel" name="label_28">
-                  <property name="text">
-                   <string>Size:</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QSlider" name="slider_disk_swap">
-                  <property name="minimum">
-                   <number>128</number>
-                  </property>
-                  <property name="maximum">
-                   <number>4096</number>
-                  </property>
-                  <property name="singleStep">
-                   <number>8</number>
-                  </property>
-                  <property name="pageStep">
-                   <number>8</number>
-                  </property>
-                  <property name="value">
-                   <number>1024</number>
-                  </property>
-                  <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QLabel" name="label_disk_swap">
-                  <property name="text">
-                   <string>MB</string>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </widget>
-             </item>
-             <item row="0" column="3">
-              <widget class="QGroupBox" name="group_disk_refind">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="title">
-                <string>Install rEFInd Boot Manager (UEFI boot only)</string>
-               </property>
-               <property name="checkable">
-                <bool>true</bool>
-               </property>
-               <property name="checked">
-                <bool>false</bool>
-               </property>
-               <layout class="QFormLayout" name="formLayout_4">
-                <item row="0" column="0">
-                 <widget class="QLabel" name="label_27">
-                  <property name="text">
-                   <string>Boot Disk</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="0" column="1">
-                 <widget class="QComboBox" name="combo_disk_refind"/>
-                </item>
-               </layout>
+               <widget class="QWidget" name="scrollAreaWidgetContents_3">
+                <property name="geometry">
+                 <rect>
+                  <x>0</x>
+                  <y>0</y>
+                  <width>386</width>
+                  <height>322</height>
+                 </rect>
+                </property>
+                <layout class="QVBoxLayout" name="verticalLayout_21">
+                 <property name="leftMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="topMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="rightMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="bottomMargin">
+                  <number>0</number>
+                 </property>
+                 <item>
+                  <widget class="QGroupBox" name="group_disk_encrypt">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="toolTip">
+                    <string>BROKEN: Disabled temporarily until fixed in TrueOS</string>
+                   </property>
+                   <property name="title">
+                    <string>Encrypt Disk (single disk only)</string>
+                   </property>
+                   <property name="checkable">
+                    <bool>true</bool>
+                   </property>
+                   <property name="checked">
+                    <bool>false</bool>
+                   </property>
+                   <layout class="QFormLayout" name="formLayout_3">
+                    <property name="labelAlignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                    <item row="0" column="0">
+                     <widget class="QLabel" name="label_24">
+                      <property name="text">
+                       <string>Password</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="0" column="1">
+                     <widget class="QLineEdit" name="line_disk_pass">
+                      <property name="echoMode">
+                       <enum>QLineEdit::PasswordEchoOnEdit</enum>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="1" column="0">
+                     <widget class="QLabel" name="label_25">
+                      <property name="text">
+                       <string>Repeat</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="1" column="1">
+                     <layout class="QHBoxLayout" name="horizontalLayout_9">
+                      <item>
+                       <widget class="QLineEdit" name="line_disk_pass_chk">
+                        <property name="echoMode">
+                         <enum>QLineEdit::Password</enum>
+                        </property>
+                        <property name="clearButtonEnabled">
+                         <bool>false</bool>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QToolButton" name="tool_encrypt_passcheck">
+                        <property name="toolTip">
+                         <string>Passwords do not match!</string>
+                        </property>
+                        <property name="styleSheet">
+                         <string notr="true"/>
+                        </property>
+                        <property name="text">
+                         <string/>
+                        </property>
+                        <property name="icon">
+                         <iconset theme="dialog-error">
+                          <normaloff>.</normaloff>.</iconset>
+                        </property>
+                        <property name="autoRaise">
+                         <bool>true</bool>
+                        </property>
+                       </widget>
+                      </item>
+                     </layout>
+                    </item>
+                    <item row="2" column="0" colspan="2">
+                     <widget class="QLabel" name="label_26">
+                      <property name="font">
+                       <font/>
+                      </property>
+                      <property name="text">
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Keep this password someplace safe, it will not be possible to change it later!&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignCenter</set>
+                      </property>
+                      <property name="wordWrap">
+                       <bool>true</bool>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QGroupBox" name="group_disk_refind">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="title">
+                    <string>Install rEFInd Boot Manager (UEFI boot only)</string>
+                   </property>
+                   <property name="checkable">
+                    <bool>true</bool>
+                   </property>
+                   <property name="checked">
+                    <bool>false</bool>
+                   </property>
+                   <layout class="QFormLayout" name="formLayout_4">
+                    <item row="0" column="0">
+                     <widget class="QLabel" name="label_27">
+                      <property name="text">
+                       <string>Boot Disk</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="0" column="1">
+                     <widget class="QComboBox" name="combo_disk_refind"/>
+                    </item>
+                   </layout>
+                  </widget>
+                 </item>
+                 <item>
+                  <spacer name="verticalSpacer_14">
+                   <property name="orientation">
+                    <enum>Qt::Vertical</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>20</width>
+                     <height>40</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                </layout>
+               </widget>
               </widget>
              </item>
              <item row="0" column="0">
-              <widget class="QGroupBox" name="group_disk_encrypt">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
+              <widget class="QScrollArea" name="scrollArea_2">
+               <property name="frameShape">
+                <enum>QFrame::NoFrame</enum>
                </property>
-               <property name="toolTip">
-                <string>BROKEN: Disabled temporarily until fixed in TrueOS</string>
+               <property name="sizeAdjustPolicy">
+                <enum>QAbstractScrollArea::AdjustToContents</enum>
                </property>
-               <property name="title">
-                <string>Encrypt Disk (single disk only)</string>
-               </property>
-               <property name="checkable">
+               <property name="widgetResizable">
                 <bool>true</bool>
                </property>
-               <property name="checked">
-                <bool>false</bool>
+               <property name="alignment">
+                <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
                </property>
-               <layout class="QFormLayout" name="formLayout_3">
-                <property name="labelAlignment">
-                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               <widget class="QWidget" name="scrollAreaWidgetContents_2">
+                <property name="geometry">
+                 <rect>
+                  <x>0</x>
+                  <y>0</y>
+                  <width>385</width>
+                  <height>322</height>
+                 </rect>
                 </property>
-                <item row="0" column="0">
-                 <widget class="QLabel" name="label_24">
-                  <property name="text">
-                   <string>Password</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="0" column="1">
-                 <widget class="QLineEdit" name="line_disk_pass">
-                  <property name="echoMode">
-                   <enum>QLineEdit::PasswordEchoOnEdit</enum>
-                  </property>
-                 </widget>
-                </item>
-                <item row="1" column="0">
-                 <widget class="QLabel" name="label_25">
-                  <property name="text">
-                   <string>Repeat</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="1" column="1">
-                 <layout class="QHBoxLayout" name="horizontalLayout_9">
-                  <item>
-                   <widget class="QLineEdit" name="line_disk_pass_chk">
-                    <property name="echoMode">
-                     <enum>QLineEdit::Password</enum>
-                    </property>
-                    <property name="clearButtonEnabled">
-                     <bool>false</bool>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QToolButton" name="tool_encrypt_passcheck">
-                    <property name="toolTip">
-                     <string>Passwords do not match!</string>
-                    </property>
-                    <property name="styleSheet">
-                     <string notr="true"/>
-                    </property>
-                    <property name="text">
-                     <string/>
-                    </property>
-                    <property name="icon">
-                     <iconset theme="dialog-error">
-                      <normaloff>.</normaloff>.</iconset>
-                    </property>
-                    <property name="autoRaise">
-                     <bool>true</bool>
-                    </property>
-                   </widget>
-                  </item>
-                 </layout>
-                </item>
-                <item row="2" column="0" colspan="2">
-                 <widget class="QLabel" name="label_26">
-                  <property name="font">
-                   <font/>
-                  </property>
-                  <property name="text">
-                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Keep this password someplace safe, it will not be possible to change it later!&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                  </property>
-                  <property name="alignment">
-                   <set>Qt::AlignCenter</set>
-                  </property>
-                  <property name="wordWrap">
-                   <bool>true</bool>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </widget>
-             </item>
-             <item row="2" column="0">
-              <widget class="QCheckBox" name="check_force_4kblocks">
-               <property name="text">
-                <string>Force 4K Block Size (recommended)</string>
-               </property>
+                <layout class="QVBoxLayout" name="verticalLayout_20">
+                 <property name="leftMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="topMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="rightMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="bottomMargin">
+                  <number>0</number>
+                 </property>
+                 <item>
+                  <widget class="QGroupBox" name="group_pool_name">
+                   <property name="title">
+                    <string>ZFS Pool Name (new installs only)</string>
+                   </property>
+                   <layout class="QHBoxLayout" name="horizontalLayout_11">
+                    <item>
+                     <widget class="QLineEdit" name="line_zpool_name">
+                      <property name="inputMethodHints">
+                       <set>Qt::ImhNone</set>
+                      </property>
+                      <property name="inputMask">
+                       <string notr="true"/>
+                      </property>
+                      <property name="text">
+                       <string notr="true"/>
+                      </property>
+                      <property name="maxLength">
+                       <number>12</number>
+                      </property>
+                      <property name="placeholderText">
+                       <string notr="true">trident</string>
+                      </property>
+                      <property name="clearButtonEnabled">
+                       <bool>true</bool>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QGroupBox" name="group_disk_swap">
+                   <property name="title">
+                    <string>Create SWAP Partition (single, full disk only)</string>
+                   </property>
+                   <property name="checkable">
+                    <bool>true</bool>
+                   </property>
+                   <property name="checked">
+                    <bool>false</bool>
+                   </property>
+                   <layout class="QHBoxLayout" name="horizontalLayout_10">
+                    <item>
+                     <widget class="QLabel" name="label_28">
+                      <property name="text">
+                       <string>Size:</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QSlider" name="slider_disk_swap">
+                      <property name="minimum">
+                       <number>128</number>
+                      </property>
+                      <property name="maximum">
+                       <number>4096</number>
+                      </property>
+                      <property name="singleStep">
+                       <number>8</number>
+                      </property>
+                      <property name="pageStep">
+                       <number>8</number>
+                      </property>
+                      <property name="value">
+                       <number>1024</number>
+                      </property>
+                      <property name="orientation">
+                       <enum>Qt::Horizontal</enum>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QLabel" name="label_disk_swap">
+                      <property name="text">
+                       <string>MB</string>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QCheckBox" name="check_force_4kblocks">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="text">
+                    <string>Force 4K Block Size (recommended)</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <spacer name="verticalSpacer_5">
+                   <property name="orientation">
+                    <enum>Qt::Vertical</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>20</width>
+                     <height>40</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                </layout>
+               </widget>
               </widget>
              </item>
             </layout>

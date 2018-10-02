@@ -205,6 +205,8 @@ QString Backend::generateInstallConfig(bool internal){
     contents << confString("zpoolName", zpoolName() );
   }else{
     contents << confString("installMode", "fresh");
+    //Now setup the custom ZFS pool name as needed
+    contents << confString("zpoolName", customPoolName());
   }
   if(use_4k_alignment()){
     contents << confString("zfsForce4k","YES");
@@ -715,6 +717,19 @@ QString Backend::zpoolName(){
 void Backend::setInstallToBE(QString pool){
   //set to an empty string to disable installing to a BE
   settings.insert("install_zpool", pool);
+}
+
+// Custom ZPool name
+QString Backend::customPoolName(){
+  QString name = settings.value("new_zpool_name").toString();
+  if(name.isEmpty()){
+    name="trident";
+  }
+  return name.simplified();
+}
+
+void Backend::setCustomPoolName(QString name){
+  settings.insert("new_zpool_name", name);
 }
 
 void Backend::addDisk(diskdata data){

@@ -122,6 +122,9 @@ public:
 	bool installToBE(); //will report true if a valid ZFS pool was designated
 	QString zpoolName(); //will return the designated ZFS pool name
 	void setInstallToBE(QString pool); //set to an empty string to disable installing to a BE
+	// Custom ZPool name
+	QString customPoolName();
+	void setCustomPoolName(QString name);
 	// - Individual disk setup
 	QList<diskdata> disks(){ return DISKS; }
 	void addDisk(diskdata); //will overwrite existing disk with the same name

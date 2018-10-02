@@ -75,6 +75,7 @@ private slots:
 	void nextSlideshowImage();
 	void userDT_changed(); //user changed datetime or timezone
 	void hostname_changed(); //user changed the hostname
+	void poolname_changed(); //user changed the ZFS pool name
 	bool validateRootPassword();
 	bool validateUserInfo();
 	void autogenerateUsername();
