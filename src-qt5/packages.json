@@ -236,6 +236,24 @@
       "default" : true
     }
   },
+  "Printer Drivers" : {
+    "icon" : "cs-printer",
+    "GutenPrint" : {
+      "pkgname" : "gutenprint",
+      "icon" : "cups",
+      "default" : true
+    },
+    "Foomatic" : {
+      "pkgname" : "foomatic-db",
+      "icon" : "cups",
+      "default" : true
+    },
+    "HP" : {
+      "pkgname" : "hplip",
+      "icon" : "hplip",
+      "default" : false
+    }
+  },
   "Security" : {
     "icon" : "security-high",
     "Microcode Updates" : {
