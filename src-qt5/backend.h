@@ -17,6 +17,7 @@
 
 #define INSTALLLOG "/tmp/.pc-sysinstall/pc-sysinstall.log"
 #define INSTALLCONF "/tmp/trident-sysinstall.conf"
+#define REFIND_ZIP "/Trident_refind.zip"
 
 struct userdata{
 	QString name, comment, pass, shell, home;
@@ -134,6 +135,10 @@ public:
 	// - 4K Disk alignment
 	bool use_4k_alignment(); //enabled by default
 	void set4k_alignment(bool set);
+
+	// Boot Manager Installations
+	bool BM_refindAvailable(){ return QFile::exists(REFIND_ZIP); }
+	bool install_refind();
 
 	//Packages
 	QString dist_package_dir();

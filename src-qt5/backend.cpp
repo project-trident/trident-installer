@@ -789,6 +789,15 @@ void Backend::set4k_alignment(bool set){
   settings.insert("force_4k_alignment", set);
 }
 
+// Boot Manager Installations
+bool Backend::BM_refindAvailable(){
+  return (QFile::exists(REFIND_ZIP) && isUEFI() );
+}
+
+bool Backend::install_refind(){
+  QProcess::execute("/usr/local/bin/install-refind");
+}
+
 // == Packages ==
 QString Backend::dist_package_dir(){
   static QString dist_dir = "";

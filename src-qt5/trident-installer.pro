@@ -96,7 +96,8 @@ icons.path = $${L_SHAREDIR}/icons/hicolor/scalable/apps
 
 script.path = /usr/local/bin
 script.files = scripts/start-trident-installer \
-		scripts/activateNewBE
+		scripts/activateNewBE \
+		scripts/install-refind
 
 xorg.path = /usr/local/share/trident-installer
 xorg.files = files/xorg.conf.template
