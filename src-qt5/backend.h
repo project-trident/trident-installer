@@ -137,7 +137,7 @@ public:
 	void set4k_alignment(bool set);
 
 	// Boot Manager Installations
-	bool BM_refindAvailable(){ return QFile::exists(REFIND_ZIP); }
+	bool BM_refindAvailable();
 	bool install_refind();
 
 	//Packages

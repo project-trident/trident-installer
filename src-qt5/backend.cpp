@@ -795,7 +795,8 @@ bool Backend::BM_refindAvailable(){
 }
 
 bool Backend::install_refind(){
-  QProcess::execute("/usr/local/bin/install-refind");
+  return (0 == QProcess::execute("/usr/local/bin/install-refind") );
+
 }
 
 // == Packages ==
