@@ -33,19 +33,8 @@ done
 setupXorgConf(){
   #Inputs: $1 : driver to use
   _driver="$1"
+  /usr/local/bin/generate-xorg-conf.sh ${_driver} ${_conf}
 
-  # Verify that an xorg.conf exists, and generate one as needed
-  if [ -e "${_conf}" ] ; then
-    rm "${_conf}"
-  fi
-  #Get the bus ID for the video card
-  busid=`pciconf -lv vgapci0 | grep vgapci0 | cut -d : -f 2-4`
-
-  #Now copy over the xorg.conf template and replace the driver/busid in it
-  template="/usr/local/share/trident-installer/xorg.conf.template"
-  cp -f "${template}" "${_conf}"
-  sed -i '' "s|%%BUSID%%|${busid}|g" "${_conf}"
-  sed -i '' "s|%%DRIVER%%|${_driver}|g" "${_conf}"
   setupXorgFonts
 
   # Check for extra kernel modules to load for video driver support
