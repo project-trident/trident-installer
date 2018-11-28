@@ -188,7 +188,6 @@ bool Backend::isUEFI(){
 
 QString Backend::isodate(){
   bool ok = false;
-  QString readFile
   QJsonObject config = QJsonDocument::fromJson( readFile("/var/db/trueos-manifest.json").toLocal8Bit() ).object();
   return config.value("os_version").toString();
 }
