@@ -188,9 +188,9 @@ bool Backend::isUEFI(){
 
 QString Backend::isodate(){
   bool ok = false;
-  QString result = runCommand(ok, "uname", QStringList()<< "-v").simplified();
-  //qDebug() << "Got uname:" << result;
-  return result.section(" ", 4, -2);
+  QString readFile
+  QJsonObject config = QJsonDocument::fromJson( readFile("/var/db/trueos-manifest.json").toLocal8Bit() ).object();
+  return config.value("os_version").toString();
 }
 
 QString Backend::generateInstallConfig(bool internal){

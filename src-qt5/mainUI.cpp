@@ -54,7 +54,7 @@ MainUI::MainUI() : QMainWindow(), ui(new Ui::MainUI){
   //ui->toolBar->widgetForAction(ui->actionLocale)->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
   //Update the visuals and show the window
   QString isodate= BACKEND->isodate();
-  ui->label_iso_date->setText( QString(tr("ISO Created: %1")).arg(isodate) );
+  ui->label_iso_date->setText( QString(tr("ISO Version: %1")).arg(isodate) );
   setupConnections();
   updateButtonFrame();
   ui->tabWidget_disks->setCurrentIndex(0);
