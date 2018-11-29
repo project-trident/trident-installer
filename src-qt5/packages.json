@@ -167,7 +167,7 @@
       "pkgname" : "powerdxx",
       "icon" : "battery",
       "required" : "false",
-      "default" : true
+      "default" : false
     },
     "intel_backlight" : {
       "pkgname" : "intel-backlight",
