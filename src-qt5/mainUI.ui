@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1222</width>
-    <height>566</height>
+    <width>1751</width>
+    <height>849</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -260,8 +260,8 @@ subcontrol-origin: none;
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>84</width>
-                 <height>50</height>
+                 <width>86</width>
+                 <height>86</height>
                 </rect>
                </property>
                <property name="styleSheet">
@@ -302,8 +302,8 @@ subcontrol-origin: none;
                    <string notr="true">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'DejaVu Sans'; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Noto Sans'; font-size:10pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:'DejaVu Sans'; font-size:12pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                   </property>
                  </widget>
                 </item>
@@ -314,8 +314,8 @@ p, li { white-space: pre-wrap; }
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>84</width>
-                 <height>50</height>
+                 <width>86</width>
+                 <height>86</height>
                 </rect>
                </property>
                <attribute name="icon">
@@ -375,8 +375,8 @@ p, li { white-space: pre-wrap; }
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>238</width>
-                 <height>393</height>
+                 <width>219</width>
+                 <height>586</height>
                 </rect>
                </property>
                <attribute name="icon">
@@ -419,8 +419,8 @@ p, li { white-space: pre-wrap; }
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>238</width>
-                 <height>393</height>
+                 <width>219</width>
+                 <height>586</height>
                 </rect>
                </property>
                <attribute name="icon">
@@ -819,7 +819,7 @@ p, li { white-space: pre-wrap; }
             <string notr="true"/>
            </property>
            <property name="currentIndex">
-            <number>1</number>
+            <number>0</number>
            </property>
            <widget class="QWidget" name="tabWidget_disksPage1">
             <attribute name="icon">
@@ -926,7 +926,7 @@ p, li { white-space: pre-wrap; }
              <item>
               <widget class="QLabel" name="label_legacy_partition">
                <property name="text">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;WARNING&lt;/span&gt;: After installing to a partition you may need to manually update the master boot record for the disk before Project Trident will be seen as bootable.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;WARNING&lt;/span&gt;: Installing to a partition is NOT recommended. It is preferred that you provide a full disk for ZFS. Loss of bootability for one or more of your OS partitions may occur when installed onto the same disk as other operating systems.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
                <property name="wordWrap">
                 <bool>true</bool>
@@ -963,8 +963,8 @@ p, li { white-space: pre-wrap; }
                  <rect>
                   <x>0</x>
                   <y>0</y>
-                  <width>386</width>
-                  <height>322</height>
+                  <width>673</width>
+                  <height>461</height>
                  </rect>
                 </property>
                 <layout class="QVBoxLayout" name="verticalLayout_21">
@@ -1145,8 +1145,8 @@ p, li { white-space: pre-wrap; }
                  <rect>
                   <x>0</x>
                   <y>0</y>
-                  <width>385</width>
-                  <height>322</height>
+                  <width>672</width>
+                  <height>461</height>
                  </rect>
                 </property>
                 <layout class="QVBoxLayout" name="verticalLayout_20">
@@ -1314,8 +1314,8 @@ p, li { white-space: pre-wrap; }
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>292</width>
-              <height>380</height>
+              <width>503</width>
+              <height>603</height>
              </rect>
             </property>
             <layout class="QGridLayout" name="gridLayout_2">

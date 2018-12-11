@@ -638,7 +638,7 @@ void MainUI::validateDiskPage(){
     if(item!=0){
       double size_mb = item->data(0, Qt::UserRole).toString().toDouble();
       ok = ok && (size_mb > minsize_mb);
-      ui->label_legacy_partition->setVisible( !BACKEND->isUEFI() && item->parent()!=0 );
+      ui->label_legacy_partition->setVisible( item->parent()!=0 );
     }else{
       ok = false;
       ui->label_legacy_partition->setVisible(false);
