@@ -307,12 +307,16 @@ QString Backend::generateInstallConfig(bool internal){
 }
 
 QString Backend::getLocalDistPath(){
-  QDir dir("/dist");
-  QStringList list = dir.entryList(QStringList() << "FreeBSD*", QDir::Dirs | QDir::NoDotAndDotDot);
-  for(int i=0; i<list.length(); i++){
-    if(dir.exists(list[i]+"/latest")){ return dir.absoluteFilePath(list[i]+"/latest"); }
+  static QString cachedir;
+  if(cachedir.isEmpty()){
+    QDir dir("/dist");
+    QStringList list = dir.entryList(QStringList() << "FreeBSD*", QDir::Dirs | QDir::NoDotAndDotDot);
+    for(int i=0; i<list.length(); i++){
+      if(dir.exists(list[i]+"/latest")){ cachedir = dir.absoluteFilePath(list[i]+"/latest"); break; }
+    }
+    if(cachedir.isEmpty()){ cachedir = dir.absolutePath(); } //no FreeBSD subdir? - should never happen but try using just /dist
   }
-  return dir.absolutePath(); //no FreeBSD subdir? - should never happen but try using just /dist
+  return cachedir;
 }
 
 void Backend::checkKeyboardInfo(){
@@ -400,7 +404,7 @@ void Backend::GeneratePackageItem(QJsonObject json, QTreeWidget *tree, QString n
     item->setWhatsThis(0, json.value("pkgname").toString());
     QJsonObject infoObj = package_info(item->whatsThis(0));
     if(infoObj.isEmpty()){
-      //qDebug() << "Package not found:" << item->whatsThis(0);
+      qDebug() << "Package not found:" << item->whatsThis(0);
       delete item;
       return;
     }
@@ -834,6 +838,7 @@ QJsonObject Backend::package_info(QString pkgname){
     obj.insert("comment", info[3] );
     obj.insert("description", info[4] );
   }
+  qDebug() << "Could not read Package info:" << pkgname;
   return obj;
 }
 
