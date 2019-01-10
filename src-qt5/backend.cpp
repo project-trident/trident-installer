@@ -399,6 +399,7 @@ void Backend::GeneratePackageItem(QJsonObject json, QTreeWidget *tree, QString n
   if(json.contains("icon")){
     item->setIcon(0, QIcon::fromTheme(json.value("icon").toString()) );
   }
+  item->setToolTip(0, json.value("tooltip").toString());
   if(json.contains("pkgname")){
     //Individual Package registration
     item->setWhatsThis(0, json.value("pkgname").toString());
@@ -432,7 +433,10 @@ void Backend::GeneratePackageItem(QJsonObject json, QTreeWidget *tree, QString n
     if(json.value("required").toBool(false)){
       item->setDisabled(true);
       item->setToolTip(0, tr("Required Package"));
+    }else if(!json.value("enabled").toBool(true)){
+      item->setDisabled(true);
     }
+
   }else{
     //Category entry
     QStringList list = json.keys();

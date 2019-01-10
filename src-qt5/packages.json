@@ -37,7 +37,9 @@
         "pkgname" : "xf86-video-amdgpu",
         "icon" : "amd",
         "default" : false,
-        "pciconf_match" : {
+        "enabled" : false,
+	"tooltip" : "DISABLED: Currently broken in upstream FreeBSD",
+        "DISABLED-pciconf_match" : {
           "id_regex" : "vgapci[0-9]",
           "vendor_regex" : "AMD"
         }
@@ -60,13 +62,15 @@
       "Legacy (intel)" : {
         "pkgname" : "xf86-video-intel",
         "icon" : "preferences-system",
+	"enabled" : false,
+	"tooltip" : "DISABLED: Currently breaks graphics rendering. Upstream FreeBSD issue.",
         "default" : false
       }
     },
     "Virtual Machine Guest" : {
       "icon" : "preferences-desktop-display",
       "expand" : false,
-      "VMWare" : {
+      "VMWare Guest Additions" : {
         "pkgname" : "xf86-video-vmware",
         "icon" : "vmware",
         "default" : false,
@@ -75,7 +79,7 @@
           "device_regex" : "VMware"
         }
       },
-      "VirtualBox" : {
+      "VirtualBox Guest Additions" : {
         "pkgname" : "virtualbox-ose-additions",
         "icon" : "vbox",
         "default" : false,
@@ -173,7 +177,7 @@
       "pkgname" : "intel-backlight",
       "icon" : "redshift",
       "required" : "false",
-      "default" : false,
+      "default" : true,
       "default_laptop" : true
     }
   },
