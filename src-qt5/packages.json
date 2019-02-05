@@ -269,6 +269,11 @@
       "pkgname" : "personacrypt",
       "icon" : "cs-firewall",
       "default" : false
+    },
+    "Tor" : {
+      "pkgname" : "tor",
+      "icon" : "torbrowser",
+      "default" : false
     }
   }
 }
