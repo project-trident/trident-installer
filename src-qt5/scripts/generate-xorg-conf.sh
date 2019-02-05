@@ -45,7 +45,6 @@ createDriverBlock(){
   echo "Section \"Device\"
   Identifier      \"Card${cardnum}\"
   Driver          \"${_driver}\"
-  BusID           \"${busid}\"
   ${options}
 EndSection
 " >> ${file}
