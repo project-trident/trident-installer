@@ -579,7 +579,7 @@ p, li { white-space: pre-wrap; }
       </widget>
       <widget class="QStackedWidget" name="stackedWidget">
        <property name="currentIndex">
-        <number>0</number>
+        <number>3</number>
        </property>
        <widget class="QWidget" name="page_welcome">
         <layout class="QVBoxLayout" name="verticalLayout_6">
@@ -964,7 +964,7 @@ p, li { white-space: pre-wrap; }
                   <x>0</x>
                   <y>0</y>
                   <width>350</width>
-                  <height>348</height>
+                  <height>269</height>
                  </rect>
                 </property>
                 <layout class="QVBoxLayout" name="verticalLayout_21">
@@ -1146,7 +1146,7 @@ p, li { white-space: pre-wrap; }
                   <x>0</x>
                   <y>0</y>
                   <width>345</width>
-                  <height>348</height>
+                  <height>176</height>
                  </rect>
                 </property>
                 <layout class="QVBoxLayout" name="verticalLayout_20">
@@ -1314,8 +1314,8 @@ p, li { white-space: pre-wrap; }
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>671</width>
-              <height>464</height>
+              <width>265</width>
+              <height>366</height>
              </rect>
             </property>
             <layout class="QGridLayout" name="gridLayout_2">
@@ -1733,7 +1733,7 @@ p, li { white-space: pre-wrap; }
             <bool>true</bool>
            </property>
            <property name="wordWrap">
-            <bool>true</bool>
+            <bool>false</bool>
            </property>
            <property name="headerHidden">
             <bool>true</bool>
@@ -2273,6 +2273,12 @@ p, li { white-space: pre-wrap; }
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>70</width>
+           <height>0</height>
+          </size>
          </property>
          <property name="text">
           <string>&amp;Next</string>
