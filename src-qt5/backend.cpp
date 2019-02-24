@@ -187,7 +187,7 @@ bool Backend::isUEFI(){
 }
 
 QString Backend::isodate(){
-  bool ok = false;
+  //bool ok = false;
   QJsonObject config = QJsonDocument::fromJson( readFile("/var/db/trueos-manifest.json").toLocal8Bit() ).object();
   return config.value("os_version").toString();
 }
@@ -629,11 +629,51 @@ void Backend::clearUsers(){
   USERS.clear();
 }
 
+inline double sizetomb(QString size){
+  static QStringList units;
+  if(units.isEmpty()){ units << "B" << "M" << "G" << "T" << "P"; }
+  QString unit = size.right(1);
+  size.chop(1);
+  double mb = size.toDouble();
+  int index = units.indexOf(unit);
+  if(index<0){ return -1; }
+  mb = mb*qPow(1024, index-1);
+  return mb;
+}
+
 //Disk Partitioning
 QJsonObject Backend::availableDisks(bool fromcache){
   static QJsonObject diskObj;
   if(diskObj.isEmpty() || !fromcache){
     bool ok = false;
+    /*QStringList disks = runCommand(ok, "gpart show -p").split("\n");
+    QJsonObject obj;
+    for(int i=0; i<disks.length(); i++){
+      if(disks[i].startsWith("=>")){ disks[i].remove(0,2); }
+      QStringList parts = disks[i].split(" ", QString::SkipEmptyParts);
+      if(parts.length() < 5 || !QFile::exists("/dev/"+parts[2]) ){ continue; } //invalid line
+      QJsonObject info;
+        info.insert("device", parts[2]);
+        info.insert("type", parts[3]);
+        QString size = parts.last();
+          size.remove("(").remove(")");
+        info.insert("size", size);
+        info.insert("size_ok", (sizetomb(size)>20480) ); //bigger than 20GB
+        QString sect;
+        if(parts[2].contains("s")){ sect = "s"+parts[2].section("s",-1); }
+        else if(parts[2].contains("p")){ sect = "p"+parts[2].section("p",-1); }
+        info.insert("whole_disk", sect.isEmpty() );
+        if(!sect.isEmpty()){
+          parts[2].chop(sect.length());
+          info.insert("parent_disk", parts[2]);
+          info.insert("disktype", sect);
+        }else{
+          info.insert("disktype", "all");
+        }
+      obj.insert(info.value("device").toString(), info);
+    }
+    diskObj = obj;
+  }*/
     QStringList disks = runCommand(ok, "pc-sysinstall disk-list").split("\n");
     QJsonObject obj;
     for(int i=0; i<disks.length() && ok; i++){
@@ -667,6 +707,7 @@ QJsonObject Backend::availableDisks(bool fromcache){
     } //end loop over disks
     diskObj = obj;
   }
+  //qDebug() << "Got Disks:" << diskObj;
   return diskObj;
 }
 
