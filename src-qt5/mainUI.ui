@@ -419,8 +419,8 @@ p, li { white-space: pre-wrap; }
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>206</width>
-                 <height>393</height>
+                 <width>86</width>
+                 <height>44</height>
                 </rect>
                </property>
                <attribute name="icon">
@@ -579,7 +579,7 @@ p, li { white-space: pre-wrap; }
       </widget>
       <widget class="QStackedWidget" name="stackedWidget">
        <property name="currentIndex">
-        <number>3</number>
+        <number>1</number>
        </property>
        <widget class="QWidget" name="page_welcome">
         <layout class="QVBoxLayout" name="verticalLayout_6">
@@ -964,7 +964,7 @@ p, li { white-space: pre-wrap; }
                   <x>0</x>
                   <y>0</y>
                   <width>350</width>
-                  <height>269</height>
+                  <height>335</height>
                  </rect>
                 </property>
                 <layout class="QVBoxLayout" name="verticalLayout_21">
@@ -1146,7 +1146,7 @@ p, li { white-space: pre-wrap; }
                   <x>0</x>
                   <y>0</y>
                   <width>345</width>
-                  <height>176</height>
+                  <height>335</height>
                  </rect>
                 </property>
                 <layout class="QVBoxLayout" name="verticalLayout_20">
@@ -1180,7 +1180,7 @@ p, li { white-space: pre-wrap; }
                        <string notr="true"/>
                       </property>
                       <property name="maxLength">
-                       <number>12</number>
+                       <number>64</number>
                       </property>
                       <property name="placeholderText">
                        <string notr="true">trident</string>
