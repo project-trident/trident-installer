@@ -75,6 +75,7 @@ public:
 	// Information
 	QString generateSummary(){ return generateInstallConfig(false); }
 	bool isLaptop();
+	bool isVM();
 	QString system_information();
 	QString pci_info();
 	bool isUEFI();

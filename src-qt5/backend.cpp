@@ -100,6 +100,14 @@ bool Backend::isLaptop(){
   return (hasbat==1);
 }
 
+bool Backend::isVM(){
+  QString pinfo = pci_info();
+  bool vm = false;
+  QRegExp rex("(VirtualBox|VMWare)");
+  if(pinfo.contains(rex)){ vm = true; }
+  return vm;
+}
+
 inline QString confString(QString var, QString val, bool needquotes = false){
   QString tmp=var.append("=%1");
   if(needquotes){ tmp = tmp.arg("\""+val+"\""); }
@@ -125,7 +133,7 @@ QString Backend::system_information(){
   QStringList info;
   info << "<b><u>Overview</u></b>";
   info << QString("<b>Boot Method:</b> %1").arg( isUEFI() ? "UEFI" : "Legacy");
-  info << QString("<b>System Type:</b> %1").arg( isLaptop() ? "Laptop" : "Workstation");
+  info << QString("<b>System Type:</b> %1").arg( isVM() ? "VM" : (isLaptop() ? "Laptop" : "Workstation") );
   info << QString("<b>System Model:</b> %1").arg( runCommand(ok, "sysctl", QStringList()<< "-hn" << "hw.model") );
   info << QString("<b>System Architecture:</b> %1").arg( runCommand(ok, "sysctl", QStringList()<< "-hn" << "hw.machine") );
   info << "";
