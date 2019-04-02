@@ -31,11 +31,13 @@ done
 
 #Function: Setup the default xorg.conf file
 setupXorgConf(){
-  #Inputs: $1 : driver to use
-  _driver="$1"
-  /usr/local/bin/generate-xorg-conf.sh ${_driver} ${_conf}
+  if [ ! -e "${_conf}" ] ; then
+    #Inputs: $1 : driver to use
+    _driver="$1"
+    /usr/local/bin/generate-xorg-conf.sh ${_driver} ${_conf}
 
-  setupXorgFonts
+    setupXorgFonts
+  fi
 
   # Check for extra kernel modules to load for video driver support
   driver=`cat "${_conf}" | grep "Driver" | cut -d \" -f 2`

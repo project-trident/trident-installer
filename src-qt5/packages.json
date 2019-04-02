@@ -76,7 +76,7 @@
         "default" : false,
         "pciconf_match" : {
           "id_regex" : "vgapci[0-9]",
-          "device_regex" : "VMware"
+          "vendor_regex" : "VMware"
         }
       },
       "VirtualBox Guest Additions" : {
