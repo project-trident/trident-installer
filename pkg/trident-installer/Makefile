@@ -17,7 +17,8 @@ RUN_DEPENDS=	lumina-coreutils>=0:x11/lumina-coreutils \
 		xorg-minimal>=0:x11/xorg-minimal \
 		xf86-video-scfb>=0:x11-drivers/xf86-video-scfb \
 		setxkbmap>=0:x11/setxkbmap \
-		pc-sysinstall>=0:sysutils/pc-sysinstall
+		pc-sysinstall>=0:sysutils/pc-sysinstall \ 
+		jq>=0:textproc/jq
 
 USES=	qmake qt:5
 USE_QT=	core gui widgets svg concurrent \
