@@ -11,6 +11,8 @@
 //  Current at 5GB
 #define MIN_INSTALL_MB (5*1024)
 
+#define PCSYSINSTALL QString("/usr/local/bin/pc-sysinstall")
+
 Backend::Backend(QObject *parent) : QObject(parent){
   PROC = new QProcess(this);
   connect(PROC, SIGNAL(readyRead()), this, SLOT(read_install_output()) );
@@ -332,7 +334,7 @@ void Backend::checkKeyboardInfo(){
   bool ok = false;
   if(!keyboardInfo.contains("models")){
     //Need to probe/cache the information about the available keyboards
-    QStringList models = runCommand(ok, "pc-sysinstall xkeyboard-models").replace("\t"," ").split("\n");
+    QStringList models = runCommand(ok, PCSYSINSTALL+" xkeyboard-models").replace("\t"," ").split("\n");
     //Now put them into the cache
     QJsonObject modelObj;
     for(int i=0; i<models.length(); i++){
@@ -346,8 +348,8 @@ void Backend::checkKeyboardInfo(){
   }
   if(!keyboardInfo.contains("layouts")){
     QJsonObject layObj;
-    QStringList layouts = runCommand(ok, "pc-sysinstall xkeyboard-layouts").replace("\t"," ").split("\n");
-    QStringList variants = runCommand(ok, "pc-sysinstall xkeyboard-variants").replace("\t"," ").split("\n");
+    QStringList layouts = runCommand(ok, PCSYSINSTALL+" xkeyboard-layouts").replace("\t"," ").split("\n");
+    QStringList variants = runCommand(ok, PCSYSINSTALL+" xkeyboard-variants").replace("\t"," ").split("\n");
     //Now put it into the cache
     for(int i=0; i<layouts.length(); i++){
       if(layouts[i].simplified().isEmpty()){ continue; }
@@ -682,7 +684,7 @@ QJsonObject Backend::availableDisks(bool fromcache){
     }
     diskObj = obj;
   }*/
-    QStringList disks = runCommand(ok, "pc-sysinstall disk-list").split("\n");
+    QStringList disks = runCommand(ok, PCSYSINSTALL+" disk-list").split("\n");
     QJsonObject obj;
     for(int i=0; i<disks.length() && ok; i++){
       if(disks[i].simplified().isEmpty() ){ continue; }
@@ -691,7 +693,7 @@ QJsonObject Backend::availableDisks(bool fromcache){
       QString diskID = disks[i].section(":",0,0).simplified();
       if( !QFile::exists("/dev/"+diskID) ){ continue; }
       QString diskInfo = disks[i].section(":",1,-1).simplified();
-      QStringList info = runCommand(ok2, "pc-sysinstall", QStringList() << "disk-part" << diskID).split("\n");
+      QStringList info = runCommand(ok2, PCSYSINSTALL, QStringList() << "disk-part" << diskID).split("\n");
       double totalMB = 0;
       for(int j=0; j<info.length() && ok2; j++){
         if(info[j].simplified().isEmpty()){ continue; }
@@ -975,5 +977,5 @@ void Backend::startInstallation(){
     return;
   }
   //Start the install process
-  PROC->start("pc-sysinstall", QStringList() << "-c" << configfile );
+  PROC->start(PCSYSINSTALL, QStringList() << "-c" << configfile );
 }
