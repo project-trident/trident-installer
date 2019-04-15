@@ -11,7 +11,7 @@
 //  Current at 5GB
 #define MIN_INSTALL_MB (5*1024)
 
-#define PCSYSINSTALL QString("/usr/local/bin/pc-sysinstall")
+#define PCSYSINSTALL QString("/usr/local/sbin/pc-sysinstall")
 
 Backend::Backend(QObject *parent) : QObject(parent){
   PROC = new QProcess(this);
@@ -893,7 +893,6 @@ QJsonObject Backend::package_info(QString pkgname){
     obj.insert("comment", info[3] );
     obj.insert("description", info[4] );
   }
-  qDebug() << "Could not read Package info:" << pkgname;
   return obj;
 }
 
