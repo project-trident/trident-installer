@@ -221,7 +221,7 @@ QString Backend::generateInstallConfig(bool internal){
     contents << confString("zfsForce4k","YES");
     contents << confString("ashift","12");
   }
-  contents << confString("efiloader","bsd"); //can also be "refind"
+  contents << confString("efiloader", isUEFI() ? "refind" : "bsd");
   contents << confString("hostname", hostname() );
 
   //Settings for loading files from the ISO
