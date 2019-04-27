@@ -148,7 +148,7 @@
       "default" : false
     },
     "Git" : {
-      "pkgname" : "git",
+      "pkgname" : "git-lite",
       "icon" : "git-gui",
       "required" : false,
       "default" : true
