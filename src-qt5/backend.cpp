@@ -716,6 +716,17 @@ QJsonObject Backend::availableDisks(bool fromcache){
       }
     } //end loop over disks
     diskObj = obj;
+    //Now do a manual check for harddrives which gpart did not detect
+    QDir dir("/dev");
+    QFileInfoList devinfoL = dir.entryInfoList(QStringList() << "da*" << "ada*" << "nvme*", QDir::System, QDir::Name);
+    for(int d=0; d<devinfoL.length(); d++){
+      if(!obj.contains(devinfoL[d].fileName()) ){
+        QJsonObject tmp;
+          tmp.insert("label", "<Unknown>");
+	  tmp.insert("sizemb", QString::number( devinfoL[d].size() ));
+        obj.insert(devinfoL[d].fileName(), tmp);
+      }
+    }
   }
   //qDebug() << "Got Disks:" << diskObj;
   return diskObj;
