@@ -310,7 +310,7 @@ bool MainUI::savePageToBackend(QWidget *current, bool prompts){
           part.install_type = "ZFS";
           part.encrypt_pass = "";
         }
-        part.sizeMB = totalMB - 110; //Make it 110MB smaller than calculated to account for rounding errors (new EFI partition is 100MB)
+        part.sizeMB = 0; //auto-fill everything else
         part.create_partitions  = BACKEND->generateDefaultZFSPartitions();
       disk.partitions.prepend(part); //make sure this partition is always first
       //Now save it into the backend
