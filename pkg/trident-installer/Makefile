@@ -14,7 +14,7 @@ RUN_DEPENDS=	lumina-coreutils>=0:x11/lumina-coreutils \
 		jq>=0:textproc/jq \
 		cursor-chameleon-pearl>=0:x11-themes/cursor-chameleon-pearl \
 		xinit>=0:x11/xinit \
-		drm-kmod>=0:graphics/drm-kmod \
+		${NONEXISTENT}:graphics/drm-kmod \
 		xorg-minimal>=0:x11/xorg-minimal \
 		xf86-video-scfb>=0:x11-drivers/xf86-video-scfb \
 		setxkbmap>=0:x11/setxkbmap \
