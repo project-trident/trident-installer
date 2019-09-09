@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # This script was influenced by https://wiki.voidlinux.org/Manual_install_with_ZFS_root
 SYSTEMDRIVE="/dev/sda2"
@@ -6,13 +6,18 @@ BOOTDRIVE="/dev/sda1"
 BOOTDEVICE="/dev/sda"
 ZPOOL="trident"
 REPO="http://alpha.de.repo.voidlinux.org/current/musl"
-PACKAGES="iwd wpa_supplicant dhcpcd bluez linux-firmware"
-PACKAGES_CHROOT="foomatic-db-nonfree vlc phototonic trojita telegram-desktop falkon lynx qterminal openvpn git pianobar w3m ntfs-3g fuse-exfat simple-mtpfs fish-shell zsh x264 libdvdcss gutenprint foomatic-db hplip tor nano xorg lumina dhclient"
-SERVICES_ENABLED="dbus sshd dhcpcd dhclient cupsd"
+PACKAGES=""
+PACKAGES_CHROOT="iwd wpa_supplicant dhcpcd bluez linux-firmware foomatic-db-nonfree vlc phototonic trojita telegram-desktop falkon lynx qterminal openvpn git pianobar w3m ntfs-3g fuse-exfat simple-mtpfs fish-shell zsh x264 libdvdcss gutenprint foomatic-db hplip tor nano xorg lumina dhclient"
+SERVICES_ENABLED="dbus sshd dhcpcd dhclient cupsd wpa_supplicant"
 
 ## Some important packages
 ## nano xorg lumina iwd wpa_supplicant dhcpcd bluez linux-firmware-network
 
+if [ ! -e "/bin/zpool" ] ; then
+  #Need to install the zfs package first
+  xbps-install -S
+  xbps-install zfs
+fi
 
 echo "Create the pool"
 echo "zpool create -f <pool_name> /dev/sda2"
@@ -86,7 +91,7 @@ echo "8.8.4.4" >> /mnt/etc/resolv.conf
 
 echo "CHROOT into mount and finish setting up"
 
-chroot /mnt/ /bin/bash
+chroot /mnt/ /bin/sh
 echo "setting up /"
 chown root:root /
 chmod 755 /
