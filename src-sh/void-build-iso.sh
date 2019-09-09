@@ -39,3 +39,8 @@ if [ -e "${outdir}/${IMGNAME}" ] ; then
 fi
 
 cd ${repodir} && ./mklive.sh -a ${ARCH} -o "${outdir}/${IMGNAME}" -p "${TRIDENT_PKGS}" $@
+if [ $? -eq 0 ] ; then
+  echo "ISO Generated: ${outdir}/${IMGNAME}"
+else
+  echo "Unable to create ISO"
+fi
