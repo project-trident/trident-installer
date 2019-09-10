@@ -137,7 +137,7 @@ done
 echo
 echo "Fix dracut and kernel config, then update grub"
 echo hostonly=yes >> /etc/dracut.conf
-xbps-reconfigure -f linux4.19 
+xbps-reconfigure -f linux5.2
 #Now reinstall grub on the boot device after the reconfiguration
 if [ "zfs" != $(grub-probe /) ] ; then
   echo "ERROR: Could not verify ZFS nature of /"
