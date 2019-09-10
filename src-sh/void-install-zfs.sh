@@ -109,7 +109,7 @@ xbps-install -S
 
 echo
 echo "NOW install zfs and other packages which make config changes on install"
-xbps-install zfs ${PACKAGES_CHROOT}
+xbps-install zfs -y ${PACKAGES_CHROOT}
 echo
 
 echo
