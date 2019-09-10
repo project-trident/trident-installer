@@ -104,7 +104,7 @@ echo
 
 echo "sync repo, add additional repo, and then re-sync"
 xbps-install -S
-xbps-install void-repo-nonfree
+xbps-install void-repo-nonfree -y
 xbps-install -S
 
 echo
