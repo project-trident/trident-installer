@@ -53,7 +53,11 @@ zpool import -R /mnt ${ZPOOL}
 echo
 echo "making neccesary directories" 
 echo "mkdir -p /mnt/{boot/grub,dev,proc,run,sys}"
-mkdir -p /mnt/{boot/grub,dev,etc,proc,run,sys}
+dirs="boot/grub dev etc proc run sys"
+for dir in ${dirs}
+do
+  mkdir -p /mnt/${dir}
+done
 echo
 echo " mount drive {/dev/sda} to /boot/grub"
 mount $BOOTDRIVE /mnt/boot/grub
