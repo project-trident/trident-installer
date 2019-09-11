@@ -16,7 +16,7 @@ SERVICES_ENABLED="dbus sshd dhcpcd dhclient cupsd wpa_supplicant"
 if [ ! -e "/bin/zpool" ] ; then
   #Need to install the zfs package first
   xbps-install -S
-  xbps-install zfs
+  xbps-install -y zfs
 fi
 
 echo "Create the pool"
@@ -82,7 +82,7 @@ zfs create -o compression=lz4	          	${ZPOOL}/var/mail
 echo
 echo "Installing MUSL voidlinux, before chroot into it"
 xbps-install -S
-XBPS_ARCH=x86_64-musl xbps-install -S --repository=${REPO} -y -r /mnt base-system grub ${PACKAGES}
+XBPS_ARCH=x86_64-musl xbps-install -S -y --repository=${REPO}  -r /mnt base-system grub ${PACKAGES}
 echo
 echo "copying a valid resolv.conf into directory, before chroot to get to the new install"
 if [ -e "/etc/resolv.conf" ] ; then
@@ -104,7 +104,7 @@ echo
 
 echo "sync repo, add additional repo, and then re-sync"
 xbps-install -S
-xbps-install void-repo-nonfree -y
+xbps-install -y void-repo-nonfree 
 xbps-install -S
 
 echo
