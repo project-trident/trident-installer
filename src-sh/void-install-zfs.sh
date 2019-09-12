@@ -113,7 +113,7 @@ xbps-install zfs -y ${PACKAGES_CHROOT}
 echo
 
 echo
-echo" Check if grub-probe / outputs zfs, else hack /usr/sbin/grub-mkconfig and insert values of"
+echo "Check if grub-probe / outputs zfs, else hack /usr/sbin/grub-mkconfig and insert values of"
 echo "GRUB_DEVICE=/dev/sda2 and GRUB_DEVICE_BOOT=/dev/sda2 directly."
 echo
 if [ "zfs" != $(grub-probe /) ] ; then
