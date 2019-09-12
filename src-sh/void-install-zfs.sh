@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # This script was influenced by https://wiki.voidlinux.org/Manual_install_with_ZFS_root
-SYSTEMDRIVE="/dev/sda2"
-BOOTDRIVE="/dev/sda1"
-BOOTDEVICE="/dev/sda"
+SYSTEMDRIVE="/dev/sdb2"
+BOOTDRIVE="/dev/sdb1"
+BOOTDEVICE="/dev/sdb"
 ZPOOL="trident"
 REPO="http://alpha.de.repo.voidlinux.org/current/musl"
 PACKAGES=""
@@ -20,7 +20,7 @@ if [ ! -e "/bin/zpool" ] ; then
 fi
 
 echo "Create the pool"
-echo "zpool create -f <pool_name> /dev/sda2"
+echo "zpool create -f <pool_name> /dev/sdb2"
 zpool create -f ${ZPOOL} $SYSTEMDRIVE
 echo
 echo "Create a fs for the root file systems:"
@@ -59,7 +59,7 @@ do
   mkdir -p /mnt/${dir}
 done
 echo
-echo " mount drive {/dev/sda} to /boot/grub"
+echo " mount drive {/dev/sdb} to /boot/grub"
 mount $BOOTDRIVE /mnt/boot/grub
 echo
 echo "mounting necessary directories"
@@ -68,7 +68,7 @@ mount --rbind /proc /mnt/proc
 mount --rbind /run /mnt/run
 mount --rbind /sys /mnt/sys
 echo
-echo " mount drive {/dev/sda} to /boot/grub"
+echo " mount drive {/dev/sdb} to /boot/grub"
 mount $BOOTDRIVE /mnt/boot/grub
 echo
 echo "creating /home to snapshot"
@@ -88,14 +88,36 @@ echo "copying a valid resolv.conf into directory, before chroot to get to the ne
 if [ -e "/etc/resolv.conf" ] ; then
   #Copy the current host resolv.conf (assume it is working)
   cp /etc/resolv.conf /mnt/etc/resolv.conf
+  cp /etc/resolv.conf /mnt/root/resolv.conf
 fi
 #Now inject a couple always-working DNS nameservers into the end of resolv.conf
 echo "8.8.8.8" >> /mnt/etc/resolv.conf
 echo "8.8.4.4" >> /mnt/etc/resolv.conf
 
+echo "copying void_install_zfs_02.sh into directory, before chroot to get to the new install"
+cp void_install_zfs_02.sh /mnt/
+
 echo "CHROOT into mount and finish setting up"
 
-chroot /mnt/ /bin/bash
+
+chroot /mnt/ /bin/bash -x <<'EOF'
+./void_install_zfs_02.sh
+EOF
+#!/bin/bash
+
+# This script was influenced by https://wiki.voidlinux.org/Manual_install_with_ZFS_root
+SYSTEMDRIVE="/dev/sdb2"
+BOOTDRIVE="/dev/sdb1"
+BOOTDEVICE="/dev/sdb"
+ZPOOL="trident"
+REPO="http://alpha.de.repo.voidlinux.org/current/musl"
+PACKAGES=""
+PACKAGES_CHROOT="iwd wpa_supplicant dhcpcd bluez linux-firmware foomatic-db-nonfree vlc phototonic trojita telegram-desktop falkon lynx qterminal openvpn git pianobar w3m ntfs-3g fuse-exfat simple-mtpfs fish-shell zsh x264 libdvdcss gutenprint foomatic-db hplip tor nano xorg lumina dhclient"
+SERVICES_ENABLED="dbus sshd dhcpcd dhclient cupsd wpa_supplicant"
+
+
+echo "CHROOT into mount and finish setting up"
+
 echo "setting up /"
 chown root:root /
 chmod 755 /
@@ -114,7 +136,7 @@ echo
 
 echo
 echo "Check if grub-probe / outputs zfs, else hack /usr/sbin/grub-mkconfig and insert values of"
-echo "GRUB_DEVICE=/dev/sda2 and GRUB_DEVICE_BOOT=/dev/sda2 directly."
+echo "GRUB_DEVICE=/dev/sdb2 and GRUB_DEVICE_BOOT=/dev/sdb2 directly."
 echo
 if [ "zfs" != $(grub-probe /) ] ; then
   echo "ERROR: Could not verify ZFS nature of /"
