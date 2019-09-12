@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # This script was influenced by https://wiki.voidlinux.org/Manual_install_with_ZFS_root
 SYSTEMDRIVE="/dev/sda2"
@@ -95,7 +95,7 @@ echo "8.8.4.4" >> /mnt/etc/resolv.conf
 
 echo "CHROOT into mount and finish setting up"
 
-chroot /mnt/ /bin/sh
+chroot /mnt/ /bin/bash
 echo "setting up /"
 chown root:root /
 chmod 755 /
