@@ -1,7 +1,7 @@
 #!/bin/sh
 
 #Verify that needed packages are installed
-packages="git qemu-user-static liblz4 make"
+packages="git qemu-user-static liblz4 make mtools gptfdisk"
 for pkg in ${packages}
 do
   xbps-query -l | grep -q "ii ${pkg}-"
