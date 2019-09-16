@@ -1,7 +1,7 @@
 #!/bin/sh
 
 #Verify that needed packages are installed
-packages="git qemu-user-static liblz4 make mtools gptfdisk"
+packages="git qemu-user-static liblz4 make"
 for pkg in ${packages}
 do
   xbps-query -l | grep -q "ii ${pkg}-"
@@ -30,7 +30,7 @@ readonly IMGNAME="trident-${ARCH}-${DATE}.iso"
 
 readonly GRUB_PKGS="grub-i386-efi grub-x86_64-efi"
 readonly BASE_PKGS="dialog mdadm ${GRUB_PKGS}"
-readonly TRIDENT_PKGS="${BASE_PKGS} zfs wget"
+readonly TRIDENT_PKGS="${BASE_PKGS} zfs wget mtools gptfdisk"
 
 # Make sure the output ISO file does not already exist (repeated builds)
 if [ -e "${outdir}/${IMGNAME}" ] ; then
