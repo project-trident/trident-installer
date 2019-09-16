@@ -38,7 +38,7 @@ if [ -e "${outdir}/${IMGNAME}" ] ; then
   rm "${outdir}/${IMGNAME}"
 fi
 
-cd ${repodir} && ./mklive.sh.in -a ${ARCH} -o "${outdir}/${IMGNAME}" -p "${TRIDENT_PKGS}" $@
+cd ${repodir} && sh mklive.sh.in -a ${ARCH} -o "${outdir}/${IMGNAME}" -p "${TRIDENT_PKGS}" $@
 if [ $? -eq 0 ] ; then
   echo "ISO Generated: ${outdir}/${IMGNAME}"
 else
