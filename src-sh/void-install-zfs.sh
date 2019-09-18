@@ -83,7 +83,7 @@ zfs create -o compression=lz4	          	${ZPOOL}/var/mail
 echo
 echo "Installing MUSL voidlinux, before chroot into it"
 xbps-install -S
-XBPS_ARCH=x86_64-musl xbps-install -S -y --repository=${REPO}  -r ${MNT} base-system grub ${PACKAGES}
+XBPS_ARCH=x86_64-musl xbps-install -y -S --repository=${REPO} -r ${MNT} base-system grub ${PACKAGES}
 echo
 echo "copying a valid resolv.conf into directory, before chroot to get to the new install"
 if [ -e "/etc/resolv.conf" ] ; then
@@ -104,13 +104,13 @@ ${CHROOT} chmod 755 /
 echo
 
 echo "sync repo, add additional repo, and then re-sync"
-${CHROOT} xbps-install -S
+${CHROOT} xbps-install -y -S
 ${CHROOT} xbps-install -y void-repo-nonfree 
 ${CHROOT} xbps-install -S
 
 echo
 echo "NOW install zfs and other packages which make config changes on install"
-${CHROOT} xbps-install zfs -y ${PACKAGES_CHROOT}
+${CHROOT} xbps-install -y zfs ${PACKAGES_CHROOT}
 echo
 
 echo
