@@ -50,7 +50,10 @@ zpool export ${ZPOOL}
 echo
 echo "Import the pool below ${MNT}:"
 echo "zpool import -R ${MNT} ${ZPOOL}"
-zpool import -R ${MNT} ${ZPOOL}
+echo "this may or may not work. May need to run 'zpool import' to see  device ID"
+echo "and use that instead'
+echo "zpool <device id> -R ${MNT} ${ZPOOL}
+zpool import -d ${SYSTEMDRIVE} -R ${MNT} ${ZPOOL}
 echo
 echo "making neccesary directories" 
 echo "mkdir -p ${MNT}/{boot/grub,dev,proc,run,sys}"
@@ -68,9 +71,6 @@ mount --rbind /dev ${MNT}/dev
 mount --rbind /proc ${MNT}/proc
 mount --rbind /run ${MNT}/run
 mount --rbind /sys ${MNT}/sys
-echo
-echo " mount drive {/dev/sda} to /boot/grub"
-mount $BOOTDRIVE ${MNT}/boot/grub
 echo
 echo "creating /home to snapshot"
 zfs create -o compression=lz4 			${ZPOOL}/home
