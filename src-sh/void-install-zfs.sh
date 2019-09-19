@@ -54,8 +54,9 @@ REPO="http://alpha.de.repo.voidlinux.org/current/musl"
 PACKAGES=""
 PACKAGES_CHROOT="iwd wpa_supplicant dhcpcd bluez linux-firmware foomatic-db-nonfree vlc trojita telegram-desktop falkon qterminal openvpn git pianobar ntfs-3g fuse-exfat simple-mtpfs fish-shell zsh libdvdcss gutenprint foomatic-db nano xorg lumina"
 SERVICES_ENABLED="dbus sshd dhcpcd cupsd wpa_supplicant"
-MNT="/mnt"
-CHROOT="chroot ${MNT}/"
+MNTBASE="/mnt"
+MNT="${MNT}/${ZPOOL}/"
+CHROOT="chroot ${MNT}/${ZPOOL}/"
 ## Some important packages
 ## intel-ucode ?
 
@@ -103,7 +104,7 @@ exit_err $? "Could not create pool: ${ZPOOL} on ${SYSTEMDRIVE}"
 zfs create  -o mountpoint=none ${ZPOOL}/ROOT
 exit_err $? "Could not create ROOT dataset"
 
-zfs create -o mountpoint=legacy ${ZPOOL}/ROOT/void
+zfs create -o canmount=noauto -o mountpoint=/ ${ZPOOL}/ROOT/void
 exit_err $? "Could not create ROOT/void dataset"
 
 zpool set bootfs=${ZPOOL}/ROOT/void ${ZPOOL}
@@ -112,8 +113,9 @@ exit_err $? "Could not set ROOT/void dataset as bootfs"
 echo "Verify pool can be exported/imported"
 zpool export ${ZPOOL}
 exit_err $? "Could not export pool"
-zpool import -R ${MNT} ${ZPOOL}
+zpool import -R ${MNTBASE} ${ZPOOL}
 exit_err $? "Could not import the new pool at ${MNT}"
+zfs 
 
 dirs="boot/grub dev etc proc run sys"
 for dir in ${dirs}
@@ -175,6 +177,14 @@ exit_err $? "Could not install the nonfree repo"
 ${CHROOT} xbps-install -y -S
 
 echo
+echo "Fix dracut and kernel config, then update grub"
+echo "hostonly=\"yes\"" >> ${MNT}/etc/dracut.conf.d/zol.conf
+echo "nofsck=\"yes\"" >> ${MNT}/etc/dracut.conf.d/zol.conf
+echo "add_dracutmodules+=\" zfs \"" >> ${MNT}/etc/dracut.conf.d/zol.conf
+echo "omit_dracutmodules+=\" btrfs resume \"" >> ${MNT}/etc/dracut.conf.d/zol.conf
+${CHROOT} xbps-reconfigure -f linux5.2
+
+echo
 echo "Installing packages within chroot"
 mkdir ${MNT}/tmp/pkg-cache
 for pkg in zfs ${PACKAGES_CHROOT}
@@ -200,27 +210,21 @@ do
   exit_err $? "Could not enable service: ${service}"
 done
 
-echo
-echo "Fix dracut and kernel config, then update grub"
-echo "hostonly=\"yes\"" >> ${MNT}/etc/dracut.conf.d/zol.conf
-echo "nofsck=\"yes\"" >> ${MNT}/etc/dracut.conf.d/zol.conf
-echo "add_dracutmodules+=\" zfs \"" >> ${MNT}/etc/dracut.conf.d/zol.conf
-echo "omit_dracutmodules+=\" btrfs resume \"" >> ${MNT}/etc/dracut.conf.d/zol.conf
-${CHROOT} xbps-reconfigure -f linux5.2
 #Now reinstall grub on the boot device after the reconfiguration
 if [ "zfs" != $(${CHROOT} grub-probe /) ] ; then
   echo "ERROR: Could not verify ZFS nature of /"
   exit 1
 fi  
 #Setup the GRUB configuration
-echo '
+echo "
 GRUB_DEFAULT=0
 GRUB_TIMEOUT=5
-GRUB_DISTRIBUTOR="Void"
-GRUB_CMDLINE_LINUX_DEFAULT="loglevel=4 elevator=noop"
+GRUB_DISTRIBUTOR=\"Void\"
+GRUB_CMDLINE_LINUX_DEFAULT=\"loglevel=4 elevator=noop\"
 GRUB_BACKGROUND=/usr/share/void-artwork/splash.png
+GRUB_CMDLINE_LINUX=\"root=ZFS=${ZPOOL}/ROOT/void\"
 GRUB_DISABLE_OS_PROBER=true
-' > ${MNT}/etc/default/grub
+" > ${MNT}/etc/default/grub
 
 ${CHROOT} grub-install ${BOOTDEVICE}
 
