@@ -98,7 +98,7 @@ exit_err $? "Could not verify ZFS module"
 ip link sh | grep ether | cut -d ' ' -f 6 >> /etc/hostid
 
 echo "Creating ZFS Pool: ${ZPOOL}"
-zpool create -f ${ZPOOL} $SYSTEMDRIVE
+zpool create -f -o ashift=12  -m legacy${ZPOOL} $SYSTEMDRIVE
 exit_err $? "Could not create pool: ${ZPOOL} on ${SYSTEMDRIVE}"
 
 zfs create  -o mountpoint=none ${ZPOOL}/ROOT
@@ -115,7 +115,14 @@ zpool export ${ZPOOL}
 exit_err $? "Could not export pool"
 zpool import -R ${MNTBASE} ${ZPOOL}
 exit_err $? "Could not import the new pool at ${MNT}"
-zfs 
+
+datasets="home var var/logs var/tmp var/mail"
+for ds in ${datasets}
+do
+echo "Creating Dataset: ${ds}"
+  zfs create -o compression=lz4 -o mountpoint=${ds} ${ZPOOL}/${ds}
+  exit_err $? "Could not create dataset: ${ZPOOL}/${ds}"
+done
 
 dirs="boot/grub dev etc proc run sys"
 for dir in ${dirs}
@@ -134,14 +141,6 @@ for dir in ${dirs}
 do
   mount --rbind /${dir} ${MNT}/${dir}
   exit_err $? "Could not mount directory: ${MNT}/${dir}"
-done
-
-datasets="home var var/logs var/tmp var/mail"
-for ds in ${datasets}
-do
-echo "Creating Dataset: ${ds}"
-  zfs create -o compression=lz4 ${ZPOOL}/${ds}
-  exit_err $? "Could not create dataset: ${ZPOOL}/${ds}"
 done
 
 echo
