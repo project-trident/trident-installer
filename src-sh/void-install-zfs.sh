@@ -50,7 +50,7 @@ SYSTEMDRIVE="${DISK}2"
 BOOTDRIVE="${DISK}1"
 BOOTDEVICE="${DISK}"
 ZPOOL="trident"
-#REPO="http://alpha.de.repo.voidlinux.org/current/musl"
+REPO="http://alpha.de.repo.voidlinux.org/current/musl"
 PACKAGES=""
 PACKAGES_CHROOT="iwd wpa_supplicant dhcpcd bluez linux-firmware foomatic-db-nonfree vlc trojita telegram-desktop falkon qterminal openvpn git pianobar ntfs-3g fuse-exfat simple-mtpfs fish-shell zsh libdvdcss gutenprint foomatic-db nano xorg lumina"
 SERVICES_ENABLED="dbus sshd dhcpcd cupsd wpa_supplicant"
@@ -58,6 +58,11 @@ MNT="/mnt"
 CHROOT="chroot ${MNT}/"
 ## Some important packages
 ## intel-ucode ?
+
+echo "repository=${REPO}" > /etc/xbps.d/repo.conf
+export XBPS_ARCH=x86_64-musl 
+xbps-install -y -S
+exit_err $? "Could not contact package repository!! Fix networking and try again (no changes to disks yet)."
 
 #Check if we are using EFI boot
 efibootmgr > /dev/null
@@ -139,8 +144,7 @@ done
 
 echo
 echo "Installing MUSL voidlinux, before chroot into it"
-export XBPS_ARCH=x86_64-musl 
-xbps-install -y -S -r ${MNT} base-system grub ${PACKAGES}
+xbps-install -y -r ${MNT} base-system grub ${PACKAGES}
 exit_err $? "Could not install void packages!!"
 
 echo
@@ -155,6 +159,7 @@ echo "8.8.8.8" >> ${MNT}/etc/resolv.conf
 echo "8.8.4.4" >> ${MNT}/etc/resolv.conf
 #Also copy over the hostid file we had to create manually earlier
 cp /etc/hostid ${MNT}/etc/hostid
+cp /etc/xbps.d/repo.conf ${MNT}/etc/xbps.d/repo.conf
 
 echo "CHROOT into mount and finish setting up"
 
