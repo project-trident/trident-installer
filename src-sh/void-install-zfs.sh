@@ -97,14 +97,38 @@ exit_err $? "Could not verify ZFS module"
 ip link sh | grep ether | cut -d ' ' -f 6 | tr -d ":" >> /etc/hostid
 
 echo "Creating ZFS Pool: ${ZPOOL}"
-zpool create -f -o ashift=12  -m legacy ${ZPOOL} $SYSTEMDRIVE
+zpool create -f -o cachefile=/tmp/zpool.cache -o ashift=12 -d \
+		-o feature@async_destroy=enabled \
+		-o feature@bookmarks=enabled \
+		-o feature@embedded_data=enabled \
+		-o feature@empty_bpobj=enabled \
+		-o feature@enabled_txg=enabled \
+		-o feature@extensible_dataset=enabled \
+		-o feature@filesystem_limits=enabled \
+		-o feature@hole_birth=enabled \
+		-o feature@large_blocks=enabled \
+		-o feature@lz4_compress=enabled \
+		-o feature@spacemap_histogram=enabled \
+		-o feature@userobj_accounting=enabled \
+		-O acltype=posixacl \
+		-O canmount=off \
+		-O compression=lz4 \
+		-O devices=off \
+		-O mountpoint=none \
+		-O normalization=formD \
+		-O relatime=on \
+		-O xattr=sa \
+		${ZPOOL} ${SYSTEMDRIVE}
+#zpool create -f -o ashift=12  -m legacy ${ZPOOL} $SYSTEMDRIVE
 exit_err $? "Could not create pool: ${ZPOOL} on ${SYSTEMDRIVE}"
-
-zfs create  -o mountpoint=none ${ZPOOL}/ROOT
+#Configure the pool now
+zfs set compression=on ${ZPOOL}
+zfs create -o canmount=off ${ZPOOL}/ROOT
+zfs create -o mountpoint=legacy ${ZPOOL}/ROOT/void
 exit_err $? "Could not create ROOT dataset"
 
-zfs create -o canmount=noauto -o mountpoint=/ ${ZPOOL}/ROOT/void
-exit_err $? "Could not create ROOT/void dataset"
+#zfs create -o canmount=noauto -o mountpoint=/ ${ZPOOL}/ROOT/void
+#exit_err $? "Could not create ROOT/void dataset"
 
 zpool set bootfs=${ZPOOL}/ROOT/void ${ZPOOL}
 exit_err $? "Could not set ROOT/void dataset as bootfs"
@@ -185,19 +209,16 @@ ${CHROOT} xbps-reconfigure -f linux5.2
 echo
 echo "Installing packages within chroot"
 mkdir ${MNT}/tmp/pkg-cache
+rm ${MNT}/var/cache/xbps/*
 for pkg in zfs ${PACKAGES_CHROOT}
 do
   ${CHROOT} xbps-install -y -c /tmp/pkg-cache ${pkg}
   exit_err $? "Could not install package: ${pkg}"
+  rm ${MNT}/tmp/pkg-cache/*
 done
 echo
 #Now remove the temporary pkg cache directory in the chroot
 rm -r ${MNT}/tmp/pkg-cache
-
-${CHROOT} zpool set cachefile=/etc/zfs/zpool.cache ${ZPOOL}
-exit_err $? "Could not set cachefile for pool inside chroot"
-${CHROOT} zpool set bootfs=${ZPOOL}/ROOT/void ${ZPOOL}
-exit_err $? "Could not set bootfs for pool inside chroot"
 
 echo
 echo "Auto-enabling services"
