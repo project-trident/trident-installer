@@ -29,6 +29,7 @@ do
 done
 
 # This script was influenced by https://wiki.voidlinux.org/Manual_install_with_ZFS_root
+HOSTNAME="tri-void"
 SYSTEMDRIVE="${DISK}2"
 BOOTDRIVE="${DISK}1"
 BOOTDEVICE="${DISK}"
@@ -53,42 +54,50 @@ sfdisk -w always ${DISK} << EOF
 	label: gpt
 	,100M,U,*
 	;
-	EOF
+EOF
 
-echo "Development breakpoint"
-exit $?
+if [ $? -ne 0 ] ; then
+  echo "[ERROR] Could not partition the disk: ${DISK} "
+  exit 1
+fi
+
+# Setup the void tweaks for ZFS 
+# Steps found at: https://github.com/nightah/void-install
+xbps-reconfigure -a
+modprobe zfs
+if [ $? -ne 0 ] ; then
+  echo "[ERROR] Could not verify ZFS module"
+  exit 1
+fi
+ip link sh | grep ether | cut -d ' ' -f 6 >> /etc/hostid
 
 echo "Create the pool"
-echo "zpool create -f <pool_name> /dev/sda2"
+echo "zpool create -f -o ashift=12 <pool_name> /dev/sda2"
 zpool create -f ${ZPOOL} $SYSTEMDRIVE
 echo
 echo "Create a fs for the root file systems:"
 echo "zfs create  <pool_name>/ROOT"
-zfs create  ${ZPOOL}/ROOT
+zfs create  -o mountpoint=none ${ZPOOL}/ROOT
 echo
 echo "Create a fs for the Void file system"
 echo "zfs create <pool_name>/ROOT/<pool_name>"
-zfs create ${ZPOOL}/ROOT/$HOSTNAME
+zfs create -o mountpoint=/ ${ZPOOL}/ROOT/void
+echo "zpool set bootfs=rpool/ROOT/voidlinux_1 <pool_name>"
+zpool set bootfs=${ZPOOL}/ROOT/void ${ZPOOL}
 echo
 echo "Unmount all ZFS filesystems:"
 echo "zfs umount -a"
 zfs umount -a
 echo
-echo "set mount point"
-echo "zfs set mountpoint=/ >pool_name>/ROOT/<pool_name>"
-zfs set mountpoint=/ ${ZPOOL}/ROOT/$HOSTNAME
-echo
-echo "set bootfs"
-echo "zpool set bootfs=rpool/ROOT/voidlinux_1 <pool_name>"
-zpool set bootfs=${ZPOOL}/ROOT/$HOSTNAME ${ZPOOL}
-echo
-echo "Export the pool"
-echo "zpool set bootfs=rpool/ROOT/voidlinux_1 <pool_name>"
+
+echo "Verify pool can be exported/imported"
 zpool export ${ZPOOL}
-echo
-echo "Import the pool below ${MNT}:"
-echo "zpool import -R ${MNT} ${ZPOOL}"
 zpool import -R ${MNT} ${ZPOOL}
+if [ $? -ne 0 ] ; then
+  echo "[ERROR] Could not import the new pool at ${MNT}"
+  exit 1
+fi
+
 echo
 echo "making neccesary directories" 
 echo "mkdir -p ${MNT}/{boot/grub,dev,proc,run,sys}"
@@ -121,16 +130,19 @@ zfs create -o compression=lz4	          	${ZPOOL}/var/mail
 echo
 echo "Installing MUSL voidlinux, before chroot into it"
 xbps-install -S
-XBPS_ARCH=x86_64-musl xbps-install -y -S --repository=${REPO} -r ${MNT} base-system grub ${PACKAGES}
+XBPS_ARCH=x86_64-musl xbps-install -y -S --repository=${REPO} -r ${MNT} base-system grub intel-ucode ${PACKAGES}
 echo
 echo "copying a valid resolv.conf into directory, before chroot to get to the new install"
 if [ -e "/etc/resolv.conf" ] ; then
   #Copy the current host resolv.conf (assume it is working)
   cp /etc/resolv.conf ${MNT}/etc/resolv.conf
 fi
+
 #Now inject a couple always-working DNS nameservers into the end of resolv.conf
 echo "8.8.8.8" >> ${MNT}/etc/resolv.conf
 echo "8.8.4.4" >> ${MNT}/etc/resolv.conf
+#Also copy over the hostid file we had to create manually earlier
+cp /etc/hostid ${MNT}/etc/hostid
 
 echo "CHROOT into mount and finish setting up"
 
@@ -139,7 +151,10 @@ echo "setting up /"
 ${CHROOT} chown root:root /
 ${CHROOT} chmod 755 /
 #passwd root
-echo
+echo "KEYMAP=\"us\"" >> ${MNT}/etc/rc.conf
+echo "TIMEZONE=\"America/New_York\"" >> ${MNT}/etc/rc.conf
+echo "HARDWARECLOCK=\"UTC\"" >> ${MNT}/etc/rc.conf
+echo ${HOSTNAME} > ${MNT}/etc/hostname
 
 echo "sync repo, add additional repo, and then re-sync"
 ${CHROOT} xbps-install -y -S
@@ -154,6 +169,7 @@ echo
 echo
 echo "making sure we have this file /etc/zfs/zpool.cache" 
 ${CHROOT} zpool set cachefile=/etc/zfs/zpool.cache ${ZPOOL}
+${CHROOT} zpool set bootfs=${ZPOOL}/ROOT/void ${ZPOOL}
 
 echo
 echo "Auto-enabling services"
@@ -165,17 +181,44 @@ done
 
 echo
 echo "Fix dracut and kernel config, then update grub"
-echo hostonly=yes >> ${MNT}/etc/dracut.conf
+echo "hostonly=\"yes\"" >> ${MNT}/etc/dracut.conf.d/zol.conf
+echo "nofsck=\"yes\"" >> ${MNT}/etc/dracut.conf.d/zol.conf
+echo "add_dracutmodules+=\" zfs \"" >> ${MNT}/etc/dracut.conf.d/zol.conf
+echo "omit_dracutmodules+=\" btrfs resume \"" >> ${MNT}/etc/dracut.conf.d/zol.conf
 ${CHROOT} xbps-reconfigure -f linux5.2
 #Now reinstall grub on the boot device after the reconfiguration
 if [ "zfs" != $(${CHROOT} grub-probe /) ] ; then
   echo "ERROR: Could not verify ZFS nature of /"
   exit 1
 fi  
+#Setup the GRUB configuration
+echo '
+GRUB_DEFAULT=0
+GRUB_TIMEOUT=5
+GRUB_DISTRIBUTOR="Void"
+GRUB_CMDLINE_LINUX_DEFAULT="loglevel=4 elevator=noop"
+GRUB_BACKGROUND=/usr/share/void-artwork/splash.png
+GRUB_DISABLE_OS_PROBER=true
+' > ${MNT}/etc/default/grub
+
 ${CHROOT} grub-install ${BOOTDEVICE}
 
-echo "=============="
-echo "FINAL STEP: edit ${MNT}/etc/rc.conf to uncomment info as necessary"
-echo "1. vi ${MNT}/etc/rc.conf"
-echo "2. reboot when ready"
-echo "=============="
+echo "========="
+echo "Final Steps: 1 / 2 - change root password"
+echo "========="
+passwd -R ${MNT}
+echo "========="
+echo "Final Steps: 2 / 2 - create user account"
+echo "========="
+adduser -R ${MNT}
+
+echo "========="
+#Now unmount everything and clean up
+umount -n ${MNT}/boot/grub
+umount -n ${MNT}/dev
+umount -n ${MNT}/proc
+umount -n ${MNT}/run
+umount -n ${MNT}/sys
+zpool export ${ZPOOL}
+
+echo "[SUCCESS] Reboot the system and remove the install media to boot into the new system"
