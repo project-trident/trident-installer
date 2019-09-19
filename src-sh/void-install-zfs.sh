@@ -56,7 +56,7 @@ PACKAGES_CHROOT="iwd wpa_supplicant dhcpcd bluez linux-firmware foomatic-db-nonf
 SERVICES_ENABLED="dbus sshd dhcpcd cupsd wpa_supplicant"
 MNTBASE="/mnt"
 MNT="${MNT}/${ZPOOL}/"
-CHROOT="chroot ${MNT}/${ZPOOL}/"
+CHROOT="chroot ${MNT}"
 ## Some important packages
 ## intel-ucode ?
 
