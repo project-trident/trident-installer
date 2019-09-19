@@ -50,7 +50,7 @@ SYSTEMDRIVE="${DISK}2"
 BOOTDRIVE="${DISK}1"
 BOOTDEVICE="${DISK}"
 ZPOOL="trident"
-REPO="http://alpha.de.repo.voidlinux.org/current/musl"
+#REPO="http://alpha.de.repo.voidlinux.org/current/musl"
 PACKAGES=""
 PACKAGES_CHROOT="iwd wpa_supplicant dhcpcd bluez linux-firmware foomatic-db-nonfree vlc trojita telegram-desktop falkon qterminal openvpn git pianobar ntfs-3g fuse-exfat simple-mtpfs fish-shell zsh libdvdcss gutenprint foomatic-db nano xorg lumina"
 SERVICES_ENABLED="dbus sshd dhcpcd cupsd wpa_supplicant"
@@ -140,7 +140,7 @@ done
 echo
 echo "Installing MUSL voidlinux, before chroot into it"
 export XBPS_ARCH=x86_64-musl 
-xbps-install -y -S --repository=${REPO} -r ${MNT} base-system grub ${PACKAGES}
+xbps-install -y -S -r ${MNT} base-system grub ${PACKAGES}
 exit_err $? "Could not install void packages!!"
 
 echo
