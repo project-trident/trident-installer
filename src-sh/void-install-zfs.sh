@@ -86,7 +86,7 @@ exit_err $? "Could not create ROOT dataset"
 echo
 echo "Create a fs for the Void file system"
 echo "zfs create <pool_name>/ROOT/<pool_name>"
-zfs create -o mountpoint=/ ${ZPOOL}/ROOT/void
+zfs create -o mountpoint=legacy ${ZPOOL}/ROOT/void
 exit_err $? "Could not create ROOT/void dataset"
 
 echo "zpool set bootfs=rpool/ROOT/voidlinux_1 <pool_name>"
