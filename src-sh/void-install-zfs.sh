@@ -52,8 +52,8 @@ BOOTDEVICE="${DISK}"
 ZPOOL="trident"
 REPO="http://alpha.de.repo.voidlinux.org/current/musl"
 PACKAGES=""
-PACKAGES_CHROOT="iwd wpa_supplicant dhcpcd bluez linux-firmware foomatic-db-nonfree vlc phototonic trojita telegram-desktop falkon lynx qterminal openvpn git pianobar w3m ntfs-3g fuse-exfat simple-mtpfs fish-shell zsh x264 libdvdcss gutenprint foomatic-db hplip tor nano xorg lumina dhclient"
-SERVICES_ENABLED="dbus sshd dhcpcd dhclient cupsd wpa_supplicant"
+PACKAGES_CHROOT="iwd wpa_supplicant dhcpcd bluez linux-firmware foomatic-db-nonfree vlc trojita telegram-desktop falkon qterminal openvpn git pianobar ntfs-3g fuse-exfat simple-mtpfs fish-shell zsh libdvdcss gutenprint foomatic-db nano xorg lumina"
+SERVICES_ENABLED="dbus sshd dhcpcd cupsd wpa_supplicant"
 MNT="/mnt"
 CHROOT="chroot ${MNT}/"
 ## Some important packages
@@ -139,7 +139,8 @@ done
 
 echo
 echo "Installing MUSL voidlinux, before chroot into it"
-XBPS_ARCH=x86_64-musl xbps-install -y -S --repository=${REPO} -r ${MNT} base-system grub ${PACKAGES}
+export XBPS_ARCH=x86_64-musl 
+xbps-install -y -S --repository=${REPO} -r ${MNT} base-system grub ${PACKAGES}
 exit_err $? "Could not install void packages!!"
 
 echo
@@ -163,19 +164,19 @@ echo "TIMEZONE=\"America/New_York\"" >> ${MNT}/etc/rc.conf
 echo "HARDWARECLOCK=\"UTC\"" >> ${MNT}/etc/rc.conf
 echo ${HOSTNAME} > ${MNT}/etc/hostname
 
-echo "sync repo, add additional repo, and then re-sync"
+echo "Setting up repositories"
 ${CHROOT} xbps-install -y -S void-repo-nonfree
 exit_err $? "Could not install the nonfree repo"
 ${CHROOT} xbps-install -y -S
 
 echo
-echo "NOW install zfs and other packages which make config changes on install"
-${CHROOT} xbps-install -y zfs ${PACKAGES_CHROOT}
+echo "Installing packages within chroot"
+${CHROOT} xbps-install -y -c /tmp/pkg-cache zfs ${PACKAGES_CHROOT}
 exit_err $? "Could not install packages: ${PACKAGES_CHROOT}"
 echo
+#Now remove the temporary pkg cache directory in the chroot
+${CHROOT} rm -r /tmp/pkg-cache
 
-echo
-echo "making sure we have this file /etc/zfs/zpool.cache" 
 ${CHROOT} zpool set cachefile=/etc/zfs/zpool.cache ${ZPOOL}
 exit_err $? "Could not set cachefile for pool inside chroot"
 ${CHROOT} zpool set bootfs=${ZPOOL}/ROOT/void ${ZPOOL}
