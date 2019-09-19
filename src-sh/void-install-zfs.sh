@@ -55,13 +55,29 @@ if [ ! -e "/bin/zpool" ] ; then
   xbps-install -S
   xbps-install -y zfs
 fi
-
-echo "Formatting the disk: ${DISK}"
+#Check if we are using EFI boot
+efibootmgr
+if [ $? -eq 0 ] ; then
+  #Using EFI
+  BOOTMODE="EFI"
+echo "Formatting the disk: ${BOOTMODE} ${DISK}"
 sfdisk -w always ${DISK} << EOF
 	label: gpt
 	,100M,U,*
 	;
 EOF
+else
+  BOOTMODE="LEGACY"
+  echo "Formatting the disk: ${BOOTMODE} ${DISK}"
+  sfdisk -w always ${DISK} << EOF
+	label: gpt
+	,100M,L,*
+	;
+EOF
+fi
+
+
+
 
 exit_err $? "Could not partition the disk: ${DISK}"
 
@@ -109,13 +125,11 @@ do
   exit_err $? "Could not create directory: ${MNT}/${dir}"
 done
 
-echo
-echo " mount drive {/dev/sda} to /boot/grub"
-mount $BOOTDRIVE ${MNT}/boot/grub
-exit_err $? "Could not mount boot partition: ${BOOTDRIVE}"
+if [ "${BOOTMODE}" = "LEGACY" ] ; then
+  mount $BOOTDRIVE ${MNT}/boot/grub
+  exit_err $? "Could not mount boot partition: ${BOOTDRIVE} -> ${MNT}/boot/grub"
+fi
 
-echo
-echo "mounting necessary directories"
 dirs="dev proc run sys"
 for dir in ${dirs}
 do
