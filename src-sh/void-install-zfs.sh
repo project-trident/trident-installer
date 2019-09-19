@@ -54,8 +54,7 @@ REPO="http://alpha.de.repo.voidlinux.org/current/musl"
 PACKAGES=""
 PACKAGES_CHROOT="iwd wpa_supplicant dhcpcd bluez linux-firmware foomatic-db-nonfree vlc trojita telegram-desktop falkon qterminal openvpn git pianobar ntfs-3g fuse-exfat simple-mtpfs fish-shell zsh libdvdcss gutenprint foomatic-db nano xorg lumina"
 SERVICES_ENABLED="dbus sshd dhcpcd cupsd wpa_supplicant"
-MNTBASE="/mnt"
-MNT="${MNT}/${ZPOOL}/"
+MNT="/mnt"
 CHROOT="chroot ${MNT}"
 ## Some important packages
 ## intel-ucode ?
@@ -95,10 +94,10 @@ xbps-reconfigure -a
 modprobe zfs
 exit_err $? "Could not verify ZFS module"
 
-ip link sh | grep ether | cut -d ' ' -f 6 >> /etc/hostid
+ip link sh | grep ether | cut -d ' ' -f 6 | tr -d ":" >> /etc/hostid
 
 echo "Creating ZFS Pool: ${ZPOOL}"
-zpool create -f -o ashift=12  -m legacy${ZPOOL} $SYSTEMDRIVE
+zpool create -f -o ashift=12  -m legacy ${ZPOOL} $SYSTEMDRIVE
 exit_err $? "Could not create pool: ${ZPOOL} on ${SYSTEMDRIVE}"
 
 zfs create  -o mountpoint=none ${ZPOOL}/ROOT
@@ -113,14 +112,14 @@ exit_err $? "Could not set ROOT/void dataset as bootfs"
 echo "Verify pool can be exported/imported"
 zpool export ${ZPOOL}
 exit_err $? "Could not export pool"
-zpool import -R ${MNTBASE} ${ZPOOL}
+zpool import -R ${MNT} ${ZPOOL}
 exit_err $? "Could not import the new pool at ${MNT}"
 
 datasets="home var var/logs var/tmp var/mail"
 for ds in ${datasets}
 do
 echo "Creating Dataset: ${ds}"
-  zfs create -o compression=lz4 -o mountpoint=${ds} ${ZPOOL}/${ds}
+  zfs create -o compression=lz4 -o mountpoint=/${ds} ${ZPOOL}/${ds}
   exit_err $? "Could not create dataset: ${ZPOOL}/${ds}"
 done
 
