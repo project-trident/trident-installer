@@ -172,8 +172,11 @@ ${CHROOT} xbps-install -y -S
 echo
 echo "Installing packages within chroot"
 mkdir ${MNT}/tmp/pkg-cache
-${CHROOT} xbps-install -y -c /tmp/pkg-cache zfs ${PACKAGES_CHROOT}
-exit_err $? "Could not install packages: ${PACKAGES_CHROOT}"
+for pkg in zfs ${PACKAGES_CHROOT}
+do
+  ${CHROOT} xbps-install -y -c /tmp/pkg-cache ${pkg}
+  exit_err $? "Could not install package: ${pkg}"
+done
 echo
 #Now remove the temporary pkg cache directory in the chroot
 rm -r ${MNT}/tmp/pkg-cache
