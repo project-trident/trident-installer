@@ -8,9 +8,18 @@ exit_err(){
   fi
 }
 
+if [ ! -e "/bin/zpool" ] ; then
+  #Need to install the zfs package first
+  echo "[ERROR] The zfs package/tools are not available on this ISO!!"
+  exit 1
+fi
+
 #Main setting - just pick a disk
 DISK=""
 clear
+echo "================="
+echo "Project Trident Installer"
+echo "================="
 while [ -z "${DISK}" ]
 do
   echo "-------------------"
@@ -50,13 +59,8 @@ CHROOT="chroot ${MNT}/"
 ## Some important packages
 ## intel-ucode ?
 
-if [ ! -e "/bin/zpool" ] ; then
-  #Need to install the zfs package first
-  xbps-install -S
-  xbps-install -y zfs
-fi
 #Check if we are using EFI boot
-efibootmgr
+efibootmgr > /dev/null
 if [ $? -eq 0 ] ; then
   #Using EFI
   BOOTMODE="EFI"
@@ -75,10 +79,6 @@ else
 	;
 EOF
 fi
-
-
-
-
 exit_err $? "Could not partition the disk: ${DISK}"
 
 # Setup the void tweaks for ZFS 
@@ -89,23 +89,16 @@ exit_err $? "Could not verify ZFS module"
 
 ip link sh | grep ether | cut -d ' ' -f 6 >> /etc/hostid
 
-echo "Create the pool"
-echo "zpool create -f -o ashift=12 <pool_name> /dev/sda2"
+echo "Creating ZFS Pool: ${ZPOOL}"
 zpool create -f ${ZPOOL} $SYSTEMDRIVE
 exit_err $? "Could not create pool: ${ZPOOL} on ${SYSTEMDRIVE}"
-echo
-echo "Create a fs for the root file systems:"
-echo "zfs create  <pool_name>/ROOT"
+
 zfs create  -o mountpoint=none ${ZPOOL}/ROOT
 exit_err $? "Could not create ROOT dataset"
 
-echo
-echo "Create a fs for the Void file system"
-echo "zfs create <pool_name>/ROOT/<pool_name>"
 zfs create -o mountpoint=legacy ${ZPOOL}/ROOT/void
 exit_err $? "Could not create ROOT/void dataset"
 
-echo "zpool set bootfs=rpool/ROOT/voidlinux_1 <pool_name>"
 zpool set bootfs=${ZPOOL}/ROOT/void ${ZPOOL}
 exit_err $? "Could not set ROOT/void dataset as bootfs"
 
@@ -115,9 +108,6 @@ exit_err $? "Could not export pool"
 zpool import -R ${MNT} ${ZPOOL}
 exit_err $? "Could not import the new pool at ${MNT}"
 
-echo
-echo "making neccesary directories" 
-echo "mkdir -p ${MNT}/{boot/grub,dev,proc,run,sys}"
 dirs="boot/grub dev etc proc run sys"
 for dir in ${dirs}
 do
@@ -125,9 +115,9 @@ do
   exit_err $? "Could not create directory: ${MNT}/${dir}"
 done
 
-if [ "${BOOTMODE}" = "LEGACY" ] ; then
+if [ "${BOOTMODE}" != "EFI" ] ; then
   mount $BOOTDRIVE ${MNT}/boot/grub
-  exit_err $? "Could not mount boot partition: ${BOOTDRIVE} -> ${MNT}/boot/grub"
+  exit_err $? "Could not mount boot partition: ${BOOTDRIVE} -> ${MNT}/boot/grub (${BOOTMODE})"
 fi
 
 dirs="dev proc run sys"
