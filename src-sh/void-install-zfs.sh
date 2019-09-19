@@ -1,9 +1,37 @@
 #!/bin/bash
 
+clear
+
+#Main setting - just pick a disk
+DISK=""
+while [ -z "${DISK}" ]
+do
+  echo "-------------------"
+  sfdisk -l | grep "Disk /dev/" | grep -v "/loop" | cut -d , -f 1 | cut -d / -f 3-
+  echo "-------------------"
+  echo "Type the name of the disk to use (\"sda\" for example)], followed by [ENTER]: "
+  read -p "Disk: " DISK
+  if [ $? -ne 0 ] ; then exit 1 ; fi
+  if [ ! -e "/dev/${DISK}" ] ; then
+    echo "Invalid Disk: ${DISK}"
+    DISK=""
+  else
+    # Confirm that the user wants to destroy all the current contents of this disk
+    echo "WARNING: This will destroy all current contents on this disk."
+    read -p "Type \"yes\" to proceed: " CONFIRM
+    if [ "yes" = "${CONFIRM,,}" ] ; then
+      DISK="/dev/${DISK}"
+    else
+      #Return to selection
+      DISK=""
+    fi
+  fi
+done
+
 # This script was influenced by https://wiki.voidlinux.org/Manual_install_with_ZFS_root
-SYSTEMDRIVE="/dev/sda2"
-BOOTDRIVE="/dev/sda1"
-BOOTDEVICE="/dev/sda"
+SYSTEMDRIVE="${DISK}2"
+BOOTDRIVE="${DISK}1"
+BOOTDEVICE="${DISK}"
 ZPOOL="trident"
 REPO="http://alpha.de.repo.voidlinux.org/current/musl"
 PACKAGES=""
@@ -19,6 +47,16 @@ if [ ! -e "/bin/zpool" ] ; then
   xbps-install -S
   xbps-install -y zfs
 fi
+
+echo "Formatting the disk: ${DISK}"
+sfdisk -w always ${DISK} << EOF
+	label: gpt
+	,100M,U,*
+	;
+	EOF
+
+echo "Development breakpoint"
+exit $?
 
 echo "Create the pool"
 echo "zpool create -f <pool_name> /dev/sda2"
@@ -106,7 +144,7 @@ echo
 echo "sync repo, add additional repo, and then re-sync"
 ${CHROOT} xbps-install -y -S
 ${CHROOT} xbps-install -y void-repo-nonfree 
-${CHROOT} xbps-install -S
+${CHROOT} xbps-install -y -S
 
 echo
 echo "NOW install zfs and other packages which make config changes on install"
