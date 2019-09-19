@@ -1,9 +1,16 @@
 #!/bin/bash
 
-clear
+
+exit_err(){
+  if [ $1 -ne 0 ] ; then
+    echo "[ERROR] $2"
+    exit 1
+  fi
+}
 
 #Main setting - just pick a disk
 DISK=""
+clear
 while [ -z "${DISK}" ]
 do
   echo "-------------------"
@@ -41,7 +48,7 @@ SERVICES_ENABLED="dbus sshd dhcpcd dhclient cupsd wpa_supplicant"
 MNT="/mnt"
 CHROOT="chroot ${MNT}/"
 ## Some important packages
-## nano xorg lumina iwd wpa_supplicant dhcpcd bluez linux-firmware-network
+## intel-ucode ?
 
 if [ ! -e "/bin/zpool" ] ; then
   #Need to install the zfs package first
@@ -56,47 +63,41 @@ sfdisk -w always ${DISK} << EOF
 	;
 EOF
 
-if [ $? -ne 0 ] ; then
-  echo "[ERROR] Could not partition the disk: ${DISK} "
-  exit 1
-fi
+exit_err $? "Could not partition the disk: ${DISK}"
 
 # Setup the void tweaks for ZFS 
 # Steps found at: https://github.com/nightah/void-install
 xbps-reconfigure -a
 modprobe zfs
-if [ $? -ne 0 ] ; then
-  echo "[ERROR] Could not verify ZFS module"
-  exit 1
-fi
+exit_err $? "Could not verify ZFS module"
+
 ip link sh | grep ether | cut -d ' ' -f 6 >> /etc/hostid
 
 echo "Create the pool"
 echo "zpool create -f -o ashift=12 <pool_name> /dev/sda2"
 zpool create -f ${ZPOOL} $SYSTEMDRIVE
+exit_err $? "Could not create pool: ${ZPOOL} on ${SYSTEMDRIVE}"
 echo
 echo "Create a fs for the root file systems:"
 echo "zfs create  <pool_name>/ROOT"
 zfs create  -o mountpoint=none ${ZPOOL}/ROOT
+exit_err $? "Could not create ROOT dataset"
+
 echo
 echo "Create a fs for the Void file system"
 echo "zfs create <pool_name>/ROOT/<pool_name>"
 zfs create -o mountpoint=/ ${ZPOOL}/ROOT/void
+exit_err $? "Could not create ROOT/void dataset"
+
 echo "zpool set bootfs=rpool/ROOT/voidlinux_1 <pool_name>"
 zpool set bootfs=${ZPOOL}/ROOT/void ${ZPOOL}
-echo
-echo "Unmount all ZFS filesystems:"
-echo "zfs umount -a"
-zfs umount -a
-echo
+exit_err $? "Could not set ROOT/void dataset as bootfs"
 
 echo "Verify pool can be exported/imported"
 zpool export ${ZPOOL}
+exit_err $? "Could not export pool"
 zpool import -R ${MNT} ${ZPOOL}
-if [ $? -ne 0 ] ; then
-  echo "[ERROR] Could not import the new pool at ${MNT}"
-  exit 1
-fi
+exit_err $? "Could not import the new pool at ${MNT}"
 
 echo
 echo "making neccesary directories" 
@@ -105,32 +106,36 @@ dirs="boot/grub dev etc proc run sys"
 for dir in ${dirs}
 do
   mkdir -p ${MNT}/${dir}
+  exit_err $? "Could not create directory: ${MNT}/${dir}"
 done
+
 echo
 echo " mount drive {/dev/sda} to /boot/grub"
 mount $BOOTDRIVE ${MNT}/boot/grub
+exit_err $? "Could not mount boot partition: ${BOOTDRIVE}"
+
 echo
 echo "mounting necessary directories"
-mount --rbind /dev ${MNT}/dev
-mount --rbind /proc ${MNT}/proc
-mount --rbind /run ${MNT}/run
-mount --rbind /sys ${MNT}/sys
-echo
-echo " mount drive {/dev/sda} to /boot/grub"
-mount $BOOTDRIVE ${MNT}/boot/grub
-echo
-echo "creating /home to snapshot"
-zfs create -o compression=lz4 			${ZPOOL}/home
-echo
-#echo "for things that we probably don't need to clone"
-zfs create -o compression=lz4 			${ZPOOL}/var
-zfs create -o compression=lz4            	${ZPOOL}/var/logs
-zfs create -o compression=lz4          		${ZPOOL}/var/tmp
-zfs create -o compression=lz4	          	${ZPOOL}/var/mail
+dirs="dev proc run sys"
+for dir in ${dirs}
+do
+  mount --rbind /${dir} ${MNT}/${dir}
+  exit_err $? "Could not mount directory: ${MNT}/${dir}"
+done
+
+datasets="home var var/logs var/tmp var/mail"
+for ds in ${datasets}
+do
+echo "Creating Dataset: ${ds}"
+  zfs create -o compression=lz4 ${ZPOOL}/${ds}
+  exit_err $? "Could not create dataset: ${ZPOOL}/${ds}"
+done
+
 echo
 echo "Installing MUSL voidlinux, before chroot into it"
-xbps-install -S
-XBPS_ARCH=x86_64-musl xbps-install -y -S --repository=${REPO} -r ${MNT} base-system grub intel-ucode ${PACKAGES}
+XBPS_ARCH=x86_64-musl xbps-install -y -S --repository=${REPO} -r ${MNT} base-system grub ${PACKAGES}
+exit_err $? "Could not install void packages!!"
+
 echo
 echo "copying a valid resolv.conf into directory, before chroot to get to the new install"
 if [ -e "/etc/resolv.conf" ] ; then
@@ -146,10 +151,6 @@ cp /etc/hostid ${MNT}/etc/hostid
 
 echo "CHROOT into mount and finish setting up"
 
-#chroot ${MNT}/ /bin/bash
-echo "setting up /"
-${CHROOT} chown root:root /
-${CHROOT} chmod 755 /
 #passwd root
 echo "KEYMAP=\"us\"" >> ${MNT}/etc/rc.conf
 echo "TIMEZONE=\"America/New_York\"" >> ${MNT}/etc/rc.conf
@@ -157,19 +158,22 @@ echo "HARDWARECLOCK=\"UTC\"" >> ${MNT}/etc/rc.conf
 echo ${HOSTNAME} > ${MNT}/etc/hostname
 
 echo "sync repo, add additional repo, and then re-sync"
-${CHROOT} xbps-install -y -S
-${CHROOT} xbps-install -y void-repo-nonfree 
+${CHROOT} xbps-install -y -S void-repo-nonfree
+exit_err $? "Could not install the nonfree repo"
 ${CHROOT} xbps-install -y -S
 
 echo
 echo "NOW install zfs and other packages which make config changes on install"
 ${CHROOT} xbps-install -y zfs ${PACKAGES_CHROOT}
+exit_err $? "Could not install packages: ${PACKAGES_CHROOT}"
 echo
 
 echo
 echo "making sure we have this file /etc/zfs/zpool.cache" 
 ${CHROOT} zpool set cachefile=/etc/zfs/zpool.cache ${ZPOOL}
+exit_err $? "Could not set cachefile for pool inside chroot"
 ${CHROOT} zpool set bootfs=${ZPOOL}/ROOT/void ${ZPOOL}
+exit_err $? "Could not set bootfs for pool inside chroot"
 
 echo
 echo "Auto-enabling services"
@@ -177,6 +181,7 @@ for service in  ${SERVICES_ENABLED}
 do
   echo " -> ${service}"
   ${CHROOT} ln -s /etc/sv/${service} /var/service/${service}
+  exit_err $? "Could not enable service: ${service}"
 done
 
 echo
