@@ -171,11 +171,12 @@ ${CHROOT} xbps-install -y -S
 
 echo
 echo "Installing packages within chroot"
+mkdir ${MNT}/tmp/pkg-cache
 ${CHROOT} xbps-install -y -c /tmp/pkg-cache zfs ${PACKAGES_CHROOT}
 exit_err $? "Could not install packages: ${PACKAGES_CHROOT}"
 echo
 #Now remove the temporary pkg cache directory in the chroot
-${CHROOT} rm -r /tmp/pkg-cache
+rm -r ${MNT}/tmp/pkg-cache
 
 ${CHROOT} zpool set cachefile=/etc/zfs/zpool.cache ${ZPOOL}
 exit_err $? "Could not set cachefile for pool inside chroot"
