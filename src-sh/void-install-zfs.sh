@@ -80,6 +80,8 @@ else
 EOF
 fi
 exit_err $? "Could not partition the disk: ${DISK}"
+#Formatting the boot partition (FAT32)
+mkfs -t msdos ${BOOTDRIVE}
 
 # Setup the void tweaks for ZFS 
 # Steps found at: https://github.com/nightah/void-install
