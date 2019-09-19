@@ -61,8 +61,8 @@ CHROOT="chroot ${MNT}/"
 
 echo "repository=${REPO}" > /etc/xbps.d/repo.conf
 export XBPS_ARCH=x86_64-musl 
-xbps-install -y -S
-exit_err $? "Could not contact package repository!! Fix networking and try again (no changes to disks yet)."
+#xbps-install -y -S
+#exit_err $? "Could not contact package repository!! Fix networking and try again (no changes to disks yet)."
 
 #Check if we are using EFI boot
 efibootmgr > /dev/null
@@ -144,7 +144,7 @@ done
 
 echo
 echo "Installing MUSL voidlinux, before chroot into it"
-xbps-install -y -r ${MNT} base-system grub ${PACKAGES}
+xbps-install -y -S --repository=${REPO} -r ${MNT} base-system grub ${PACKAGES}
 exit_err $? "Could not install void packages!!"
 
 echo
