@@ -143,6 +143,9 @@ zpool export ${ZPOOL}
 exit_err $? "Could not export pool"
 zpool import -R ${MNT} ${ZPOOL}
 exit_err $? "Could not import the new pool at ${MNT}"
+#need to manually mount the root dataset (noauto)
+zfs mount ${ZPOOL}/ROOT/void
+exit_err $? "Count not mount the root ZFS dataset"
 
 datasets="home var var/logs var/tmp var/mail"
 for ds in ${datasets}
