@@ -54,10 +54,15 @@ REPO="http://alpha.de.repo.voidlinux.org/current/musl"
 PACKAGES=""
 PACKAGES_CHROOT="iwd wpa_supplicant dhcpcd bluez linux-firmware foomatic-db-nonfree vlc trojita telegram-desktop falkon qterminal openvpn git pianobar ntfs-3g fuse-exfat simple-mtpfs fish-shell zsh libdvdcss gutenprint foomatic-db nano xorg lumina"
 SERVICES_ENABLED="dbus sshd dhcpcd cupsd wpa_supplicant"
-MNT="/mnt"
+MNT="/run/ovlwork//mnt"
 CHROOT="chroot ${MNT}"
 ## Some important packages
 ## intel-ucode ?
+
+if [ ! -d "${MNT}" ] ; then
+  mkdir -p "${MNT}"
+  exit_err $? "Could not create mountpoint directory: ${MNT}"
+fi
 
 echo "repository=${REPO}" > /etc/xbps.d/repo.conf
 export XBPS_ARCH=x86_64-musl 
@@ -124,7 +129,7 @@ exit_err $? "Could not create pool: ${ZPOOL} on ${SYSTEMDRIVE}"
 #Configure the pool now
 zfs set compression=on ${ZPOOL}
 zfs create -o canmount=off ${ZPOOL}/ROOT
-zfs create -o mountpoint=legacy ${ZPOOL}/ROOT/void
+zfs create -o mountpoint=/ -o canmount=noauto ${ZPOOL}/ROOT/void
 exit_err $? "Could not create ROOT dataset"
 
 #zfs create -o canmount=noauto -o mountpoint=/ ${ZPOOL}/ROOT/void
