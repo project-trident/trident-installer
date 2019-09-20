@@ -82,8 +82,8 @@ fi
 echo "Formatting the disk: ${BOOTMODE} ${DISK}"
 sfdisk -w always ${DISK} << EOF
 	label: gpt
-	,100M,U,*
-	,1M,U,*
+	,100M,U
+	,1M,L,*
 	;
 EOF
 exit_err $? "Could not partition the disk: ${DISK}"
@@ -152,7 +152,7 @@ echo "Creating Dataset: ${ds}"
   exit_err $? "Could not create dataset: ${ZPOOL}/${ds}"
 done
 
-dirs="boot/grub dev etc proc run sys"
+dirs="boot/grub boot/EFI dev etc proc run sys"
 for dir in ${dirs}
 do
   mkdir -p ${MNT}/${dir}
