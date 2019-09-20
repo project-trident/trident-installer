@@ -52,9 +52,13 @@ BOOTDEVICE="${DISK}"
 ZPOOL="trident"
 REPO="http://alpha.de.repo.voidlinux.org/current/musl"
 PACKAGES=""
-PACKAGES_CHROOT="iwd wpa_supplicant dhcpcd bluez linux-firmware foomatic-db-nonfree vlc trojita telegram-desktop falkon qterminal openvpn git pianobar ntfs-3g fuse-exfat simple-mtpfs fish-shell zsh libdvdcss gutenprint foomatic-db nano xorg lumina"
+INITBE="initial"
+#Full package list
+#PACKAGES_CHROOT="iwd bluez vlc trojita telegram-desktop falkon qterminal openvpn git pianobar ntfs-3g fuse-exfat simple-mtpfs fish-shell zsh libdvdcss gutenprint foomatic-db foomatic-db-nonfree nano xorg-minimal lumina"
+#Minimal package list for testing
+PACKAGES_CHROOT="iwd bluez nano xorg-minimal lumina qterminal falkon git"
 SERVICES_ENABLED="dbus sshd dhcpcd cupsd wpa_supplicant"
-MNT="/run/ovlwork//mnt"
+MNT="/run/ovlwork/mnt"
 CHROOT="chroot ${MNT}"
 ## Some important packages
 ## intel-ucode ?
@@ -124,19 +128,15 @@ zpool create -f -o cachefile=/tmp/zpool.cache -o ashift=12 -d \
 		-O relatime=on \
 		-O xattr=sa \
 		${ZPOOL} ${SYSTEMDRIVE}
-#zpool create -f -o ashift=12  -m legacy ${ZPOOL} $SYSTEMDRIVE
 exit_err $? "Could not create pool: ${ZPOOL} on ${SYSTEMDRIVE}"
 #Configure the pool now
 zfs set compression=on ${ZPOOL}
 zfs create -o canmount=off ${ZPOOL}/ROOT
-zfs create -o mountpoint=/ -o canmount=noauto ${ZPOOL}/ROOT/void
+zfs create -o mountpoint=/ -o canmount=noauto ${ZPOOL}/ROOT/${INITBE}
 exit_err $? "Could not create ROOT dataset"
 
-#zfs create -o canmount=noauto -o mountpoint=/ ${ZPOOL}/ROOT/void
-#exit_err $? "Could not create ROOT/void dataset"
-
-zpool set bootfs=${ZPOOL}/ROOT/void ${ZPOOL}
-exit_err $? "Could not set ROOT/void dataset as bootfs"
+zpool set bootfs=${ZPOOL}/ROOT/${INITBE} ${ZPOOL}
+exit_err $? "Could not set ROOT/${INITBE} dataset as bootfs"
 
 echo "Verify pool can be exported/imported"
 zpool export ${ZPOOL}
@@ -144,7 +144,7 @@ exit_err $? "Could not export pool"
 zpool import -R ${MNT} ${ZPOOL}
 exit_err $? "Could not import the new pool at ${MNT}"
 #need to manually mount the root dataset (noauto)
-zfs mount ${ZPOOL}/ROOT/void
+zfs mount ${ZPOOL}/ROOT/${INITBE}
 exit_err $? "Count not mount the root ZFS dataset"
 
 datasets="home var var/logs var/tmp var/mail"
@@ -165,9 +165,11 @@ done
 if [ "${BOOTMODE}" != "EFI" ] ; then
   mount $BOOTDRIVE ${MNT}/boot/grub
   exit_err $? "Could not mount boot partition: ${BOOTDRIVE} -> ${MNT}/boot/grub (${BOOTMODE})"
+else
+  #EFI Boot
 fi
 
-dirs="dev proc run sys"
+dirs="dev proc sys"
 for dir in ${dirs}
 do
   mount --rbind /${dir} ${MNT}/${dir}
@@ -195,7 +197,6 @@ cp /etc/xbps.d/repo.conf ${MNT}/etc/xbps.d/repo.conf
 
 echo "CHROOT into mount and finish setting up"
 
-#passwd root
 echo "KEYMAP=\"us\"" >> ${MNT}/etc/rc.conf
 echo "TIMEZONE=\"America/New_York\"" >> ${MNT}/etc/rc.conf
 echo "HARDWARECLOCK=\"UTC\"" >> ${MNT}/etc/rc.conf
@@ -220,6 +221,7 @@ mkdir ${MNT}/tmp/pkg-cache
 rm ${MNT}/var/cache/xbps/*
 for pkg in zfs ${PACKAGES_CHROOT}
 do
+  echo
   echo "Installing package: ${pkg}"
   ${CHROOT} xbps-install -y -c /tmp/pkg-cache ${pkg}
   exit_err $? "Could not install package: ${pkg}"
@@ -247,10 +249,10 @@ fi
 echo "
 GRUB_DEFAULT=0
 GRUB_TIMEOUT=5
-GRUB_DISTRIBUTOR=\"Void\"
+GRUB_DISTRIBUTOR=\"Project Trident\"
 GRUB_CMDLINE_LINUX_DEFAULT=\"loglevel=4 elevator=noop\"
 GRUB_BACKGROUND=/usr/share/void-artwork/splash.png
-GRUB_CMDLINE_LINUX=\"root=ZFS=${ZPOOL}/ROOT/void\"
+GRUB_CMDLINE_LINUX=\"root=ZFS=${ZPOOL}/ROOT/${INITBE}\"
 GRUB_DISABLE_OS_PROBER=true
 " > ${MNT}/etc/default/grub
 
@@ -270,7 +272,6 @@ echo "========="
 umount -n ${MNT}/boot/grub
 umount -n ${MNT}/dev
 umount -n ${MNT}/proc
-umount -n ${MNT}/run
 umount -n ${MNT}/sys
 zpool export ${ZPOOL}
 
