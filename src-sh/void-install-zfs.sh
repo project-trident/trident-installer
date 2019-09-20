@@ -46,8 +46,6 @@ done
 
 # This script was influenced by https://wiki.voidlinux.org/Manual_install_with_ZFS_root
 HOSTNAME="tri-void"
-SYSTEMDRIVE="${DISK}2"
-BOOTDRIVE="${DISK}1"
 BOOTDEVICE="${DISK}"
 ZPOOL="trident"
 REPO="http://alpha.de.repo.voidlinux.org/current/musl"
@@ -78,24 +76,23 @@ efibootmgr > /dev/null
 if [ $? -eq 0 ] ; then
   #Using EFI
   BOOTMODE="EFI"
+else
+  BOOTMODE="LEGACY"
+fi
 echo "Formatting the disk: ${BOOTMODE} ${DISK}"
 sfdisk -w always ${DISK} << EOF
 	label: gpt
 	,100M,U,*
+	,1M,U,*
 	;
 EOF
-else
-  BOOTMODE="LEGACY"
-  echo "Formatting the disk: ${BOOTMODE} ${DISK}"
-  sfdisk -w always ${DISK} << EOF
-	label: gpt
-	,100M,L,*
-	;
-EOF
-fi
 exit_err $? "Could not partition the disk: ${DISK}"
+EFIDRIVE="${DISK}1"
+BOOTDRIVE="${DISK}2"
+SYSTEMDRIVE="${DISK}3"
+
 #Formatting the boot partition (FAT32)
-mkfs -t msdos ${BOOTDRIVE}
+mkfs -t msdos ${EFIDRIVE}
 
 # Setup the void tweaks for ZFS 
 # Steps found at: https://github.com/nightah/void-install
@@ -162,12 +159,9 @@ do
   exit_err $? "Could not create directory: ${MNT}/${dir}"
 done
 
-if [ "${BOOTMODE}" != "EFI" ] ; then
-  mount $BOOTDRIVE ${MNT}/boot/grub
-  exit_err $? "Could not mount boot partition: ${BOOTDRIVE} -> ${MNT}/boot/grub (${BOOTMODE})"
-else
-  #EFI Boot
-fi
+mount $EFIDRIVE ${MNT}/boot/EFI
+exit_err $? "Could not mount EFI boot partition: ${EFIDRIVE} -> ${MNT}/boot/EFI (${BOOTMODE})"
+
 
 dirs="dev proc sys"
 for dir in ${dirs}
@@ -256,7 +250,10 @@ GRUB_CMDLINE_LINUX=\"root=ZFS=${ZPOOL}/ROOT/${INITBE}\"
 GRUB_DISABLE_OS_PROBER=true
 " > ${MNT}/etc/default/grub
 
+#Stamp GPT loader on disk itself
 ${CHROOT} grub-install ${BOOTDEVICE}
+#Stamp EFI loader on the EFI partition
+${CHROOT} grub-install --target=x86_64-efi --efi-directory=/boot/EFI --bootloader-id=debian --recheck --no-floppy
 
 echo "========="
 echo "Final Steps: 1 / 2 - change root password"
@@ -269,7 +266,7 @@ adduser -R ${MNT}
 
 echo "========="
 #Now unmount everything and clean up
-umount -n ${MNT}/boot/grub
+umount -n ${MNT}/boot/EFI
 umount -n ${MNT}/dev
 umount -n ${MNT}/proc
 umount -n ${MNT}/sys
