@@ -212,6 +212,7 @@ mkdir ${MNT}/tmp/pkg-cache
 rm ${MNT}/var/cache/xbps/*
 for pkg in zfs ${PACKAGES_CHROOT}
 do
+  echo "Installing package: ${pkg}"
   ${CHROOT} xbps-install -y -c /tmp/pkg-cache ${pkg}
   exit_err $? "Could not install package: ${pkg}"
   rm ${MNT}/tmp/pkg-cache/*
