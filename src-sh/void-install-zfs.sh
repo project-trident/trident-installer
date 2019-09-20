@@ -163,7 +163,7 @@ mount $EFIDRIVE ${MNT}/boot/EFI
 exit_err $? "Could not mount EFI boot partition: ${EFIDRIVE} -> ${MNT}/boot/EFI (${BOOTMODE})"
 
 
-dirs="dev proc sys"
+dirs="dev proc sys run"
 for dir in ${dirs}
 do
   mount --rbind /${dir} ${MNT}/${dir}
