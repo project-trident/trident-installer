@@ -83,7 +83,7 @@ echo "Formatting the disk: ${BOOTMODE} ${DISK}"
 sfdisk -w always ${DISK} << EOF
 	label: gpt
 	,100M,U
-	,1M,L,*
+	,1M,21686148-6449-6E6F-744E-656564454649,*
 	;
 EOF
 exit_err $? "Could not partition the disk: ${DISK}"
