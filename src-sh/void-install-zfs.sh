@@ -173,7 +173,7 @@ done
 echo
 echo "Installing MUSL voidlinux, before chroot into it"
 # xbps-install -y -S --repository=${REPO} -r ${MNT} base-system grub ${PACKAGES} < "Y\r\n"
-xbps-install -y -S --repository=${REPO} -r ${MNT} base-system grub ${PACKAGES}
+xbps-install -y -S --repository=${REPO} -r ${MNT} base-system grub grub-i386-efi grub-x86_64-efi ${PACKAGES}
 exit_err $? "Could not install void packages!!"
 
 echo
