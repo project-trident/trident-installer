@@ -152,15 +152,15 @@ echo "Creating Dataset: ${ds}"
   exit_err $? "Could not create dataset: ${ZPOOL}/${ds}"
 done
 
-dirs="boot/grub boot/EFI dev etc proc run sys"
+dirs="boot/grub boot/efi dev etc proc run sys"
 for dir in ${dirs}
 do
   mkdir -p ${MNT}/${dir}
   exit_err $? "Could not create directory: ${MNT}/${dir}"
 done
 
-mount $EFIDRIVE ${MNT}/boot/EFI
-exit_err $? "Could not mount EFI boot partition: ${EFIDRIVE} -> ${MNT}/boot/EFI (${BOOTMODE})"
+mount $EFIDRIVE ${MNT}/boot/efi
+exit_err $? "Could not mount EFI boot partition: ${EFIDRIVE} -> ${MNT}/boot/efi (${BOOTMODE})"
 
 
 dirs="dev proc sys run"
@@ -206,8 +206,7 @@ echo
 echo "Fix dracut and kernel config, then update grub"
 echo "hostonly=\"yes\"" >> ${MNT}/etc/dracut.conf.d/zol.conf
 echo "nofsck=\"yes\"" >> ${MNT}/etc/dracut.conf.d/zol.conf
-echo "add_dracutmodules+=\" zfs \"" >> ${MNT}/etc/dracut.conf.d/zol.conf
-echo "omit_dracutmodules+=\" btrfs resume \"" >> ${MNT}/etc/dracut.conf.d/zol.conf
+echo "add_dracutmodules+=\"zfs btrfs resume\"" >> ${MNT}/etc/dracut.conf.d/zol.conf
 ${CHROOT} xbps-reconfigure -f linux5.2
 
 echo
@@ -244,18 +243,27 @@ fi
 echo "
 GRUB_DEFAULT=0
 GRUB_TIMEOUT=5
-GRUB_DISTRIBUTOR=\"Project Trident\"
+#GRUB_DISTRIBUTOR=\"Project Trident\"
+GRUB_DISTRIBUTOR=\"Project-Trident\"
 GRUB_CMDLINE_LINUX_DEFAULT=\"loglevel=4 elevator=noop\"
 GRUB_BACKGROUND=/usr/share/void-artwork/splash.png
 GRUB_CMDLINE_LINUX=\"root=ZFS=${ZPOOL}/ROOT/${INITBE}\"
 GRUB_DISABLE_OS_PROBER=true
 " > ${MNT}/etc/default/grub
 
+# to see if these help
+${CHROOT} zpool set cachefile=/etc/zfs/zpool.cache trident
+echo "to make sure zfs, btrfs, resume modules are loaded"
+${CHROOT} xbps-reconfigure -f linux5.2
+${CHROOT} lsinitrd -m
+
+echo " this is supposed to populate /boot/grub & /boot/efi"
 #Stamp GPT loader on disk itself
+#${CHROOT} grub-mkconfig -o {MNT}/boot/grub/grub.cfg
 ${CHROOT} grub-install ${BOOTDEVICE}
 #Stamp EFI loader on the EFI partition
-${CHROOT} grub-install --target=x86_64-efi --efi-directory=/boot/EFI --bootloader-id=debian --recheck --no-floppy
-
+${CHROOT} grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=void_grub --recheck --no-floppy
+# ${CHROOT} grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=void_grub --boot-directory=/boot --debug --no-floppy --recheck
 echo "========="
 echo "Final Steps: 1 / 2 - change root password"
 echo "========="
@@ -263,14 +271,17 @@ passwd -R ${MNT}
 echo "========="
 echo "Final Steps: 2 / 2 - create user account"
 echo "========="
-useradd -R ${MNT}
+# useradd -R ${MNT}
 
 echo "========="
 #Now unmount everything and clean up
-umount -n ${MNT}/boot/EFI
-umount -n ${MNT}/dev
-umount -n ${MNT}/proc
-umount -n ${MNT}/sys
+# umount -nfR ${MNT}/mnt/run/ovlwork/mnt/boot/efi
+umount -nfR ${MNT}/boot/efi
+umount -nfR ${MNT}/dev
+umount -nfR ${MNT}/proc
+umount -nfR ${MNT}/sys
+umount -nfR ${MNT}/var
+umount -nfR /run/ovlwork/mnt/
 zpool export ${ZPOOL}
 
 echo "[SUCCESS] Reboot the system and remove the install media to boot into the new system"
