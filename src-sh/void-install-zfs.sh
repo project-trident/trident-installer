@@ -271,7 +271,7 @@ passwd -R ${MNT}
 echo "========="
 echo "Final Steps: 2 / 2 - create user account"
 echo "========="
-# useradd -R ${MNT}
+
 
 echo "========="
 #Now unmount everything and clean up
