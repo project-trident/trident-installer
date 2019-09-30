@@ -173,7 +173,7 @@ done
 echo
 echo "Installing MUSL voidlinux, before chroot into it"
 # xbps-install -y -S --repository=${REPO} -r ${MNT} base-system grub ${PACKAGES} < "Y\r\n"
-xbps-install -y -S --repository=${REPO} -r ${MNT} base-system grub grub-i386-efi grub-x86_64-efi ${PACKAGES}
+xbps-install -y -S --repository=${REPO} -r ${MNT} base-system grub grub-i386-efi grub-x86_64-efi zfs ${PACKAGES}
 exit_err $? "Could not install void packages!!"
 
 echo
@@ -243,7 +243,6 @@ fi
 echo "
 GRUB_DEFAULT=0
 GRUB_TIMEOUT=5
-#GRUB_DISTRIBUTOR=\"Project Trident\"
 GRUB_DISTRIBUTOR=\"Project-Trident\"
 GRUB_CMDLINE_LINUX_DEFAULT=\"loglevel=4 elevator=noop\"
 GRUB_BACKGROUND=/usr/share/void-artwork/splash.png
@@ -252,9 +251,14 @@ GRUB_DISABLE_OS_PROBER=true
 " > ${MNT}/etc/default/grub
 
 # to see if these help
+echo " making sure that the cachefile is created"
 ${CHROOT} zpool set cachefile=/etc/zfs/zpool.cache trident
 echo "to make sure zfs, btrfs, resume modules are loaded"
+echo "updating grub"
+${CHROOT} update-grub
+echo "reconfiguring modules"
 ${CHROOT} xbps-reconfigure -f linux5.2
+echo "mking sure zfs, resume are modules"
 ${CHROOT} lsinitrd -m
 
 echo " this is supposed to populate /boot/grub & /boot/efi"
@@ -263,20 +267,14 @@ echo " this is supposed to populate /boot/grub & /boot/efi"
 ${CHROOT} grub-install ${BOOTDEVICE}
 #Stamp EFI loader on the EFI partition
 ${CHROOT} grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=void_grub --recheck --no-floppy
-# ${CHROOT} grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=void_grub --boot-directory=/boot --debug --no-floppy --recheck
 echo "========="
 echo "Final Steps: 1 / 2 - change root password"
 echo "========="
 passwd -R ${MNT}
-echo "========="
-echo "Final Steps: 2 / 2 - create user account"
-echo "========="
 
 
 echo "========="
 #Now unmount everything and clean up
-# umount -nfR ${MNT}/mnt/run/ovlwork/mnt/boot/efi
-umount -nfR ${MNT}/boot/efi
 umount -nfR ${MNT}/dev
 umount -nfR ${MNT}/proc
 umount -nfR ${MNT}/sys
