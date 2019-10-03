@@ -21,7 +21,6 @@ echo "================="
 echo "Project Trident Installer"
 echo "================="
 echo "Step 1 : Select Install Location"
-echo "-----------------"
 while [ -z "${DISK}" ]
 do
   echo "-------------------"
@@ -47,7 +46,7 @@ do
 done
 
 # This script was influenced by https://wiki.voidlinux.org/Manual_install_with_ZFS_root
-HOSTNAME="tri-void"
+HOSTNAME=""
 BOOTDEVICE="${DISK}"
 ZPOOL="trident"
 REPO="http://alpha.de.repo.voidlinux.org/current/musl"
@@ -56,7 +55,7 @@ INITBE="initial"
 #Full package list
 #PACKAGES_CHROOT="iwd bluez vlc trojita telegram-desktop falkon qterminal openvpn git pianobar ntfs-3g fuse-exfat simple-mtpfs fish-shell zsh libdvdcss gutenprint foomatic-db foomatic-db-nonfree nano xorg-minimal lumina"
 #Minimal package list for testing
-PACKAGES_CHROOT="iwd bluez nano xorg-minimal lumina qterminal git"
+PACKAGES_CHROOT="iwd bluez nano xorg-minimal lumina qterminal git noto-fonts-ttf compton hicolor-icon-theme"
 SERVICES_ENABLED="dbus sshd dhcpcd cupsd wpa_supplicant"
 MNT="/run/ovlwork/mnt"
 CHROOT="chroot ${MNT}"
@@ -68,11 +67,10 @@ fi
 echo "-----------------"
 echo "Step 2 : Verify Repository Signature"
 echo "-----------------"
-xbps-install -y -S --repository=${REPO}
-echo "repository=${REPO}" > /etc/xbps.d/repo.conf
 export XBPS_ARCH=x86_64-musl 
-#xbps-install -y -S
-#exit_err $? "Could not contact package repository!! Fix networking and try again (no changes to disks yet)."
+xbps-install -y -S --repository=${REPO}
+#echo "repository=${REPO}" > /etc/xbps.d/repo.conf
+
 
 #Check if we are using EFI boot
 efibootmgr > /dev/null
@@ -174,11 +172,14 @@ do
 done
 
 echo
-echo "Installing base system"
+echo "-------------------------------"
+echo "Step 2: Installing base system"
+echo "-------------------------------"
 #NOTE: Do NOT install the ZFS package yet - that needs to run inside chroot for post-install actions.
 xbps-install -y -S --repository=${REPO} -r ${MNT} base-system grub grub-i386-efi grub-x86_64-efi ${PACKAGES}
 exit_err $? "Could not install void packages!!"
 
+linuxver=`${CHROOT} xbps-query linux | grep pkgver | cut -d - -f 2 | cut -d . -f 1-2 | cut -d _ -f 0`
 echo
 echo "copying a valid resolv.conf into directory, before chroot to get to the new install"
 if [ -e "/etc/resolv.conf" ] ; then
@@ -211,7 +212,7 @@ echo "hostonly=\"yes\"" >> ${MNT}/etc/dracut.conf.d/zol.conf
 echo "nofsck=\"yes\"" >> ${MNT}/etc/dracut.conf.d/zol.conf
 echo "add_dracutmodules+=\"zfs resume\"" >> ${MNT}/etc/dracut.conf.d/zol.conf
 echo "omit_dracut_modules+=\"btrfs\"" >> ${MNT}/etc/dracut.conf.d/zol.conf
-${CHROOT} xbps-reconfigure -f linux5.2
+${CHROOT} xbps-reconfigure -f linux${linuxver}
 
 echo
 echo "Installing packages within chroot"
@@ -257,8 +258,8 @@ GRUB_DISABLE_OS_PROBER=true
 
 # to see if these help
 ${CHROOT} zpool set cachefile=/etc/zfs/zpool.cache trident
-${CHROOT} xbps-reconfigure -f linux5.2
-${CHROOT} lsinitrd -m
+${CHROOT} xbps-reconfigure -f linux${linuxver}
+#${CHROOT} lsinitrd -m
 
 echo " this is supposed to populate /boot/grub & /boot/efi"
 #Stamp GPT loader on disk itself
