@@ -20,8 +20,8 @@ clear
 echo "================="
 echo "Project Trident Installer"
 echo "================="
-echo "Step 1 : Select Install Location
-echo "-----------------
+echo "Step 1 : Select Install Location"
+echo "-----------------"
 while [ -z "${DISK}" ]
 do
   echo "-------------------"
@@ -66,7 +66,7 @@ if [ ! -d "${MNT}" ] ; then
   exit_err $? "Could not create mountpoint directory: ${MNT}"
 fi
 echo "-----------------"
-echo "Step 2 : Verify Repository Signature
+echo "Step 2 : Verify Repository Signature"
 echo "-----------------"
 xbps-install -y -S --repository=${REPO}
 echo "repository=${REPO}" > /etc/xbps.d/repo.conf
