@@ -20,6 +20,8 @@ clear
 echo "================="
 echo "Project Trident Installer"
 echo "================="
+echo "Step 1 : Select Install Location
+echo "-----------------
 while [ -z "${DISK}" ]
 do
   echo "-------------------"
@@ -58,14 +60,15 @@ PACKAGES_CHROOT="iwd bluez nano xorg-minimal lumina qterminal git"
 SERVICES_ENABLED="dbus sshd dhcpcd cupsd wpa_supplicant"
 MNT="/run/ovlwork/mnt"
 CHROOT="chroot ${MNT}"
-## Some important packages
-## intel-ucode ?
 
 if [ ! -d "${MNT}" ] ; then
   mkdir -p "${MNT}"
   exit_err $? "Could not create mountpoint directory: ${MNT}"
 fi
-
+echo "-----------------"
+echo "Step 2 : Verify Repository Signature
+echo "-----------------"
+xbps-install -y -S --repository=${REPO}
 echo "repository=${REPO}" > /etc/xbps.d/repo.conf
 export XBPS_ARCH=x86_64-musl 
 #xbps-install -y -S
@@ -83,7 +86,7 @@ echo "Formatting the disk: ${BOOTMODE} ${DISK}"
 sfdisk -w always ${DISK} << EOF
 	label: gpt
 	,100M,U
-	,1M,21686148-6449-6E6F-744E-656564454649,*
+	,10M,21686148-6449-6E6F-744E-656564454649,*
 	;
 EOF
 exit_err $? "Could not partition the disk: ${DISK}"
@@ -103,19 +106,7 @@ exit_err $? "Could not verify ZFS module"
 ip link sh | grep ether | cut -d ' ' -f 6 | tr -d ":" >> /etc/hostid
 
 echo "Creating ZFS Pool: ${ZPOOL}"
-zpool create -f -o cachefile=/tmp/zpool.cache -o ashift=12 -d \
-		-o feature@async_destroy=enabled \
-		-o feature@bookmarks=enabled \
-		-o feature@embedded_data=enabled \
-		-o feature@empty_bpobj=enabled \
-		-o feature@enabled_txg=enabled \
-		-o feature@extensible_dataset=enabled \
-		-o feature@filesystem_limits=enabled \
-		-o feature@hole_birth=enabled \
-		-o feature@large_blocks=enabled \
-		-o feature@lz4_compress=enabled \
-		-o feature@spacemap_histogram=enabled \
-		-o feature@userobj_accounting=enabled \
+zpool create -f -o ashift=12 -d \
 		-O acltype=posixacl \
 		-O canmount=off \
 		-O compression=lz4 \
@@ -171,8 +162,8 @@ do
 done
 
 echo
-echo "Installing MUSL voidlinux, before chroot into it"
-# xbps-install -y -S --repository=${REPO} -r ${MNT} base-system grub ${PACKAGES} < "Y\r\n"
+echo "Installing base system"
+#NOTE: Do NOT install the ZFS package yet - that needs to run inside chroot for post-install actions.
 xbps-install -y -S --repository=${REPO} -r ${MNT} base-system grub grub-i386-efi grub-x86_64-efi ${PACKAGES}
 exit_err $? "Could not install void packages!!"
 
@@ -190,7 +181,7 @@ echo "8.8.4.4" >> ${MNT}/etc/resolv.conf
 cp /etc/hostid ${MNT}/etc/hostid
 cp /etc/xbps.d/repo.conf ${MNT}/etc/xbps.d/repo.conf
 
-echo "CHROOT into mount and finish setting up"
+
 
 echo "KEYMAP=\"us\"" >> ${MNT}/etc/rc.conf
 echo "TIMEZONE=\"America/New_York\"" >> ${MNT}/etc/rc.conf
@@ -206,7 +197,8 @@ echo
 echo "Fix dracut and kernel config, then update grub"
 echo "hostonly=\"yes\"" >> ${MNT}/etc/dracut.conf.d/zol.conf
 echo "nofsck=\"yes\"" >> ${MNT}/etc/dracut.conf.d/zol.conf
-echo "add_dracutmodules+=\"zfs btrfs resume\"" >> ${MNT}/etc/dracut.conf.d/zol.conf
+echo "add_dracutmodules+=\"zfs resume\"" >> ${MNT}/etc/dracut.conf.d/zol.conf
+echo "omit_dracut_modules+=\"btrfs\"" >> ${MNT}/etc/dracut.conf.d/zol.conf
 ${CHROOT} xbps-reconfigure -f linux5.2
 
 echo
@@ -253,7 +245,6 @@ GRUB_DISABLE_OS_PROBER=true
 
 # to see if these help
 ${CHROOT} zpool set cachefile=/etc/zfs/zpool.cache trident
-echo "to make sure zfs, btrfs, resume modules are loaded"
 ${CHROOT} xbps-reconfigure -f linux5.2
 ${CHROOT} lsinitrd -m
 
@@ -265,23 +256,18 @@ ${CHROOT} grub-install ${BOOTDEVICE}
 ${CHROOT} grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=void_grub --recheck --no-floppy
 # ${CHROOT} grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=void_grub --boot-directory=/boot --debug --no-floppy --recheck
 echo "========="
-echo "Final Steps: 1 / 2 - change root password"
+echo "Final Steps: 1 / 1 - change root password"
 echo "========="
 passwd -R ${MNT}
 echo "========="
-echo "Final Steps: 2 / 2 - create user account"
-echo "========="
-
-
-echo "========="
 #Now unmount everything and clean up
-# umount -nfR ${MNT}/mnt/run/ovlwork/mnt/boot/efi
 umount -nfR ${MNT}/boot/efi
 umount -nfR ${MNT}/dev
 umount -nfR ${MNT}/proc
 umount -nfR ${MNT}/sys
 umount -nfR ${MNT}/var
-umount -nfR /run/ovlwork/mnt/
+umount -nfR ${MNT}
 zpool export ${ZPOOL}
 
+echo
 echo "[SUCCESS] Reboot the system and remove the install media to boot into the new system"
