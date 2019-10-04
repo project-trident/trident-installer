@@ -46,7 +46,7 @@ do
 done
 
 # This script was influenced by https://wiki.voidlinux.org/Manual_install_with_ZFS_root
-HOSTNAME=""
+HOSTNAME="Trident"
 BOOTDEVICE="${DISK}"
 ZPOOL="trident"
 REPO="http://alpha.de.repo.voidlinux.org/current/musl"
@@ -180,6 +180,10 @@ xbps-install -y -S --repository=${REPO} -r ${MNT} base-system grub grub-i386-efi
 exit_err $? "Could not install void packages!!"
 
 linuxver=`${CHROOT} xbps-query linux | grep pkgver | cut -d - -f 2 | cut -d . -f 1-2 | cut -d _ -f 0`
+echo "Got Linux Version: %{linuxver}"
+sleep 15
+linuxver="5.2" #hardcode for the moment
+
 echo
 echo "copying a valid resolv.conf into directory, before chroot to get to the new install"
 if [ -e "/etc/resolv.conf" ] ; then
