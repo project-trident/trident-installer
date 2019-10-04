@@ -214,8 +214,7 @@ echo
 echo "Fix dracut and kernel config, then update grub"
 echo "hostonly=\"yes\"" >> ${MNT}/etc/dracut.conf.d/zol.conf
 echo "nofsck=\"yes\"" >> ${MNT}/etc/dracut.conf.d/zol.conf
-echo "add_dracutmodules+=\"zfs resume\"" >> ${MNT}/etc/dracut.conf.d/zol.conf
-echo "omit_dracut_modules+=\"btrfs\"" >> ${MNT}/etc/dracut.conf.d/zol.conf
+echo "add_dracutmodules+=\"zfs btrfs resume\"" >> ${MNT}/etc/dracut.conf.d/zol.conf
 ${CHROOT} xbps-reconfigure -f linux${linuxver}
 
 echo
