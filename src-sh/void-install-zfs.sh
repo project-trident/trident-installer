@@ -260,6 +260,9 @@ GRUB_DISABLE_OS_PROBER=true
 " > ${MNT}/etc/default/grub
 
 # to see if these help
+# grub needs updating after we make changes
+echo "updating grub"
+${CHROOT} update-grub
 ${CHROOT} zpool set cachefile=/etc/zfs/zpool.cache trident
 ${CHROOT} xbps-reconfigure -f linux${linuxver}
 #${CHROOT} lsinitrd -m
