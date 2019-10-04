@@ -179,8 +179,8 @@ echo "-------------------------------"
 xbps-install -y -S --repository=${REPO} -r ${MNT} base-system grub grub-i386-efi grub-x86_64-efi ${PACKAGES}
 exit_err $? "Could not install void packages!!"
 
-linuxver=`${CHROOT} xbps-query linux | grep pkgver | cut -d - -f 2 | cut -d . -f 1-2 | cut -d _ -f 0`
-echo "Got Linux Version: %{linuxver}"
+linuxver=`${CHROOT} xbps-query linux | grep pkgver | cut -d - -f 2 | cut -d . -f 1-2 | cut -d _ -f 1`
+echo "Got Linux Version: ${linuxver}"
 sleep 15
 linuxver="5.2" #hardcode for the moment
 
