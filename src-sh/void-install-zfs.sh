@@ -251,7 +251,6 @@ fi
 echo "
 GRUB_DEFAULT=0
 GRUB_TIMEOUT=5
-#GRUB_DISTRIBUTOR=\"Project Trident\"
 GRUB_DISTRIBUTOR=\"Project-Trident\"
 GRUB_CMDLINE_LINUX_DEFAULT=\"loglevel=4 elevator=noop\"
 GRUB_BACKGROUND=/usr/share/void-artwork/splash.png
@@ -272,7 +271,9 @@ echo " this is supposed to populate /boot/grub & /boot/efi"
 #${CHROOT} grub-mkconfig -o {MNT}/boot/grub/grub.cfg
 ${CHROOT} grub-install ${BOOTDEVICE}
 #Stamp EFI loader on the EFI partition
-${CHROOT} grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=void_grub --recheck --no-floppy
+#Ro create a project-trident directory only
+${CHROOT} grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=Project-Trident --recheck --no-floppy
+# ${CHROOT} grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=void_grub --recheck --no-floppy
 # ${CHROOT} grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=void_grub --boot-directory=/boot --debug --no-floppy --recheck
 echo "========="
 echo "Final Steps: 1 / 1 - change root password"
