@@ -64,6 +64,9 @@ if [ ! -d "${MNT}" ] ; then
   mkdir -p "${MNT}"
   exit_err $? "Could not create mountpoint directory: ${MNT}"
 fi
+echo "Erasing the first 200MB of the disk"
+dd if=/dev/zero of=${DISK} bs=100M count=2
+
 echo "-----------------"
 echo "Step 2 : Verify Repository Signature"
 echo "-----------------"
@@ -181,8 +184,8 @@ exit_err $? "Could not install void packages!!"
 
 linuxver=`${CHROOT} xbps-query linux | grep pkgver | cut -d - -f 2 | cut -d . -f 1-2 | cut -d _ -f 1`
 echo "Got Linux Version: ${linuxver}"
-sleep 15
-linuxver="5.2" #hardcode for the moment
+#sleep 15
+#linuxver="5.2" #hardcode for the moment
 
 echo
 echo "copying a valid resolv.conf into directory, before chroot to get to the new install"
@@ -261,7 +264,7 @@ GRUB_DISABLE_OS_PROBER=true
 # to see if these help
 # grub needs updating after we make changes
 echo "updating grub"
-${CHROOT} update-grub
+#${CHROOT} update-grub
 ${CHROOT} zpool set cachefile=/etc/zfs/zpool.cache trident
 ${CHROOT} xbps-reconfigure -f linux${linuxver}
 #${CHROOT} lsinitrd -m
