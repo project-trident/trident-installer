@@ -55,8 +55,8 @@ INITBE="initial"
 #Full package list
 #PACKAGES_CHROOT="iwd bluez vlc trojita telegram-desktop falkon qterminal openvpn git pianobar ntfs-3g fuse-exfat simple-mtpfs fish-shell zsh libdvdcss gutenprint foomatic-db foomatic-db-nonfree nano xorg-minimal lumina"
 #Minimal package list for testing
-PACKAGES_CHROOT="iwd bluez nano xorg-minimal lumina qterminal git noto-fonts-ttf compton hicolor-icon-theme"
-SERVICES_ENABLED="dbus sshd dhcpcd cupsd wpa_supplicant"
+PACKAGES_CHROOT="iwd bluez nano xorg-minimal lumina qterminal git noto-fonts-ttf compton hicolor-icon-theme xrandr"
+SERVICES_ENABLED="dbus sshd dhcpcd cupsd wpa_supplicant bluetoothd"
 MNT="/run/ovlwork/mnt"
 CHROOT="chroot ${MNT}"
 
