@@ -199,7 +199,7 @@ echo "8.8.8.8" >> ${MNT}/etc/resolv.conf
 echo "8.8.4.4" >> ${MNT}/etc/resolv.conf
 #Also copy over the hostid file we had to create manually earlier
 cp /etc/hostid ${MNT}/etc/hostid
-cp /etc/xbps.d/repo.conf ${MNT}/etc/xbps.d/repo.conf
+#cp /etc/xbps.d/repo.conf ${MNT}/etc/xbps.d/repo.conf
 
 
 
