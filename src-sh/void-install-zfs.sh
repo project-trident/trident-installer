@@ -1,6 +1,5 @@
 #!/bin/bash
 
-
 exit_err(){
   if [ $1 -ne 0 ] ; then
     echo "[ERROR] $2"
@@ -55,7 +54,7 @@ INITBE="initial"
 #Full package list
 #PACKAGES_CHROOT="iwd bluez vlc trojita telegram-desktop falkon qterminal openvpn git pianobar ntfs-3g fuse-exfat simple-mtpfs fish-shell zsh libdvdcss gutenprint foomatic-db foomatic-db-nonfree nano xorg-minimal lumina"
 #Minimal package list for testing
-PACKAGES_CHROOT="iwd bluez nano xorg-minimal lumina qterminal git noto-fonts-ttf compton hicolor-icon-theme xrandr"
+PACKAGES_CHROOT="iwd bluez nano xorg-minimal lumina qterminal git noto-fonts-ttf compton hicolor-icon-theme xrandr qt5-svg"
 SERVICES_ENABLED="dbus sshd dhcpcd cupsd wpa_supplicant bluetoothd"
 MNT="/run/ovlwork/mnt"
 CHROOT="chroot ${MNT}"
@@ -68,10 +67,10 @@ echo "Erasing the first 200MB of the disk"
 dd if=/dev/zero of=${DISK} bs=100M count=2
 
 echo "-----------------"
-echo "Step 2 : Verify Repository Signature"
+echo "Step 2 : Formatting the disk"
 echo "-----------------"
 export XBPS_ARCH=x86_64-musl 
-xbps-install -y -S --repository=${REPO}
+#xbps-install -y -S --repository=${REPO}
 #echo "repository=${REPO}" > /etc/xbps.d/repo.conf
 
 
@@ -176,7 +175,7 @@ done
 
 echo
 echo "-------------------------------"
-echo "Step 2: Installing base system"
+echo "Step 3: Installing base system"
 echo "-------------------------------"
 #NOTE: Do NOT install the ZFS package yet - that needs to run inside chroot for post-install actions.
 xbps-install -y -S --repository=${REPO} -r ${MNT} base-system grub grub-i386-efi grub-x86_64-efi ${PACKAGES}
