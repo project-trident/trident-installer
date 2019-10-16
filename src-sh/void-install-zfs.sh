@@ -310,7 +310,7 @@ ${CHROOT} grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloade
 echo "========="
 echo "Final Steps: 1 / 1 - change root password"
 echo "========="
-passwd -R ${MNT}
+${CHROOT} passwd
 echo "========="
 #Now unmount everything and clean up
 umount -nfR ${MNT}/boot/efi
