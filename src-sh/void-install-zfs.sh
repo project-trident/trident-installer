@@ -256,9 +256,13 @@ if [ -n "${SWAPSIZE}" ] ; then
       -o logbias=throughput -o sync=always \
       -o primarycache=metadata -o secondarycache=none \
       -o com.sun:auto-snapshot=false ${ZPOOL}/swap
-  if [ $? -ne 0 ] ; then
+  if [ $? -eq 0 ] ; then
     ${CHROOT} mkswap -f /dev/zvol/${ZPOOL}/swap
     echo "/dev/zvol/${ZPOOL}/swap none swap defaults 0 0" >> ${MNT}/etc/fstab
+  else
+    echo "[ERROR] Swap could not get setup properly - this will need to be done by hand later"
+    zfs destroy ${ZPOOL}/swap
+    sleep 2 #allow the user to see this error message before continuing
   fi
 fi
 
