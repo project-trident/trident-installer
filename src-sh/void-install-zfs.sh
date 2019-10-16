@@ -48,9 +48,13 @@ done
 HOSTNAME="Trident"
 BOOTDEVICE="${DISK}"
 ZPOOL="trident"
-REPO="http://alpha.de.repo.voidlinux.org/current/musl"
 PACKAGES=""
 INITBE="initial"
+SWAPSIZE="4G"
+KEYMAP="us"
+TIMEZONE="America/New_York"
+REPOTYPE="musl"
+
 #Full package list
 #PACKAGES_CHROOT="iwd bluez vlc trojita telegram-desktop falkon qterminal openvpn git pianobar ntfs-3g fuse-exfat simple-mtpfs fish-shell zsh libdvdcss gutenprint foomatic-db foomatic-db-nonfree nano xorg-minimal lumina"
 #Minimal package list for testing
@@ -59,17 +63,26 @@ SERVICES_ENABLED="dbus sshd dhcpcd cupsd wpa_supplicant bluetoothd"
 MNT="/run/ovlwork/mnt"
 CHROOT="chroot ${MNT}"
 
+# Automatically adjust the musl/glibc repo switch as needed
+if [ "${REPOTYPE}" = "musl" ] ; then
+  export XBPS_ARCH=x86_64-musl
+  REPO="http://alpha.de.repo.voidlinux.org/current/musl"
+else
+  export XBPS_ARCH=x86_64
+  REPO="http://alpha.de.repo.voidlinux.org/current"
+fi
+
 if [ ! -d "${MNT}" ] ; then
   mkdir -p "${MNT}"
   exit_err $? "Could not create mountpoint directory: ${MNT}"
 fi
+
+echo "-----------------"
+echo "Step 3 : Formatting the disk"
+echo "-----------------"
 echo "Erasing the first 200MB of the disk"
 dd if=/dev/zero of=${DISK} bs=100M count=2
 
-echo "-----------------"
-echo "Step 2 : Formatting the disk"
-echo "-----------------"
-export XBPS_ARCH=x86_64-musl 
 #xbps-install -y -S --repository=${REPO}
 #echo "repository=${REPO}" > /etc/xbps.d/repo.conf
 
@@ -173,9 +186,10 @@ do
   exit_err $? "Could not mount directory: ${MNT}/${dir}"
 done
 
+
 echo
 echo "-------------------------------"
-echo "Step 3: Installing base system"
+echo "Step 4: Installing base system"
 echo "-------------------------------"
 #NOTE: Do NOT install the ZFS package yet - that needs to run inside chroot for post-install actions.
 xbps-install -y -S --repository=${REPO} -r ${MNT} base-system grub grub-i386-efi grub-x86_64-efi ${PACKAGES}
@@ -202,8 +216,8 @@ cp /etc/hostid ${MNT}/etc/hostid
 
 
 
-echo "KEYMAP=\"us\"" >> ${MNT}/etc/rc.conf
-echo "TIMEZONE=\"America/New_York\"" >> ${MNT}/etc/rc.conf
+echo "KEYMAP=\"${KEYMAP}\"" >> ${MNT}/etc/rc.conf
+echo "TIMEZONE=\"${TIMEZONE}\"" >> ${MNT}/etc/rc.conf
 echo "HARDWARECLOCK=\"UTC\"" >> ${MNT}/etc/rc.conf
 echo ${HOSTNAME} > ${MNT}/etc/hostname
 
@@ -234,6 +248,19 @@ done
 echo
 #Now remove the temporary pkg cache directory in the chroot
 rm -r ${MNT}/tmp/pkg-cache
+
+# Now setup SWAP on the device
+if [ -n "${SWAPSIZE}" ] ; then
+  echo "Setting up SWAP on the device: ${SWAPSIZE}"
+  ${CHROOT} zfs create -V ${SWAPSIZE} -b $(getconf PAGESIZE) -o compression=zle \
+      -o logbias=throughput -o sync=always \
+      -o primarycache=metadata -o secondarycache=none \
+      -o com.sun:auto-snapshot=false ${ZPOOL}/swap
+  if [ $? -ne 0 ] ; then
+    ${CHROOT} mkswap -f /dev/zvol/${ZPOOL}/swap
+    echo "/dev/zvol/${ZPOOL}/swap none swap defaults 0 0" >> ${MNT}/etc/fstab
+  fi
+fi
 
 echo
 echo "Auto-enabling services"
@@ -275,8 +302,7 @@ ${CHROOT} grub-install ${BOOTDEVICE}
 #Stamp EFI loader on the EFI partition
 #Ro create a project-trident directory only
 ${CHROOT} grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=Project-Trident --recheck --no-floppy
-# ${CHROOT} grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=void_grub --recheck --no-floppy
-# ${CHROOT} grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=void_grub --boot-directory=/boot --debug --no-floppy --recheck
+
 echo "========="
 echo "Final Steps: 1 / 1 - change root password"
 echo "========="
