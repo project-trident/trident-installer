@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 #Verify that needed packages are installed
 packages="git qemu-user-static liblz4 make"
