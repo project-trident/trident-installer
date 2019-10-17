@@ -12,7 +12,7 @@ do
 done
 
 #Fetch the void linux ISO build repository
-repodir="~/.voidbuild"
+repodir="${HOME}/.voidbuild"
 if [ ! -d "${repodir}" ] ; then
   git clone https://github.com/void-linux/void-mklive ${repodir}
 else
