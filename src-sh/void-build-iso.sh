@@ -18,6 +18,7 @@ if [ ! -d "${repodir}" ] ; then
 else
   cd ${repodir} && git pull
 fi
+cd ${repodir} && make
 
 outdir="~/void-build-iso"
 if [ ! -d "${outdir}" ] ; then
