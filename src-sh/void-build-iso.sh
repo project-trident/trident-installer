@@ -20,7 +20,7 @@ else
 fi
 cd ${repodir} && make
 
-outdir="~/void-build-iso"
+outdir="${HOME}/void-build-iso"
 if [ ! -d "${outdir}" ] ; then
   mkdir -p ${outdir}
 fi
