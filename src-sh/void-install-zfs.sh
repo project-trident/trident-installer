@@ -258,7 +258,8 @@ if [ -n "${SWAPSIZE}" ] ; then
       -o com.sun:auto-snapshot=false ${ZPOOL}/swap
   if [ $? -eq 0 ] ; then
     ${CHROOT} mkswap -f /dev/zvol/${ZPOOL}/swap
-    echo "/dev/zvol/${ZPOOL}/swap none swap defaults 0 0" >> ${MNT}/etc/fstab
+    echo "swap  /dev/zvol/${ZPOOL}/swap  /dev/urandom  swap,cipher=aes-cbc-essiv:sha256,size=256" >> ${MNT}/etc/crypttab
+    echo "/dev/mapper/swap none swap defaults 0 0" >> ${MNT}/etc/fstab
   else
     echo "[ERROR] Swap could not get setup properly - this will need to be done by hand later"
     zfs destroy ${ZPOOL}/swap
