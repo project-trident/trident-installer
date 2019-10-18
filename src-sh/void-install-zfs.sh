@@ -237,7 +237,7 @@ echo
 echo "Installing packages within chroot"
 mkdir ${MNT}/tmp/pkg-cache
 rm ${MNT}/var/cache/xbps/*
-for pkg in zfs ${PACKAGES_CHROOT}
+for pkg in zfs cryptsetup ${PACKAGES_CHROOT}
 do
   echo
   echo "Installing package: ${pkg}"
@@ -251,7 +251,7 @@ rm -r ${MNT}/tmp/pkg-cache
 
 # Now setup SWAP on the device
 if [ -n "${SWAPSIZE}" ] ; then
-  echo "Setting up SWAP on the device: ${SWAPSIZE}"
+  echo "Setting up encrypted SWAP on the device: ${SWAPSIZE}"
   ${CHROOT} zfs create -V ${SWAPSIZE} -b $(getconf PAGESIZE) -o compression=zle \
       -o logbias=throughput -o sync=always \
       -o primarycache=metadata -o secondarycache=none \
