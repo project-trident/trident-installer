@@ -257,7 +257,6 @@ if [ -n "${SWAPSIZE}" ] ; then
       -o primarycache=metadata -o secondarycache=none \
       -o com.sun:auto-snapshot=false ${ZPOOL}/swap
   if [ $? -eq 0 ] ; then
-    ${CHROOT} mkswap -f /dev/zvol/${ZPOOL}/swap
     echo "swap  /dev/zvol/${ZPOOL}/swap  /dev/urandom  swap,cipher=aes-cbc-essiv:sha256,size=256" >> ${MNT}/etc/crypttab
     echo "/dev/mapper/swap none swap defaults 0 0" >> ${MNT}/etc/fstab
   else
