@@ -41,7 +41,7 @@ if [ -e "${outdir}/${IMGNAME}" ] ; then
   rm "${outdir}/${IMGNAME}"
 fi
 
-cd ${repodir} && ./mklive.sh -a ${ARCH} -I "${CURDIR}/iso-overlay" -o "${outdir}/${IMGNAME}" -p "${TRIDENT_PKGS}" $@ | tee "${OUTDIR}/log.txt"
+cd ${repodir} && ./mklive.sh -a ${ARCH} -I "${CURDIR}/iso-overlay" -o "${outdir}/${IMGNAME}" -p "${TRIDENT_PKGS}" $@ > >(tee "${outdir}/log.txt") 2> >(tee "${outdir}/err.txt))
 if [ $? -eq 0 ] ; then
   echo "ISO Generated: ${outdir}/${IMGNAME}"
 else
