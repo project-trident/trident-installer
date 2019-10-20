@@ -21,6 +21,8 @@ else
   cd ${repodir} && git pull
 fi
 cd ${repodir} && make
+#Fix the initial size estimate 
+sed -i '' 's|+ROOTFS_SIZE/6|+ROOTFS_SIZE|g' ${repodir}/mklive.sh
 
 outdir="${HOME}/void-build-iso"
 if [ ! -d "${outdir}" ] ; then
