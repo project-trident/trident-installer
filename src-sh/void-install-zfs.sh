@@ -13,6 +13,41 @@ if [ ! -e "/bin/zpool" ] ; then
   exit 1
 fi
 
+get_dlg_ans_noexit()
+{
+  # INPUTS:
+  #   TITLE: Title to use for the dialog
+  #   CLI Args : Arguments for dialog (option_name, option_text, repeat...)
+  # OUTPUTS:
+  #   ANS: option_name selected by user
+
+  local TANS="/tmp/.dlg.ans.$$"
+  if [ -e "$TANS" ] ; then rm ${TANS}; fi
+  if [ -e "$TANS.dlg" ] ; then rm ${TANS}.dlg; fi
+  while :
+  do
+    echo "dialog --title \"$TITLE\" ${@}" >${TANS}.dlg
+    sh ${TANS}.dlg 2>${TANS}
+    local _ret=$?
+    if [ $_ret -ne 0 ] || [ ! -e "$TANS" ] ; then
+      #echo "Cancel detected : ${CURMENU} ${_ret}"
+      #sleep 1
+      rm ${TANS} 2>/dev/null
+    fi
+
+    if [ ! -e "$TANS" ] ; then
+       ANS=""
+    else
+      ANS=`cat ${TANS}`
+      rm ${TANS}
+    fi
+    #echo "Got Ans: ${ANS}"
+    #sleep 2
+    rm ${TANS}.dlg
+    return ${_ret}
+  done
+}
+
 #Main setting - just pick a disk
 DISK=""
 clear

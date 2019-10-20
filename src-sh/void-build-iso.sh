@@ -11,7 +11,7 @@ do
   fi
 done
 
-CURDIR=`dirname ${0}`
+CURDIR=`cd $(dirname ${0}) && pwd`
 
 #Fetch the void linux ISO build repository
 repodir="${HOME}/.voidbuild"
@@ -29,7 +29,7 @@ fi
 
 readonly ARCH="x86_64-musl"
 readonly DATE=$(date +%Y%m%d)
-readonly IMGNAME="Project_Trident-netinstall-x86_64.iso"
+readonly IMGNAME="Trident-netinstall-x86_64.iso"
 
 readonly GRUB_PKGS="grub-i386-efi grub-x86_64-efi"
 readonly BASE_PKGS="dialog dialogbox mdadm ${GRUB_PKGS}"
