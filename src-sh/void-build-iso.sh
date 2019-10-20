@@ -29,7 +29,7 @@ fi
 
 readonly ARCH="x86_64-musl"
 readonly DATE=$(date +%Y%m%d)
-readonly IMGNAME="trident-netinstall-${DATE}.iso"
+readonly IMGNAME="Project_Trident-netinstall-x86_64.iso"
 
 readonly GRUB_PKGS="grub-i386-efi grub-x86_64-efi"
 readonly BASE_PKGS="dialog dialogbox mdadm ${GRUB_PKGS}"
@@ -41,7 +41,7 @@ if [ -e "${outdir}/${IMGNAME}" ] ; then
   rm "${outdir}/${IMGNAME}"
 fi
 
-cd ${repodir} && ./mklive.sh -a ${ARCH} -I "${CURDIR}/iso-overlay" -o "${outdir}/${IMGNAME}" -p "${TRIDENT_PKGS}" $@ > >(tee "${outdir}/log.txt") 2> >(tee "${outdir}/err.txt))
+cd ${repodir} && ./mklive.sh -a ${ARCH} -I "${CURDIR}/iso-overlay" -o "${outdir}/${IMGNAME}" -p "${TRIDENT_PKGS}" $@ > >(tee "${outdir}/log.txt") 2> >(tee "${outdir}/err.txt")
 if [ $? -eq 0 ] ; then
   echo "ISO Generated: ${outdir}/${IMGNAME}"
 else
