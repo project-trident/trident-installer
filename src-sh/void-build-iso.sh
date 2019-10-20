@@ -11,6 +11,8 @@ do
   fi
 done
 
+CURDIR=`dirname ${0}`
+
 #Fetch the void linux ISO build repository
 repodir="${HOME}/.voidbuild"
 if [ ! -d "${repodir}" ] ; then
@@ -27,7 +29,7 @@ fi
 
 readonly ARCH="x86_64-musl"
 readonly DATE=$(date +%Y%m%d)
-readonly IMGNAME="trident-void-netinstall-${DATE}.iso"
+readonly IMGNAME="trident-netinstall-${DATE}.iso"
 
 readonly GRUB_PKGS="grub-i386-efi grub-x86_64-efi"
 readonly BASE_PKGS="dialog dialogbox mdadm ${GRUB_PKGS}"
@@ -39,7 +41,7 @@ if [ -e "${outdir}/${IMGNAME}" ] ; then
   rm "${outdir}/${IMGNAME}"
 fi
 
-cd ${repodir} && ./mklive.sh -a ${ARCH} -o "${outdir}/${IMGNAME}" -p "${TRIDENT_PKGS}" $@
+cd ${repodir} && ./mklive.sh -a ${ARCH} -I "${CURDIR}/iso-overlay" -o "${outdir}/${IMGNAME}" -p "${TRIDENT_PKGS}" $@ | tee "${OUTDIR}/log.txt"
 if [ $? -eq 0 ] ; then
   echo "ISO Generated: ${outdir}/${IMGNAME}"
 else
