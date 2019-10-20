@@ -1,0 +1,14 @@
+#!/bin/bash
+INSTALLER="/bin/trident-installer"
+
+# First test if networking is available
+
+# Now download the latest install script
+if [ ! -e "${INSTALLER}" ] || [ "${1}" = "-f" ] ; then
+  if [ -e "${INSTALLER}" ] ; then rm "${INSTALLER}" ; fi
+  wget https://raw.githubusercontent.com/project-trident/trident-installer/master/src-sh/void-install-zfs.sh -O "${INSTALLER}"
+  chmod 755 "${INSTALLER}"
+fi
+
+# And run it
+${INSTALLER}
