@@ -13,6 +13,7 @@ if [ ! -e "/bin/zpool" ] ; then
   exit 1
 fi
 
+TITLE="Project Trident Net-Install"
 get_dlg_ans_noexit()
 {
   # INPUTS:
@@ -62,7 +63,7 @@ do
   echo "-------------------"
   echo "Type the name of the disk to use (\"sda\" for example)], followed by [ENTER]: "
   read -p "Disk: " DISK
-  if [ $? -ne 0 ] ; then exit 1 ; fi
+  if [ $? -ne 0 ] || [ -z "${DISK}" ] ; then exit 1 ; fi
   if [ ! -e "/dev/${DISK}" ] ; then
     echo "Invalid Disk: ${DISK}"
     DISK=""
@@ -88,7 +89,7 @@ INITBE="initial"
 SWAPSIZE="4G"
 KEYMAP="us"
 TIMEZONE="America/New_York"
-REPOTYPE="musl"
+REPOTYPE=""
 
 #Full package list
 #PACKAGES_CHROOT="iwd bluez vlc trojita telegram-desktop falkon qterminal openvpn git pianobar ntfs-3g fuse-exfat simple-mtpfs fish-shell zsh libdvdcss gutenprint foomatic-db foomatic-db-nonfree nano xorg-minimal lumina"
@@ -316,32 +317,35 @@ if [ "zfs" != $(${CHROOT} grub-probe /) ] ; then
   exit 1
 fi  
 #Setup the GRUB configuration
-cp "/root/Trident-background.jpg" "${MNT}/usr/share/trident/grub-splash.jpg"
+cp "/root/Trident-wallpaper.png" "${MNT}/etc/defaults/grub-splash.png"
 echo "
 GRUB_DEFAULT=0
 GRUB_TIMEOUT=5
 GRUB_DISTRIBUTOR=\"Project-Trident\"
 GRUB_CMDLINE_LINUX_DEFAULT=\"loglevel=4 elevator=noop\"
-GRUB_BACKGROUND=/usr/share/trident/grub-splash.jpg
+GRUB_BACKGROUND=/etc/defaults/grub-splash.png
 GRUB_CMDLINE_LINUX=\"root=ZFS=${ZPOOL}/ROOT/${INITBE}\"
 GRUB_DISABLE_OS_PROBER=true
 " > ${MNT}/etc/default/grub
 
 # to see if these help
 # grub needs updating after we make changes
-echo "updating grub"
+#echo "updating grub"
 #${CHROOT} update-grub
 ${CHROOT} zpool set cachefile=/etc/zfs/zpool.cache trident
 ${CHROOT} xbps-reconfigure -f linux${linuxver}
 #${CHROOT} lsinitrd -m
 
-echo " this is supposed to populate /boot/grub & /boot/efi"
+echo "Installing GRUB bootloader"
 #Stamp GPT loader on disk itself
 #${CHROOT} grub-mkconfig -o {MNT}/boot/grub/grub.cfg
 ${CHROOT} grub-install ${BOOTDEVICE}
 #Stamp EFI loader on the EFI partition
 #Ro create a project-trident directory only
 ${CHROOT} grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=Project-Trident --recheck --no-floppy
+mkdir "${MNT}/boot/efi/boot/"
+#Copy the EFI registration to the default boot path as well
+cp "${MNT}/boot/efi/Project-Trident/grubx86_64.efi" "${MNT}/boot/efi/boot/bootx64.efi"
 
 echo "========="
 echo "Final Steps: 1 / 1 - change root password"
