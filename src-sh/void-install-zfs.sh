@@ -13,9 +13,10 @@ if [ ! -e "/bin/zpool" ] ; then
   exit 1
 fi
 
+#Global title for dialog
 TITLE="Project Trident Net-Install"
-get_dlg_ans_noexit()
-{
+
+get_dlg_ans(){
   # INPUTS:
   #   TITLE: Title to use for the dialog
   #   CLI Args : Arguments for dialog (option_name, option_text, repeat...)
@@ -49,6 +50,28 @@ get_dlg_ans_noexit()
   done
 }
 
+getDisks(){
+  #generate the disk list
+  opts=""
+  for _disk in `sfdisk -l | grep "Disk /dev/" | grep -v "/loop" | cut -d , -f 1 | cut -d / -f 3-`
+  do
+    opts="${opts} $(echo $_disk | cut -d : -f 1) \"$(echo $_disk | cut -d : -f 2-)\""
+  done
+  get_dlg_ans "--menu \"Which disk do you want to install to?\" 0 0 0 ${opts}"
+  if [ "${ANS}" = "rescan" ] ; then
+  
+  else if [ -z "${ANS}" ] ; then
+    exit 1 #cancelled
+  fi
+  export DISK="${ANS}"
+}
+
+getRepotype(){
+  opts=" glibc \"Standard packages (default)\" musl \"Lightweight system. No proprietary packages\" "
+  get_dlg_ans "--menu \"Pick the system package type. This cannot be easily changed later.\" 0 0 0 ${opts}"
+  export REPOTYPE="${ANS}"
+}
+
 #Main setting - just pick a disk
 DISK=""
 clear
@@ -58,26 +81,28 @@ echo "================="
 echo "Step 1 : Select Install Location"
 while [ -z "${DISK}" ]
 do
-  echo "-------------------"
-  sfdisk -l | grep "Disk /dev/" | grep -v "/loop" | cut -d , -f 1 | cut -d / -f 3-
-  echo "-------------------"
-  echo "Type the name of the disk to use (\"sda\" for example)], followed by [ENTER]: "
-  read -p "Disk: " DISK
-  if [ $? -ne 0 ] || [ -z "${DISK}" ] ; then exit 1 ; fi
-  if [ ! -e "/dev/${DISK}" ] ; then
-    echo "Invalid Disk: ${DISK}"
-    DISK=""
-  else
+  getDisks
+
+  #echo "-------------------"
+  #sfdisk -l | grep "Disk /dev/" | grep -v "/loop" | cut -d , -f 1 | cut -d / -f 3-
+  #echo "-------------------"
+  #echo "Type the name of the disk to use (\"sda\" for example)], followed by [ENTER]: "
+  #read -p "Disk: " DISK
+  #if [ $? -ne 0 ] || [ -z "${DISK}" ] ; then exit 1 ; fi
+  #if [ ! -e "/dev/${DISK}" ] ; then
+  #  echo "Invalid Disk: ${DISK}"
+  #  DISK=""
+  #else
     # Confirm that the user wants to destroy all the current contents of this disk
-    echo "WARNING: This will destroy all current contents on this disk."
-    read -p "Type \"yes\" to proceed: " CONFIRM
-    if [ "yes" = "${CONFIRM,,}" ] ; then
-      DISK="/dev/${DISK}"
-    else
+  #  echo "WARNING: This will destroy all current contents on this disk."
+  #  read -p "Type \"yes\" to proceed: " CONFIRM
+  #  if [ "yes" = "${CONFIRM,,}" ] ; then
+  #    DISK="/dev/${DISK}"
+  #  else
       #Return to selection
-      DISK=""
-    fi
-  fi
+  #    DISK=""
+  #  fi
+  #fi
 done
 
 # This script was influenced by https://wiki.voidlinux.org/Manual_install_with_ZFS_root
@@ -89,7 +114,9 @@ INITBE="initial"
 SWAPSIZE="4G"
 KEYMAP="us"
 TIMEZONE="America/New_York"
-REPOTYPE=""
+if [ -z "${REPOTYPE}" ] ; then
+  getRepotype
+fi
 
 #Full package list
 #PACKAGES_CHROOT="iwd bluez vlc trojita telegram-desktop falkon qterminal openvpn git pianobar ntfs-3g fuse-exfat simple-mtpfs fish-shell zsh libdvdcss gutenprint foomatic-db foomatic-db-nonfree nano xorg-minimal lumina"
@@ -317,6 +344,7 @@ if [ "zfs" != $(${CHROOT} grub-probe /) ] ; then
   exit 1
 fi  
 #Setup the GRUB configuration
+mkdir -p ${MNT}/etc/defaults
 cp "/root/Trident-wallpaper.png" "${MNT}/etc/defaults/grub-splash.png"
 echo "
 GRUB_DEFAULT=0
@@ -345,7 +373,7 @@ ${CHROOT} grub-install ${BOOTDEVICE}
 ${CHROOT} grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=Project-Trident --recheck --no-floppy
 mkdir "${MNT}/boot/efi/boot/"
 #Copy the EFI registration to the default boot path as well
-cp "${MNT}/boot/efi/Project-Trident/grubx86_64.efi" "${MNT}/boot/efi/boot/bootx64.efi"
+cp "${MNT}/boot/efi/EFI/project-trident/grubx64.efi" "${MNT}/boot/efi/boot/bootx64.efi"
 
 echo "========="
 echo "Final Steps: 1 / 1 - change root password"
