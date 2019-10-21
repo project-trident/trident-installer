@@ -53,17 +53,18 @@ get_dlg_ans(){
 getDisks(){
   #generate the disk list
   opts=""
-  while read _disk
+  opts=$(sfdisk -l | grep "Disk /dev/" | grep -v "/loop" | cut -d , -f 1 | cut -d / -f 3- | while read _disk
   do
-    opts="${opts} $(echo $_disk | cut -d : -f 1) \"$(echo $_disk | cut -d : -f 2-)\""
-  done < $(sfdisk -l | grep "Disk /dev/" | grep -v "/loop" | cut -d , -f 1 | cut -d / -f 3-)
+    echo -n " $(echo $_disk | cut -d : -f 1) \"$(echo $_disk | cut -d ' ' -f 2-)\""
+  done
+  }
   get_dlg_ans "--menu \"Which disk do you want to install to?\" 0 0 0 . \"Rescan for devices\" ${opts}"
   if [ "${ANS}" = "." ] ; then
     ANS=""
   elif [ -z "${ANS}" ] ; then
     exit 1 #cancelled
   fi
-  export DISK="${ANS}"
+  export DISK="/dev/${ANS}"
 }
 
 getRepotype(){
