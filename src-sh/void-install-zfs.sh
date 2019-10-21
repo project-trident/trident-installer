@@ -59,8 +59,8 @@ getDisks(){
   done
   get_dlg_ans "--menu \"Which disk do you want to install to?\" 0 0 0 ${opts}"
   if [ "${ANS}" = "rescan" ] ; then
-  
-  else if [ -z "${ANS}" ] ; then
+    ANS=""
+  elif [ -z "${ANS}" ] ; then
     exit 1 #cancelled
   fi
   export DISK="${ANS}"
