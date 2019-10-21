@@ -316,12 +316,13 @@ if [ "zfs" != $(${CHROOT} grub-probe /) ] ; then
   exit 1
 fi  
 #Setup the GRUB configuration
+cp "/root/Trident-background.jpg" "${MNT}/usr/share/trident/grub-splash.jpg"
 echo "
 GRUB_DEFAULT=0
 GRUB_TIMEOUT=5
 GRUB_DISTRIBUTOR=\"Project-Trident\"
 GRUB_CMDLINE_LINUX_DEFAULT=\"loglevel=4 elevator=noop\"
-GRUB_BACKGROUND=/usr/share/void-artwork/splash.png
+GRUB_BACKGROUND=/usr/share/trident/grub-splash.jpg
 GRUB_CMDLINE_LINUX=\"root=ZFS=${ZPOOL}/ROOT/${INITBE}\"
 GRUB_DISABLE_OS_PROBER=true
 " > ${MNT}/etc/default/grub
