@@ -1,7 +1,17 @@
 #!/bin/bash
 INSTALLER="/bin/trident-installer"
-
+clear
 # First test if networking is available
+echo "============================="
+echo "Project Trident Network-based Installer"
+echo "============================="
+echo "Checking for network connection..."
+ping -q -c 1 -W 2 github.com > /dev/null
+if [ $? -ne 0 ] ; then
+  echo "[ERROR] Could not verify network connection. Please configure networking and try again."
+  echo "Run 'start-trident-installer' to launch the installer again"
+  return 1
+fi
 
 # Now download the latest install script
 if [ ! -e "${INSTALLER}" ] || [ "${1}" = "-f" ] ; then
