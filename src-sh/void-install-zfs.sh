@@ -7,15 +7,15 @@ This install script is interactive by default, but can be made non-interactive b
 
 Variable : Example Value      : Explanation
 ---------------------------------
-TITLE    : Trident Installer  : Title for interactive prompt dialogs
-DISK     : /dev/sda           : Which disk will be installed to
-REPOTYPE : glibc *or* musl    : Repository type
-SWAPSIZE : 3G                 : swap partition size. 0 to disable
-HOSTNAME : Trident-XXXX       : System hostname
-ZPOOL    : trident            : ZFS pool name to create
-INITBE   : initial            : Name of the initial boot environment
-KEYMAP   : us                 : Keyboard layout/map to use after install
-TIMEZONE : America/New_York   : Timezone to use after install
+TITLE     : Trident Installer  : Title for interactive prompt dialogs
+DISK      : /dev/sda           : Which disk will be installed to
+REPOTYPE  : glibc *or* musl    : Repository type
+SWAPSIZE  : 3G                 : swap partition size. 0 to disable
+NHOSTNAME : Trident-XXXX       : New system hostname
+ZPOOL     : trident            : ZFS pool name to create
+INITBE    : initial            : Name of the initial boot environment
+KEYMAP    : us                 : Keyboard layout/map to use after install
+TIMEZONE  : America/New_York   : Timezone to use after install
 
 "
   exit 0
@@ -104,6 +104,21 @@ getSwap(){
   export SWAPSIZE="${ANS}"
 }
 
+getPassword(){
+  TMP="1"
+  TMP2="2"
+  while [ "${TMP}" != "${TMP2}" ]
+  do
+    get_dlg_ans "--passwordbox \"Enter password\" 0 0"
+    TMP="${ANS}"
+    get_dlg_ans "--passwordbox \"Repeat password\" 0 0"
+    TMP2="${ANS}"
+  done
+  ANS="${TMP}"
+  unset TMP
+  unset TMP2
+}
+
 # ===============
 #  LOAD SETTINGS
 # ===============
@@ -117,8 +132,13 @@ fi
 if [ -z "${REPOTYPE}" ] ; then
   getRepotype
 fi
-if [ -z "${HOSTNAME}" ] ; then
-  HOSTNAME="Trident-${RANDOM}"
+if [ -z "${ROOTPW}" ] ; then
+  getPassword
+  ROOTPW="${ANS}"
+  unset ANS
+fi
+if [ -z "${NHOSTNAME}" ] ; then
+  NHOSTNAME="Trident-${RANDOM}"
 fi
 if [ -z "${ZPOOL}" ] ; then
   ZPOOL="trident"
@@ -308,7 +328,7 @@ cp /etc/hostid ${MNT}/etc/hostid
 echo "KEYMAP=\"${KEYMAP}\"" >> ${MNT}/etc/rc.conf
 echo "TIMEZONE=\"${TIMEZONE}\"" >> ${MNT}/etc/rc.conf
 echo "HARDWARECLOCK=\"UTC\"" >> ${MNT}/etc/rc.conf
-echo ${HOSTNAME} > ${MNT}/etc/hostname
+echo ${NHOSTNAME} > ${MNT}/etc/hostname
 
 echo "Setting up repositories"
 ${CHROOT} xbps-install -y -S
@@ -327,7 +347,7 @@ echo
 echo "Installing packages within chroot"
 mkdir ${MNT}/tmp/pkg-cache
 rm ${MNT}/var/cache/xbps/*
-for pkg in zfs cryptsetup ${PACKAGES_CHROOT}
+for pkg in zfs cryptsetup mkpasswd ${PACKAGES_CHROOT}
 do
   echo
   echo "Installing package: ${pkg}"
@@ -398,15 +418,18 @@ ${CHROOT} grub-install ${BOOTDEVICE}
 #Stamp EFI loader on the EFI partition
 #Ro create a project-trident directory only
 ${CHROOT} grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=Project-Trident --recheck --no-floppy
-mkdir "${MNT}/boot/efi/boot/"
+mkdir "${MNT}/boot/efi/EFI/boot/"
 #Copy the EFI registration to the default boot path as well
-cp "${MNT}/boot/efi/EFI/project-trident/grubx64.efi" "${MNT}/boot/efi/boot/bootx64.efi"
+cp "${MNT}/boot/efi/EFI/project-trident/grubx64.efi" "${MNT}/boot/efi/EFI/boot/bootx64.efi"
 
 echo "========="
 echo "Final Steps: 1 / 1 - change root password"
 echo "========="
-${CHROOT} passwd
-echo "========="
+#ensure passwords are encrypted by the most-secure algorithm available by default
+echo "ENCRYPT_METHOD    SHA512" >> ${MNT}/etc/login.defs
+#Change the root password
+echo "root:${ROOTPW}" | chpasswd -R "${MNT}" -c SHA512
+
 #Now unmount everything and clean up
 umount -nfR ${MNT}/boot/efi
 umount -nfR ${MNT}/dev
