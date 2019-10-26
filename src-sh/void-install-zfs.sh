@@ -109,9 +109,9 @@ getPassword(){
   TMP2="2"
   while [ "${TMP}" != "${TMP2}" ]
   do
-    get_dlg_ans "--passwordbox \"Enter password\" 0 0"
+    get_dlg_ans "--passwordbox \"Enter password for ${1} (Note: input text is hidden)\" 0 0"
     TMP="${ANS}"
-    get_dlg_ans "--passwordbox \"Repeat password\" 0 0"
+    get_dlg_ans "--passwordbox \"Repeat password for ${1}\" 0 0"
     TMP2="${ANS}"
   done
   ANS="${TMP}"
@@ -133,7 +133,7 @@ if [ -z "${REPOTYPE}" ] ; then
   getRepotype
 fi
 if [ -z "${ROOTPW}" ] ; then
-  getPassword
+  getPassword "root"
   ROOTPW="${ANS}"
   unset ANS
 fi
