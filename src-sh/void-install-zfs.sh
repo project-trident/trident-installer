@@ -1,5 +1,26 @@
 #!/bin/bash
 
+if [ "${1}" = "-h" ] || [ "${1}" = "help" ] || [ "${1}" = "--help" ] ; then
+echo "Project Trident Installer
+--------------------------
+This install script is interactive by default, but can be made non-interactive by settingvarious environment variables before launching the script.
+
+Variable : Example Value      : Explanation
+---------------------------------
+TITLE    : Trident Installer  : Title for interactive prompt dialogs
+DISK     : /dev/sda           : Which disk will be installed to
+REPOTYPE : glibc *or* musl    : Repository type
+SWAPSIZE : 3G                 : swap partition size. 0 to disable
+HOSTNAME : Trident-XXXX       : System hostname
+ZPOOL    : trident            : ZFS pool name to create
+INITBE   : initial            : Name of the initial boot environment
+KEYMAP   : us                 : Keyboard layout/map to use after install
+TIMEZONE : America/New_York   : Timezone to use after install
+
+"
+  exit 0
+fi
+
 exit_err(){
   if [ $1 -ne 0 ] ; then
     echo "[ERROR] $2"
@@ -14,7 +35,9 @@ if [ ! -e "/bin/zpool" ] ; then
 fi
 
 #Global title for dialog
-TITLE="Project Trident Net-Install"
+if [ -z "${TITLE}" ] ; then
+  TITLE="Project Trident Installer"
+fi
 
 get_dlg_ans(){
   # INPUTS:
@@ -72,57 +95,57 @@ getRepotype(){
   export REPOTYPE="${ANS}"
 }
 
-#Main setting - just pick a disk
-DISK=""
-clear
-echo "================="
-echo "Project Trident Installer"
-echo "================="
-echo "Step 1 : Select Install Location"
+getSwap(){
+  opts=" none \"No swap space\" 1G \"\" 2G \"\" 4G \"Typical size\" 8G \"\""
+  get_dlg_ans "--menu \"Select the encrypted SWAP size.\" 0 0 0 ${opts}"
+  if [ "$ANS" = "none" ] ; then
+    ANS=""
+  fi
+  export SWAPSIZE="${ANS}"
+}
+
+# ===============
+#  LOAD SETTINGS
+# ===============
 while [ -z "${DISK}" ]
 do
   getDisks
-
-  #echo "-------------------"
-  #sfdisk -l | grep "Disk /dev/" | grep -v "/loop" | cut -d , -f 1 | cut -d / -f 3-
-  #echo "-------------------"
-  #echo "Type the name of the disk to use (\"sda\" for example)], followed by [ENTER]: "
-  #read -p "Disk: " DISK
-  #if [ $? -ne 0 ] || [ -z "${DISK}" ] ; then exit 1 ; fi
-  #if [ ! -e "/dev/${DISK}" ] ; then
-  #  echo "Invalid Disk: ${DISK}"
-  #  DISK=""
-  #else
-    # Confirm that the user wants to destroy all the current contents of this disk
-  #  echo "WARNING: This will destroy all current contents on this disk."
-  #  read -p "Type \"yes\" to proceed: " CONFIRM
-  #  if [ "yes" = "${CONFIRM,,}" ] ; then
-  #    DISK="/dev/${DISK}"
-  #  else
-      #Return to selection
-  #    DISK=""
-  #  fi
-  #fi
 done
-
-# This script was influenced by https://wiki.voidlinux.org/Manual_install_with_ZFS_root
-HOSTNAME="Trident"
-BOOTDEVICE="${DISK}"
-ZPOOL="trident"
-PACKAGES=""
-INITBE="initial"
-SWAPSIZE="4G"
-KEYMAP="us"
-TIMEZONE="America/New_York"
+if [ -z "${SWAPSIZE}" ] ; then
+  getSwap
+fi
 if [ -z "${REPOTYPE}" ] ; then
   getRepotype
 fi
+if [ -z "${HOSTNAME}" ] ; then
+  HOSTNAME="Trident-${RANDOM}"
+fi
+if [ -z "${ZPOOL}" ] ; then
+  ZPOOL="trident"
+fi
+if [ -z "${INITBE}" ] ; then
+  INITBE="initial"
+fi
+if [ -z "${KEYMAP}" ] ; then
+  KEYMAP="us"
+fi
+if [ -z "${TIMEZONE}" ] ; then
+  TIMEZONE="America/New_York"
+fi
+
+
 
 #Full package list
 #PACKAGES_CHROOT="iwd bluez vlc trojita telegram-desktop falkon qterminal openvpn git pianobar ntfs-3g fuse-exfat simple-mtpfs fish-shell zsh libdvdcss gutenprint foomatic-db foomatic-db-nonfree nano xorg-minimal lumina"
 #Minimal package list for testing
+PACKAGES=""
 PACKAGES_CHROOT="iwd bluez nano xorg-minimal lumina qterminal git noto-fonts-ttf compton hicolor-icon-theme xrandr qt5-svg"
 SERVICES_ENABLED="dbus sshd dhcpcd cupsd wpa_supplicant bluetoothd"
+
+# ==============================
+#  Generate Internal Variables from settings
+# ==============================
+BOOTDEVICE="${DISK}"
 MNT="/run/ovlwork/mnt"
 CHROOT="chroot ${MNT}"
 
@@ -135,21 +158,6 @@ else
   REPO="http://alpha.de.repo.voidlinux.org/current"
 fi
 
-if [ ! -d "${MNT}" ] ; then
-  mkdir -p "${MNT}"
-  exit_err $? "Could not create mountpoint directory: ${MNT}"
-fi
-
-echo "-----------------"
-echo "Step 3 : Formatting the disk"
-echo "-----------------"
-echo "Erasing the first 200MB of the disk"
-dd if=/dev/zero of=${DISK} bs=100M count=2
-
-#xbps-install -y -S --repository=${REPO}
-#echo "repository=${REPO}" > /etc/xbps.d/repo.conf
-
-
 #Check if we are using EFI boot
 efibootmgr > /dev/null
 if [ $? -eq 0 ] ; then
@@ -158,6 +166,24 @@ if [ $? -eq 0 ] ; then
 else
   BOOTMODE="LEGACY"
 fi
+
+if [ ! -d "${MNT}" ] ; then
+  mkdir -p "${MNT}"
+  exit_err $? "Could not create mountpoint directory: ${MNT}"
+fi
+
+echo "Starting Installation...
+
+"
+echo "-----------------"
+echo "Step 1 : Formatting the disk"
+echo "-----------------"
+echo "Erasing the first 200MB of the disk"
+dd if=/dev/zero of=${DISK} bs=100M count=2
+
+#xbps-install -y -S --repository=${REPO}
+#echo "repository=${REPO}" > /etc/xbps.d/repo.conf
+
 echo "Formatting the disk: ${BOOTMODE} ${DISK}"
 sfdisk -w always ${DISK} << EOF
 	label: gpt
@@ -252,7 +278,7 @@ done
 
 echo
 echo "-------------------------------"
-echo "Step 4: Installing base system"
+echo "Step 2: Installing base system"
 echo "-------------------------------"
 #NOTE: Do NOT install the ZFS package yet - that needs to run inside chroot for post-install actions.
 xbps-install -y -S --repository=${REPO} -r ${MNT} base-system grub grub-i386-efi grub-x86_64-efi ${PACKAGES}
@@ -285,7 +311,8 @@ echo "HARDWARECLOCK=\"UTC\"" >> ${MNT}/etc/rc.conf
 echo ${HOSTNAME} > ${MNT}/etc/hostname
 
 echo "Setting up repositories"
-${CHROOT} xbps-install -y -S void-repo-nonfree
+${CHROOT} xbps-install -y -S
+${CHROOT} xbps-install -y void-repo-nonfree
 exit_err $? "Could not install the nonfree repo"
 ${CHROOT} xbps-install -y -S
 
@@ -313,7 +340,7 @@ echo
 rm -r ${MNT}/tmp/pkg-cache
 
 # Now setup SWAP on the device
-if [ -n "${SWAPSIZE}" ] ; then
+if [ -n "${SWAPSIZE}" ] && [ 0 != "${SWAPSIZE}" ] ; then
   echo "Setting up encrypted SWAP on the device: ${SWAPSIZE}"
   ${CHROOT} zfs create -V ${SWAPSIZE} -b $(getconf PAGESIZE) -o compression=zle \
       -o logbias=throughput -o sync=always \
@@ -331,7 +358,7 @@ fi
 
 echo
 echo "Auto-enabling services"
-for service in  ${SERVICES_ENABLED}
+for service in ${SERVICES_ENABLED}
 do
   echo " -> ${service}"
   ${CHROOT} ln -s /etc/sv/${service} /var/service/${service}
