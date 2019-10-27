@@ -169,7 +169,8 @@ fi
 if [ -z "${INITBE}" ] ; then
   INITBE="initial"
 fi
-if [ -z "${KEYMAP}" ] ; then
+if [ -z "${KEYMAP}" ] || [ "${REPOTYPE}" = "musl" ] ; then
+  #Localized keyboard maps not supported by musl packages
   KEYMAP="us"
 fi
 if [ -z "${TIMEZONE}" ] ; then
