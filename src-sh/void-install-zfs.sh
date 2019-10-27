@@ -162,9 +162,9 @@ if [ -z "${ZPOOL}" ] ; then
     else
       adjustTextValue "Select ZFS pool name" "trident"
     fi
+    ZPOOL="${ANS}"
     zpool list "${ANS}" > /dev/null 2> /dev/null
   done
-  ZPOOL="${ANS}"
 fi
 if [ -z "${INITBE}" ] ; then
   INITBE="initial"
