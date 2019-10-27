@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 if [ "${1}" = "-h" ] || [ "${1}" = "help" ] || [ "${1}" = "--help" ] ; then
 echo "Project Trident Installer
@@ -150,12 +150,14 @@ if [ -z "${ROOTPW}" ] ; then
   unset ANS
 fi
 if [ -z "${NHOSTNAME}" ] ; then
-  adjustTextValue "Select system hostname" "Trident-${RANDOM}"  
+  NHOSTNAME="Trident-${RANDOM}"  
+  adjustTextValue "Select system hostname" "${NHOSTNAME}"
   NHOSTNAME="${ANS}"
 fi
 if [ -z "${ZPOOL}" ] ; then
+  zpool import -aN
   ANS=""
-  while [ $? -ne 0 ] || [ -z "${ANS}" ]
+  while [ $? -eq 0 ] || [ -z "${ANS}" ]
   do
     if [ -n "${ANS}" ] ; then
       adjustTextValue "Pool already exists: Select different ZFS pool name" "${ANS}"
@@ -163,7 +165,8 @@ if [ -z "${ZPOOL}" ] ; then
       adjustTextValue "Select ZFS pool name" "trident"
     fi
     ZPOOL="${ANS}"
-    zpool list "${ANS}" > /dev/null 2> /dev/null
+    echo "Checking pool name..."
+    zpool list "${ANS}"  
   done
 fi
 if [ -z "${INITBE}" ] ; then
