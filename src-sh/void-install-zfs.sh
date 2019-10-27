@@ -1,22 +1,24 @@
-#!/bin/bash
+#!/bin/sh
 
 if [ "${1}" = "-h" ] || [ "${1}" = "help" ] || [ "${1}" = "--help" ] ; then
 echo "Project Trident Installer
 --------------------------
-This install script is interactive by default, but can be made non-interactive by settingvarious environment variables before launching the script.
+This install script is interactive by default, but can be made non-interactive by setting various environment variables before launching the script.
 
-Variable : Example Value      : Explanation
+Any variable that is marked with a Y will prompt for a value if not set beforehand.
+
+Prompt : Variable : Example Value      : Explanation
 ---------------------------------
-TITLE     : Trident Installer  : Title for interactive prompt dialogs
-DISK      : /dev/sda           : Which disk will be installed to
-REPOTYPE  : glibc *or* musl    : Repository type
-SWAPSIZE  : 3G                 : swap partition size. 0 to disable
-NHOSTNAME : Trident-XXXX       : New system hostname
-ZPOOL     : trident            : ZFS pool name to create
-INITBE    : initial            : Name of the initial boot environment
-KEYMAP    : us                 : Keyboard layout/map to use after install
-TIMEZONE  : America/New_York   : Timezone to use after install
-
+ N     : TITLE     : Trident Installer  : Title for interactive prompt dialogs
+ Y     : DISK      : /dev/sda           : Which disk will be installed to
+ Y     : REPOTYPE  : glibc *or* musl    : Repository type
+ Y     : SWAPSIZE  : 3G                 : swap partition size. 0 to disable
+ Y     : NHOSTNAME : Trident-XXXX       : New system hostname
+ Y     : ZPOOL     : trident            : ZFS pool name to create
+ N     : INITBE    : initial            : Name of the initial boot environment
+ Y     : KEYMAP    : us                 : Keyboard layout to use after install
+ N     : TIMEZONE  : America/New_York   : Timezone to use after install
+ Y     : ROOTPW    : myrootpw           : Password to set for the root account
 "
   exit 0
 fi
@@ -119,6 +121,16 @@ getPassword(){
   unset TMP2
 }
 
+adjustTextValue(){
+  # Input 1 : box text
+  # Input 2 : current value
+  get_dlg_ans "--inputbox \"${1}\" 0 0 \"${2}\""
+  if [ -z "${ANS}" ] ; then
+    ANS="${2}" #reset back to initial default value
+  fi
+}
+
+
 # ===============
 #  LOAD SETTINGS
 # ===============
@@ -138,10 +150,21 @@ if [ -z "${ROOTPW}" ] ; then
   unset ANS
 fi
 if [ -z "${NHOSTNAME}" ] ; then
-  NHOSTNAME="Trident-${RANDOM}"
+  adjustTextValue "Select system hostname" "Trident-${RANDOM}"  
+  NHOSTNAME="${ANS}"
 fi
 if [ -z "${ZPOOL}" ] ; then
-  ZPOOL="trident"
+  ANS=""
+  while [ $? -ne 0 ] || [ -z "${ANS}" ]
+  do
+    if [ -n "${ANS}" ] ; then
+      adjustTextValue "Pool already exists: Select different ZFS pool name" "${ANS}"
+    else
+      adjustTextValue "Select ZFS pool name" "trident"
+    fi
+    zpool list "${ANS}" > /dev/null 2> /dev/null
+  done
+  ZPOOL="${ANS}"
 fi
 if [ -z "${INITBE}" ] ; then
   INITBE="initial"
@@ -323,12 +346,17 @@ echo "8.8.4.4" >> ${MNT}/etc/resolv.conf
 cp /etc/hostid ${MNT}/etc/hostid
 #cp /etc/xbps.d/repo.conf ${MNT}/etc/xbps.d/repo.conf
 
-
-
 echo "KEYMAP=\"${KEYMAP}\"" >> ${MNT}/etc/rc.conf
 echo "TIMEZONE=\"${TIMEZONE}\"" >> ${MNT}/etc/rc.conf
 echo "HARDWARECLOCK=\"UTC\"" >> ${MNT}/etc/rc.conf
 echo ${NHOSTNAME} > ${MNT}/etc/hostname
+
+#ensure passwords are encrypted by the most-secure algorithm available by default
+echo "ENCRYPT_METHOD    SHA512" >> ${MNT}/etc/login.defs
+
+#Change the root password
+echo "root:${ROOTPW}" | ${CHROOT} chpasswd -c SHA512
+exit_err $? "Could not set root password"
 
 echo "Setting up repositories"
 ${CHROOT} xbps-install -y -S
@@ -422,13 +450,6 @@ mkdir "${MNT}/boot/efi/EFI/boot/"
 #Copy the EFI registration to the default boot path as well
 cp "${MNT}/boot/efi/EFI/project-trident/grubx64.efi" "${MNT}/boot/efi/EFI/boot/bootx64.efi"
 
-echo "========="
-echo "Final Steps: 1 / 1 - change root password"
-echo "========="
-#ensure passwords are encrypted by the most-secure algorithm available by default
-echo "ENCRYPT_METHOD    SHA512" >> ${MNT}/etc/login.defs
-#Change the root password
-echo "root:${ROOTPW}" | chpasswd -R "${MNT}" -c SHA512
 
 #Now unmount everything and clean up
 umount -nfR ${MNT}/boot/efi
