@@ -363,7 +363,7 @@ echo ${NHOSTNAME} > ${MNT}/etc/hostname
 echo "ENCRYPT_METHOD    SHA512" >> ${MNT}/etc/login.defs
 
 #Change the root password
-${CHROOT} (echo "root:${ROOTPW}" |  chpasswd -c SHA512)
+${CHROOT} echo "root:${ROOTPW}" |  ${CHROOT} chpasswd -c SHA512
 exit_err $? "Could not set root password"
 
 echo "Setting up repositories"
