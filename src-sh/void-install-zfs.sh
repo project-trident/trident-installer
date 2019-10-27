@@ -168,7 +168,7 @@ if [ -z "${ZPOOL}" ] ; then
     zpool list "${ANS}"  > /dev/null 2> /dev/null
   done
   # Now unmount/export all zfs pools
-  for pool in `zpool list -H | cut -d ' ' -f 0`
+  for pool in `zpool list -H | cut -d ' ' -f 1`
   do 
     zpool export "${pool}"
   done
