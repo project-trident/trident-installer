@@ -165,8 +165,12 @@ if [ -z "${ZPOOL}" ] ; then
       adjustTextValue "Select ZFS pool name" "trident"
     fi
     ZPOOL="${ANS}"
-    echo "Checking pool name..."
-    zpool list "${ANS}"  
+    zpool list "${ANS}"  > /dev/null 2> /dev/null
+  done
+  # Now unmount/export all zfs pools
+  for pool in `zpool list -H | cut -d ' ' -f 0`
+  do 
+    zpool export "${pool}"
   done
 fi
 if [ -z "${INITBE}" ] ; then
