@@ -11,3 +11,8 @@ zfs snapshot prune
 	<https://github.com/bahamas10/zfs-prune-snapshots>
 	sample configs located here
 	<https://www.daveeddy.com/2015/12/05/automatic-zfs-snapshots-and-backups/>
+
+zfstools -requirements ruby & rubygem
+	<https://github.com/bdrewery/zfstools>
+rubygems	
+	<https://rubygems.org/pages/download>
