@@ -210,7 +210,7 @@ else
 fi
 
 #Check if we are using EFI boot
-efibootmgr > /dev/null
+efibootmgr > /dev/null 2>/dev/null
 if [ $? -eq 0 ] ; then
   #Using EFI
   BOOTMODE="EFI"
@@ -337,8 +337,6 @@ exit_err $? "Could not install void packages!!"
 
 linuxver=`${CHROOT} xbps-query linux | grep pkgver | cut -d - -f 2 | cut -d . -f 1-2 | cut -d _ -f 1`
 echo "Got Linux Version: ${linuxver}"
-#sleep 15
-#linuxver="5.2" #hardcode for the moment
 
 echo
 echo "copying a valid resolv.conf into directory, before chroot to get to the new install"
