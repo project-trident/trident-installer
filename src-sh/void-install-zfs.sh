@@ -443,7 +443,7 @@ GRUB_DISABLE_OS_PROBER=true
 # grub needs updating after we make changes
 #echo "updating grub"
 #${CHROOT} update-grub
-${CHROOT} zpool set cachefile=/etc/zfs/zpool.cache trident
+${CHROOT} zpool set cachefile=/etc/zfs/zpool.cache "${ZPOOL}"
 ${CHROOT} xbps-reconfigure -f linux${linuxver}
 #${CHROOT} lsinitrd -m
 
