@@ -34,7 +34,7 @@ readonly DATE=$(date +%Y%m%d)
 readonly IMGNAME="Trident-netinstall-x86_64.iso"
 
 readonly GRUB_PKGS="grub-i386-efi grub-x86_64-efi"
-readonly BASE_PKGS="dialog dialogbox mdadm ${GRUB_PKGS}"
+readonly BASE_PKGS="dialog mdadm ${GRUB_PKGS}"
 readonly TRIDENT_PKGS="${BASE_PKGS} zfs wget mtools gptfdisk"
 
 # Make sure the output ISO file does not already exist (repeated builds)
