@@ -1,0 +1,1 @@
+exec start-trident-installer
