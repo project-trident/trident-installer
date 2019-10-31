@@ -2,4 +2,4 @@
 [ -r conf ] && . ./conf
 read -r tty < /sys/class/tty/console/active
 tty=/dev/${tty##* }
-exec setsid sulogin -c start-trident-installer
+exec setsid sulogin -c /usr/local/bin/start-trident-installer
