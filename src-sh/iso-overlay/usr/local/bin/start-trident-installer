@@ -1,7 +1,9 @@
 #!/bin/bash
 INSTALLER="/bin/trident-installer"
 TITLE="Project Trident Installer"
+LOGFILE="/tmp/install.log"
 
+echo "Launching Installer..."
 get_dlg_ans(){
   # INPUTS:
   #   TITLE: Title to use for the dialog
@@ -57,7 +59,11 @@ StartInstall(){
   fi
 
   # And run it
-  ${INSTALLER}
+  ${INSTALLER} | tee "${LOGFILE}"
+  grep -q "[SUCCESS] Reboot the system" "${LOGFILE}"
+  if [ $? -eq 0 ] ; then
+    
+  fi
 }
 
 # This is listed in docs as necessary for old versions of dhcpcd.
@@ -100,5 +106,4 @@ clear
 echo "Run 'exit' or 'start-trident-installer' to launch the installer again"
 echo "---------------------------------------------"
 /bin/bash
-
 

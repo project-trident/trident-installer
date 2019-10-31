@@ -1,0 +1,3 @@
+BAUD_RATE=38400
+TERM_NAME=linux
+GETTY_ARGS="--autologin root"
