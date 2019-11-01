@@ -4,6 +4,7 @@ TITLE="Project Trident Installer"
 LOGFILE="/tmp/install.log"
 
 echo "Launching Installer..."
+
 get_dlg_ans(){
   # INPUTS:
   #   TITLE: Title to use for the dialog
@@ -44,6 +45,16 @@ PingTest(){
   return $?
 }
 
+ViewLog(){
+  clear
+  less "${LOGFILE}"
+}
+
+InstallSuccessful(){
+  grep -q "[SUCCESS] Reboot the system" "${LOGFILE}"
+  return $?
+}
+
 StartInstall(){
   PingTest
   if [ $? -ne 0 ] ; then
@@ -60,10 +71,15 @@ StartInstall(){
 
   # And run it
   ${INSTALLER} | tee "${LOGFILE}"
-  grep -q "[SUCCESS] Reboot the system" "${LOGFILE}"
+  local msg="Installation Finished"
+  InstallSuccessful
   if [ $? -eq 0 ] ; then
-    
+    msg="${msg} Successfully!\n\nReboot the system and remove the installation media to boot into the new system."
+  else
+    msg="${msg} Unsuccessfully.\n\nPlease view the installation log for details."
   fi
+    get_dlg_ans "--msgbox ${msg}"
+    ANS="dummy" #Ensure it returns to the main menu next
 }
 
 # This is listed in docs as necessary for old versions of dhcpcd.
@@ -76,14 +92,40 @@ ANS="anything"
 while [ -n "${ANS}" ] 
 do
   #Show the main menu
-  status="OFFLINE"
-  PingTest
-  if [ $? -eq 0 ] ; then status="ONLINE" ; fi
-  opts="Begin \"Start Install: Requires Networking\" Configure \"Setup Networking\" Terminal \"Drop to shell\" Reboot \"\" Poweroff \"\""
-  get_dlg_ans "--menu \"Network Status:  ${status}\n\nSelect an option below:\" 0 0 0 ${opts}"
+
+  #Generate info header
+
+  info=""
+  opts=""
+  InstallSuccessful
+  if [ $? -eq 0 ] ; then
+    info="Installation Successful: Ready to reboot"
+  else
+    status="OFFLINE"
+    PingTest
+    if [ $? -eq 0 ] ; then 
+      status="ONLINE"
+      info="Ready to begin installation"
+      opts="Begin \"Start Install: Requires Networking\""
+    else
+      info="Networking setup needed"
+      opts="Configure \"Setup Networking\" Rescan \"Check network status\""
+    fi
+    info="${info}\nNetwork Status: ${status}"
+  fi
+  #Generate options
+  if [ -e "${LOGFILE}" ] ; then
+    opts="${opts} Log \"View installation log\""
+  fi
+  opts="${opts} Terminal \"Drop to shell\" Reboot \"\" Poweroff \"\""
+  #Now prompt and do
+  get_dlg_ans "--menu \"${info}\n\nSelect an option below:\" 0 0 0 ${opts}"
   case "${ANS}" in
     Begin)
 	StartInstall
+	;;
+    Log)
+	ViewLog
 	;;
     Configure)
 	echo "TO-DO : Add network configuration here"
@@ -106,4 +148,3 @@ clear
 echo "Run 'exit' or 'start-trident-installer' to launch the installer again"
 echo "---------------------------------------------"
 /bin/bash
-
