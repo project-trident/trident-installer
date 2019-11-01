@@ -46,7 +46,7 @@ PingTest(){
 }
 
 ViewLog(){
-  get_dlg_ans "--tailbox ${LOGFILE} 0 0"
+  get_dlg_ans "--taxtbox ${LOGFILE} 0 0"
   ANS="dummy"
 }
 
