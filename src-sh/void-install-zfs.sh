@@ -23,7 +23,7 @@ Prompt : Variable : Example Value      : Explanation
   exit 0
 fi
 
-LOGFILE="${1}"
+#LOGFILE="${1}"
 
 exit_err(){
   if [ $1 -ne 0 ] ; then
