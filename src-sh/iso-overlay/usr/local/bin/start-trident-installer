@@ -46,11 +46,12 @@ PingTest(){
 }
 
 ViewLog(){
-  clear
-  less "${LOGFILE}"
+  get_dlg_ans "--tailbox ${LOGFILE} 0 0"
+  ANS="dummy"
 }
 
 InstallSuccessful(){
+  if [ ! -e "${LOGFILE}" ] ; then return 1 ; fi
   grep -q "[SUCCESS] Reboot the system" "${LOGFILE}"
   return $?
 }
@@ -70,7 +71,7 @@ StartInstall(){
   fi
 
   # And run it
-  ${INSTALLER} | tee "${LOGFILE}"
+  ${INSTALLER} "${LOGFILE}"
   local msg="Installation Finished"
   InstallSuccessful
   if [ $? -eq 0 ] ; then

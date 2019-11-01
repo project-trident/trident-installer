@@ -23,6 +23,8 @@ Prompt : Variable : Example Value      : Explanation
   exit 0
 fi
 
+LOGFILE="${1}"
+
 exit_err(){
   if [ $1 -ne 0 ] ; then
     echo "[ERROR] $2"
@@ -131,92 +133,9 @@ adjustTextValue(){
 }
 
 
-# ===============
-#  LOAD SETTINGS
-# ===============
-while [ -z "${DISK}" ]
-do
-  getDisks
-done
-if [ -z "${SWAPSIZE}" ] ; then
-  getSwap
-fi
-if [ -z "${REPOTYPE}" ] ; then
-  getRepotype
-fi
-if [ -z "${ROOTPW}" ] ; then
-  getPassword "root"
-  ROOTPW="${ANS}"
-  unset ANS
-fi
-if [ -z "${NHOSTNAME}" ] ; then
-  NHOSTNAME="Trident-${RANDOM}"  
-  adjustTextValue "Select system hostname" "${NHOSTNAME}"
-  NHOSTNAME="${ANS}"
-fi
-if [ -z "${ZPOOL}" ] ; then
-  zpool import -aN
-  ANS=""
-  while [ $? -eq 0 ] || [ -z "${ANS}" ]
-  do
-    if [ -n "${ANS}" ] ; then
-      adjustTextValue "Pool already exists: Select different ZFS pool name" "${ANS}"
-    else
-      adjustTextValue "Select ZFS pool name" "trident"
-    fi
-    ZPOOL="${ANS}"
-    zpool list "${ANS}"  > /dev/null 2> /dev/null
-  done
-  # Now unmount/export all zfs pools
-  for pool in `zpool list -H | cut -d ' ' -f 1`
-  do 
-    zpool export "${pool}"
-  done
-fi
-if [ -z "${INITBE}" ] ; then
-  INITBE="initial"
-fi
-if [ -z "${KEYMAP}" ] || [ "${REPOTYPE}" = "musl" ] ; then
-  #Localized keyboard maps not supported by musl packages
-  KEYMAP="us"
-fi
-if [ -z "${TIMEZONE}" ] ; then
-  TIMEZONE="America/New_York"
-fi
-
-
-
-#Full package list
-#PACKAGES_CHROOT="iwd bluez vlc trojita telegram-desktop falkon qterminal openvpn git pianobar ntfs-3g fuse-exfat simple-mtpfs fish-shell zsh libdvdcss gutenprint foomatic-db foomatic-db-nonfree nano xorg-minimal lumina"
-#Minimal package list for testing
-PACKAGES=""
-PACKAGES_CHROOT="iwd bluez nano xorg-minimal lumina qterminal git noto-fonts-ttf compton hicolor-icon-theme xrandr qt5-svg"
-SERVICES_ENABLED="dbus sshd dhcpcd cupsd wpa_supplicant bluetoothd"
-
-# ==============================
-#  Generate Internal Variables from settings
-# ==============================
-BOOTDEVICE="${DISK}"
-MNT="/run/ovlwork/mnt"
-CHROOT="chroot ${MNT}"
-
-# Automatically adjust the musl/glibc repo switch as needed
-if [ "${REPOTYPE}" = "musl" ] ; then
-  export XBPS_ARCH=x86_64-musl
-  REPO="http://alpha.de.repo.voidlinux.org/current/musl"
-else
-  export XBPS_ARCH=x86_64
-  REPO="http://alpha.de.repo.voidlinux.org/current"
-fi
-
-#Check if we are using EFI boot
-efibootmgr > /dev/null 2>/dev/null
-if [ $? -eq 0 ] ; then
-  #Using EFI
-  BOOTMODE="EFI"
-else
-  BOOTMODE="LEGACY"
-fi
+doInstall(){
+# Install function. Nothing interactive should ever be in here
+# typically piped through tee to log the output
 
 if [ ! -d "${MNT}" ] ; then
   mkdir -p "${MNT}"
@@ -468,3 +387,100 @@ zpool export ${ZPOOL}
 
 echo
 echo "[SUCCESS] Reboot the system and remove the install media to boot into the new system"
+
+} #end of the doInstall function
+
+# ===============
+#  LOAD SETTINGS
+# ===============
+while [ -z "${DISK}" ]
+do
+  getDisks
+done
+if [ -z "${SWAPSIZE}" ] ; then
+  getSwap
+fi
+if [ -z "${REPOTYPE}" ] ; then
+  getRepotype
+fi
+if [ -z "${ROOTPW}" ] ; then
+  getPassword "root"
+  ROOTPW="${ANS}"
+  unset ANS
+fi
+if [ -z "${NHOSTNAME}" ] ; then
+  NHOSTNAME="Trident-${RANDOM}"  
+  adjustTextValue "Select system hostname" "${NHOSTNAME}"
+  NHOSTNAME="${ANS}"
+fi
+if [ -z "${ZPOOL}" ] ; then
+  zpool import -aN
+  ANS=""
+  while [ $? -eq 0 ] || [ -z "${ANS}" ]
+  do
+    if [ -n "${ANS}" ] ; then
+      adjustTextValue "Pool already exists: Select different ZFS pool name" "${ANS}"
+    else
+      adjustTextValue "Select ZFS pool name" "trident"
+    fi
+    ZPOOL="${ANS}"
+    zpool list "${ANS}"  > /dev/null 2> /dev/null
+  done
+  # Now unmount/export all zfs pools
+  for pool in `zpool list -H | cut -d ' ' -f 1`
+  do 
+    zpool export "${pool}"
+  done
+fi
+if [ -z "${INITBE}" ] ; then
+  INITBE="initial"
+fi
+if [ -z "${KEYMAP}" ] || [ "${REPOTYPE}" = "musl" ] ; then
+  #Localized keyboard maps not supported by musl packages
+  KEYMAP="us"
+fi
+if [ -z "${TIMEZONE}" ] ; then
+  TIMEZONE="America/New_York"
+fi
+
+
+
+#Full package list
+#PACKAGES_CHROOT="iwd bluez vlc trojita telegram-desktop falkon qterminal openvpn git pianobar ntfs-3g fuse-exfat simple-mtpfs fish-shell zsh libdvdcss gutenprint foomatic-db foomatic-db-nonfree nano xorg-minimal lumina"
+#Minimal package list for testing
+PACKAGES=""
+PACKAGES_CHROOT="iwd bluez nano xorg-minimal lumina qterminal git noto-fonts-ttf compton hicolor-icon-theme xrandr qt5-svg"
+SERVICES_ENABLED="dbus sshd dhcpcd cupsd wpa_supplicant bluetoothd"
+
+# ==============================
+#  Generate Internal Variables from settings
+# ==============================
+BOOTDEVICE="${DISK}"
+MNT="/run/ovlwork/mnt"
+CHROOT="chroot ${MNT}"
+
+# Automatically adjust the musl/glibc repo switch as needed
+if [ "${REPOTYPE}" = "musl" ] ; then
+  export XBPS_ARCH=x86_64-musl
+  REPO="http://alpha.de.repo.voidlinux.org/current/musl"
+else
+  export XBPS_ARCH=x86_64
+  REPO="http://alpha.de.repo.voidlinux.org/current"
+fi
+
+#Check if we are using EFI boot
+efibootmgr > /dev/null 2>/dev/null
+if [ $? -eq 0 ] ; then
+  #Using EFI
+  BOOTMODE="EFI"
+else
+  BOOTMODE="LEGACY"
+fi
+
+if [ -n "${LOGFILE}" ] ; then
+  # Split between log and stdout
+  doInstall | tee "${LOGFILE}"
+else
+  # Just use stdout
+  doInstall
+fi
