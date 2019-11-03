@@ -89,6 +89,7 @@ StartInstall(){
 #  ln -s /usr/share/dhcpcd/hooks/10-wpa_supplicant /usr/libexec/dhcpcd-hooks/.
 #fi
 
+get_dlg_ans "--msgbox \"Welcome to the Project Trident Netinstaller\nThis is current an ALPHA image of the new Void-Linux based images and only assists with setting up a ZFS-on-root installation.\n\n Packages and graphical tools are NOT automatically setup yet.\""
 ANS="anything"
 while [ -n "${ANS}" ] 
 do
