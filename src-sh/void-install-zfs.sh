@@ -463,10 +463,10 @@ CHROOT="chroot ${MNT}"
 # Automatically adjust the musl/glibc repo switch as needed
 if [ "${REPOTYPE}" = "musl" ] ; then
   export XBPS_ARCH=x86_64-musl
-  REPO="http://alpha.de.repo.voidlinux.org/current/musl"
+  REPO="https://alpha.de.repo.voidlinux.org/current/musl"
 else
   export XBPS_ARCH=x86_64
-  REPO="http://alpha.de.repo.voidlinux.org/current"
+  REPO="https://alpha.de.repo.voidlinux.org/current"
 fi
 
 #Check if we are using EFI boot
