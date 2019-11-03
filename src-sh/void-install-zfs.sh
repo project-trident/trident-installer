@@ -132,6 +132,16 @@ adjustTextValue(){
   fi
 }
 
+cleanupInstall(){
+  #Now unmount everything and clean up
+  umount -nfR ${MNT}/boot/efi
+  umount -nfR ${MNT}/dev
+  umount -nfR ${MNT}/proc
+  umount -nfR ${MNT}/sys
+  umount -nfR ${MNT}/var
+  umount -nfR ${MNT}
+  zpool export ${ZPOOL}
+}
 
 doInstall(){
 # Install function. Nothing interactive should ever be in here
@@ -264,6 +274,8 @@ if [ -e "/etc/resolv.conf" ] ; then
   #Copy the current host resolv.conf (assume it is working)
   cp /etc/resolv.conf ${MNT}/etc/resolv.conf
 fi
+#Copy over any saved wifi networks from the ISO
+cp "/etc/wpa_supplicant/wpa_supplicant.conf" "${MNT}/etc/wpa_supplicant/wpa_supplicant.conf"
 
 #Now inject a couple always-working DNS nameservers into the end of resolv.conf
 echo "8.8.8.8" >> ${MNT}/etc/resolv.conf
@@ -376,16 +388,6 @@ mkdir "${MNT}/boot/efi/EFI/boot/"
 #Copy the EFI registration to the default boot path as well
 cp "${MNT}/boot/efi/EFI/project-trident/grubx64.efi" "${MNT}/boot/efi/EFI/boot/bootx64.efi"
 
-
-#Now unmount everything and clean up
-umount -nfR ${MNT}/boot/efi
-umount -nfR ${MNT}/dev
-umount -nfR ${MNT}/proc
-umount -nfR ${MNT}/sys
-umount -nfR ${MNT}/var
-umount -nfR ${MNT}
-zpool export ${ZPOOL}
-
 echo
 echo "[SUCCESS] Reboot the system and remove the install media to boot into the new system"
 
@@ -468,6 +470,7 @@ else
   export XBPS_ARCH=x86_64
   REPO="http://alpha.de.repo.voidlinux.org/current"
 fi
+export XBPS_TARGET_ARCH="${XBPS_ARCH}"
 
 #Check if we are using EFI boot
 efibootmgr > /dev/null 2>/dev/null
@@ -485,3 +488,5 @@ else
   # Just use stdout
   doInstall
 fi
+#Now cleanup before exit
+cleanupInstall
