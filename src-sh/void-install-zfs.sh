@@ -113,7 +113,7 @@ getPassword(){
   TMP2="2"
   while [ "${TMP}" != "${TMP2}" ]
   do
-    get_dlg_ans "--passwordbox \"Enter password for ${1}\n(Note: input text is hidden)\" 0 0"
+    get_dlg_ans "--passwordbox \"Enter password for ${1}\n(Note: Hidden Text)\" 0 0"
     TMP="${ANS}"
     get_dlg_ans "--passwordbox \"Repeat password for ${1}\" 0 0"
     TMP2="${ANS}"
@@ -261,7 +261,8 @@ echo "-------------------------------"
 echo "Step 2: Installing base system"
 echo "-------------------------------"
 #NOTE: Do NOT install the ZFS package yet - that needs to run inside chroot for post-install actions.
-xbps-install -y -S -r ${MNT} base-system grub grub-i386-efi grub-x86_64-efi ${PACKAGES}
+xbps-install -y -S -r ${MNT}
+xbps-install -y -r ${MNT} base-system grub grub-i386-efi grub-x86_64-efi ${PACKAGES}
 exit_err $? "Could not install void packages!!"
 
 linuxver=`${CHROOT} xbps-query linux | grep pkgver | cut -d - -f 2 | cut -d . -f 1-2 | cut -d _ -f 1`

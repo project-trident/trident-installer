@@ -59,7 +59,7 @@ InstallSuccessful(){
 StartInstall(){
   PingTest
   if [ $? -ne 0 ] ; then
-    get_dlg_ans "--msgbox Networking not available. Please configure it first!"
+    get_dlg_ans "--msgbox \"Networking not available. Please configure it first!\""
     ANS="dummy"
     return 0
   fi
@@ -79,8 +79,8 @@ StartInstall(){
   else
     msg="${msg} Unsuccessfully.\n\nPlease view the installation log for details."
   fi
-    get_dlg_ans "--msgbox ${msg}"
-    ANS="dummy" #Ensure it returns to the main menu next
+  get_dlg_ans "--msgbox \"${msg}\""
+  ANS="dummy" #Ensure it returns to the main menu next
 }
 
 # This is listed in docs as necessary for old versions of dhcpcd.
