@@ -465,12 +465,13 @@ CHROOT="chroot ${MNT}"
 # Automatically adjust the musl/glibc repo switch as needed
 if [ "${REPOTYPE}" = "musl" ] ; then
   export XBPS_ARCH=x86_64-musl
-  REPO="http://alpha.de.repo.voidlinux.org/current/musl"
+  REPO="https://alpha.de.repo.voidlinux.org/current/musl"
 else
   export XBPS_ARCH=x86_64
-  REPO="http://alpha.de.repo.voidlinux.org/current"
+  REPO="https://alpha.de.repo.voidlinux.org/current"
 fi
-export XBPS_TARGET_ARCH="${XBPS_ARCH}"
+# DO NOT Set target arch. This disables a lot of the post-install configuration for packages
+#export XBPS_TARGET_ARCH="${XBPS_ARCH}" 
 
 #Check if we are using EFI boot
 efibootmgr > /dev/null 2>/dev/null

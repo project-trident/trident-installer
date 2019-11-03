@@ -46,7 +46,7 @@ PingTest(){
 }
 
 ViewLog(){
-  get_dlg_ans "--taxtbox ${LOGFILE} 0 0"
+  get_dlg_ans "--textbox ${LOGFILE} 0 0"
   ANS="dummy"
 }
 
@@ -108,7 +108,7 @@ do
     if [ $? -eq 0 ] ; then 
       status="ONLINE"
       info="Ready to begin installation"
-      opts="Begin \"Start Install: Requires Networking\""
+      opts="Begin \"Start Installation Steps""
     else
       info="Networking setup needed"
       opts="Configure \"Setup Networking\" Rescan \"Check network status\""
