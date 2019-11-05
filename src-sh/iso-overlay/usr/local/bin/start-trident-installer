@@ -135,7 +135,7 @@ do
 	;;
     Terminal)
 	clear
-	echo "Run `exit` or `start-trident-installer` to launch the installer again"
+	echo "Run 'exit' or 'start-trident-installer' to launch the installer again"
 	echo "---------------------------------------------"
 	/bin/bash
 	#ANS=""
