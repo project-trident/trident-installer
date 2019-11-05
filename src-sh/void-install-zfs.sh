@@ -313,6 +313,7 @@ echo
 echo "Installing packages within chroot"
 mkdir ${MNT}/tmp/pkg-cache
 rm ${MNT}/var/cache/xbps/*
+# Required packages
 for pkg in zfs cryptsetup mkpasswd ${PACKAGES_CHROOT}
 do
   echo
@@ -321,8 +322,20 @@ do
   exit_err $? "Could not install package: ${pkg}"
   rm ${MNT}/tmp/pkg-cache/*
 done
-echo
+# Optional Packages
+for pkg in ${PACKAGES_OPTIONAL}
+do
+  echo
+  echo "Installing package: ${pkg}"
+  ${CHROOT} xbps-install -y -c /tmp/pkg-cache ${pkg}
+  if [ $? -ne 0 ] ; then
+    echo "[WARNING] Optional package not installed: ${pkg}"
+  fi
+  rm ${MNT}/tmp/pkg-cache/*
+done
+
 #Now remove the temporary pkg cache directory in the chroot
+echo
 rm -r ${MNT}/tmp/pkg-cache
 
 # Now setup SWAP on the device
@@ -452,7 +465,8 @@ fi
 #PACKAGES_CHROOT="iwd bluez vlc trojita telegram-desktop falkon qterminal openvpn git pianobar ntfs-3g fuse-exfat simple-mtpfs fish-shell zsh libdvdcss gutenprint foomatic-db foomatic-db-nonfree nano xorg-minimal lumina"
 #Minimal package list for testing
 PACKAGES=""
-PACKAGES_CHROOT="iwd bluez nano xorg-minimal lumina qterminal git noto-fonts-ttf compton hicolor-icon-theme xrandr qt5-svg"
+PACKAGES_CHROOT="iwd bluez nano git noto-fonts-ttf"
+PACKAGES_OPTIONAL="xorg-minimal lumina qterminal compton hicolor-icon-theme xrandr qt5-svg"
 SERVICES_ENABLED="dbus sshd dhcpcd cupsd wpa_supplicant bluetoothd"
 
 # ==============================

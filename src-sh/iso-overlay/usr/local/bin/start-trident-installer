@@ -134,6 +134,10 @@ do
 	sleep 5
 	;;
     Terminal)
+	clear
+	echo "Run `exit` or `start-trident-installer` to launch the installer again"
+	echo "---------------------------------------------"
+	/bin/bash
 	ANS=""
 	;;
     Reboot)
@@ -145,8 +149,3 @@ do
   esac
 
 done
-
-clear
-echo "Run `exit` or `start-trident-installer` to launch the installer again"
-echo "---------------------------------------------"
-/bin/bash
