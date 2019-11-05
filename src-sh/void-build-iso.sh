@@ -36,14 +36,15 @@ readonly IMGNAME="Trident-netinstall-x86_64.iso"
 readonly GRUB_PKGS="grub-i386-efi grub-x86_64-efi"
 readonly BASE_PKGS="dialog mdadm ${GRUB_PKGS}"
 readonly TRIDENT_PKGS="${BASE_PKGS} zfs wget mtools gptfdisk"
-
+readonly BLTITLE="Project-Trident"
 # Make sure the output ISO file does not already exist (repeated builds)
 if [ -e "${outdir}/${IMGNAME}" ] ; then
   echo "Removing stale image: ${outdir}/${IMGNAME}"
   rm "${outdir}/${IMGNAME}"
 fi
-
-cd ${repodir} && ./mklive.sh -a ${ARCH} -I "${CURDIR}/iso-overlay" -o "${outdir}/${IMGNAME}" -p "${TRIDENT_PKGS}" $@ > >(tee "${outdir}/log.txt") 2> >(tee "${outdir}/err.txt")
+#Undocumented - set the environment variable to change the grub wallpaper
+export SPLASH_IMAGE="${CURDIR}/iso-overlay/root/Trident-wallpaper.png"
+cd ${repodir} && ./mklive.sh -a ${ARCH} -T "${BLTITLE}" -I "${CURDIR}/iso-overlay" -o "${outdir}/${IMGNAME}" -p "${TRIDENT_PKGS}" $@ > >(tee "${outdir}/log.txt") 2> >(tee "${outdir}/err.txt")
 if [ $? -eq 0 ] ; then
   echo "ISO Generated: ${outdir}/${IMGNAME}"
 else
