@@ -142,9 +142,15 @@ do
 	;;
     Reboot)
 	reboot
+	clear
+	echo "Rebooting system...."
+	sleep 5
 	;;
     Poweroff)
 	poweroff
+	clear
+	echo "Powering off system...."
+	sleep 5
 	;;
   esac
 
