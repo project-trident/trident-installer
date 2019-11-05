@@ -52,7 +52,7 @@ ViewLog(){
 
 InstallSuccessful(){
   if [ ! -e "${LOGFILE}" ] ; then return 1 ; fi
-  grep -q "[SUCCESS] Reboot the system" "${LOGFILE}"
+  grep -q "[SUCCESS] " "${LOGFILE}"
   return $?
 }
 
@@ -89,7 +89,7 @@ StartInstall(){
 #  ln -s /usr/share/dhcpcd/hooks/10-wpa_supplicant /usr/libexec/dhcpcd-hooks/.
 #fi
 
-get_dlg_ans "--msgbox \"WARNING: This is an ALPHA image of the Void-Linux based system and only assists with setting up a ZFS-on-root installation.\n\n Packages and graphical tools are not setup yet.\" 0 0"
+get_dlg_ans "--msgbox \"WARNING: This is an ALPHA image of the Void-Linux based system and only assists with setting up a ZFS-on-root installation.\n\n Packages and graphical tools are not setup yet.\n\nwww.project-trident.org\" 0 0"
 ANS="anything"
 while [ -n "${ANS}" ] 
 do
