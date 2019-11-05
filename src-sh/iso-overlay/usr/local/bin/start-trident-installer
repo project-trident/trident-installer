@@ -39,10 +39,86 @@ get_dlg_ans(){
   done
 }
 
+getPassword(){
+  TMP="1"
+  TMP2="2"
+  while [ "${TMP}" != "${TMP2}" ]
+  do
+    get_dlg_ans "--passwordbox \"Enter password for ${1}\n(Note: Hidden Text)\" 0 0"
+    TMP="${ANS}"
+    get_dlg_ans "--passwordbox \"Repeat password for ${1}\" 0 0"
+    TMP2="${ANS}"
+  done
+  ANS="${TMP}"
+  unset TMP
+  unset TMP2
+}
+
 PingTest(){
   #echo "Checking for network connection..."
   ping -q -c 1 -W 2 github.com > /dev/null 2> /dev/null
   return $?
+}
+
+GetWifiDevice(){
+  # exports "WIFIDEV" variable with name of wifi
+  local _devs=`ip link | grep "UP" | grep ": wl" | cut -d : -f 2`
+  num=`echo "${_devs}" | wc -w`
+  if [ ${num} -lt 1 ] ; then
+    #No wifi devices available
+    get_dlg_ans "--msgbox \"ERROR : No wireless devices available!\n\nManual setup via the terminal may be required for this system.\" 0 0"
+    WIFIDEV=""
+
+  elif [ ${num} -eq 1 ] ; then
+    #exactly 1 wifi device - use it
+    WIFIDEV="${_devs}"
+
+  else
+    #More than 1 wifi device: ask user to pick one
+    opts=""
+    for dev in ${_devs}
+    do
+      opts="${opts} ${dev} \"\""
+    done
+    get_dlg_ans "--menu \"Select a wireless device to scan for networks\" 0 0 0 ${opts}"
+    WIFIDEV="${ANS}"
+  fi
+  #Make sure to remove any whitespace in the device variable before we are done
+  WIFIDEV=`echo "${WIFIDEV}" | tr -d '[:space:]'`
+}
+
+GetWifiSSID(){
+  wpa_cli -i${WIFIDEV} scan > /dev/null
+  results=`wpa_cli -i${WIFIDEV} scan_results`
+  opts=""
+  opts=$(wpa_cli -i${WIFIDEV} scan_results | grep -v "bssid / " | while read _line
+  do
+    echo -n " $(echo $_line | rev | cut -d ' ' -f 1 | rev) \"$(echo $_line | cut -d ' ' -f 1)\""
+  done )
+  get_dlg_ans "--menu \" \" 0 0 0 Rescan \"\" ${opts}"
+}
+
+SetupWifi(){
+  GetWifiDevice
+  if [ -z "${WIFIDEV}" ] ; then 
+    #No wifi or cancelled
+    return
+  fi
+  #generate the SSID list
+  GetWifiSSID
+  while [ "${ANS}" = "Rescan" ] 
+  do
+    GetWifiSSID
+  done
+  if [ -z "${ANS}" ] ; then 
+    #No wifi or cancelled
+    return
+  fi
+  local SSID="${ANS}"
+  getPassword " ${SSID} access point"
+  wpa_passphrase "${SSID}" "${ANS}" | grep -v "#psk" >> "/etc/wpa_supplicant/wpa_supplicant.conf"
+  sv restart wpa_supplicant
+  sleep 1
 }
 
 ViewLog(){
@@ -83,11 +159,11 @@ StartInstall(){
   ANS="dummy" #Ensure it returns to the main menu next
 }
 
-# This is listed in docs as necessary for old versions of dhcpcd.
-# Not sure how "old" that is, but leave this here for reference
-#if [ ! -f "/usr/libexec/dhcpcd-hooks/10-wpa_supplicant" ] ; then
-#  ln -s /usr/share/dhcpcd/hooks/10-wpa_supplicant /usr/libexec/dhcpcd-hooks/.
-#fi
+#Make sure wpa_supplicant service is started
+if [ ! -d "/var/service/wpa_supplicant" ] ; then
+  ln -s "/etc/sv/wpa_supplicant" "/var/service/wpa_supplicant"
+  sv start wpa_supplicant
+fi
 
 get_dlg_ans "--msgbox \"WARNING: This is an ALPHA image of the Void-Linux based system and only assists with setting up a ZFS-on-root installation.\n\n Packages and graphical tools are not setup yet.\n\nwww.project-trident.org\" 0 0"
 ANS="anything"
@@ -130,8 +206,8 @@ do
 	ViewLog
 	;;
     Configure)
-	echo "TO-DO : Add network configuration here"
-	sleep 5
+	SetupWifi
+	ANS="dummy"
 	;;
     Terminal)
 	clear
