@@ -59,7 +59,7 @@ InstallSuccessful(){
 StartInstall(){
   PingTest
   if [ $? -ne 0 ] ; then
-    get_dlg_ans "--msgbox \"Networking not available. Please configure it first!\""
+    get_dlg_ans "--msgbox \"Networking not available. Please configure it first!\" 0 0"
     ANS="dummy"
     return 0
   fi
@@ -79,7 +79,7 @@ StartInstall(){
   else
     msg="${msg} Unsuccessfully.\n\nPlease view the installation log for details."
   fi
-  get_dlg_ans "--msgbox \"${msg}\""
+  get_dlg_ans "--msgbox \"${msg}\" 0 0"
   ANS="dummy" #Ensure it returns to the main menu next
 }
 
@@ -89,7 +89,7 @@ StartInstall(){
 #  ln -s /usr/share/dhcpcd/hooks/10-wpa_supplicant /usr/libexec/dhcpcd-hooks/.
 #fi
 
-get_dlg_ans "--msgbox \"Welcome to the Project Trident Installer\nThis is an ALPHA image of the Void-Linux based system and only assists with setting up a ZFS-on-root installation.\n\n Packages and graphical tools are not setup yet.\""
+get_dlg_ans "--msgbox \"WARNING: This is an ALPHA image of the Void-Linux based system and only assists with setting up a ZFS-on-root installation.\n\n Packages and graphical tools are not setup yet.\" 0 0"
 ANS="anything"
 while [ -n "${ANS}" ] 
 do
@@ -138,7 +138,7 @@ do
 	echo "Run `exit` or `start-trident-installer` to launch the installer again"
 	echo "---------------------------------------------"
 	/bin/bash
-	ANS=""
+	#ANS=""
 	;;
     Reboot)
 	reboot
