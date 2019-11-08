@@ -95,7 +95,7 @@ GetWifiSSID(){
   opts=""
   opts=$(wpa_cli -i${WIFIDEV} scan_results | grep -v "bssid / " | while read _line
   do
-    echo -n " $(echo $_line | cut -d ' ' -f 5- ) \"$(echo $_line | cut -d ' ' -f 1)\""
+    echo -n " \"$(echo $_line | cut -d ' ' -f 5- )\" \"$(echo $_line | cut -d ' ' -f 1)\""
   done )
   get_dlg_ans "--menu \" \" 0 0 0 Rescan \"\" ${opts}"
 }
