@@ -462,11 +462,11 @@ fi
 
 
 #Full package list
-#PACKAGES_CHROOT="iwd bluez vlc trojita telegram-desktop falkon qterminal openvpn git pianobar ntfs-3g fuse-exfat simple-mtpfs fish-shell zsh libdvdcss gutenprint foomatic-db foomatic-db-nonfree nano xorg-minimal lumina"
+#PACKAGES_CHROOT="iwd bluez vlc trojita telegram-desktop falkon qterminal openvpn git pianobar ntfs-3g fuse-exfat simple-mtpfs fish-shell zsh libdvdcss gutenprint foomatic-db foomatic-db-nonfree nano xorg-minimal lumina wpa-cute"
 #Minimal package list for testing
 PACKAGES=""
 PACKAGES_CHROOT="iwd bluez nano git noto-fonts-ttf"
-PACKAGES_OPTIONAL="xorg-minimal lumina qterminal compton hicolor-icon-theme xrandr qt5-svg"
+PACKAGES_OPTIONAL="xorg-minimal lumina qterminal compton hicolor-icon-theme xrandr qt5-svg wpa-cute"
 SERVICES_ENABLED="dbus sshd dhcpcd cupsd wpa_supplicant bluetoothd"
 
 # ==============================
