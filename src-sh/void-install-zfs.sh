@@ -466,7 +466,7 @@ fi
 #Minimal package list for testing
 PACKAGES=""
 PACKAGES_CHROOT="iwd bluez nano git noto-fonts-ttf jq"
-PACKAGES_OPTIONAL="xorg-minimal lumina qterminal compton hicolor-icon-theme xrandr qt5-svg wpa-cute"
+PACKAGES_OPTIONAL="xorg-minimal lumina qterminal compton hicolor-icon-theme xrandr qt5-svg wpa-cute octoxbps"
 SERVICES_ENABLED="dbus sshd dhcpcd cupsd wpa_supplicant bluetoothd"
 
 # ==============================
