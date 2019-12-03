@@ -462,7 +462,7 @@ fi
 
 
 #Full package list
-#PACKAGES_CHROOT="iwd bluez vlc trojita telegram-desktop falkon qterminal openvpn git pianobar ntfs-3g fuse-exfat simple-mtpfs fish-shell zsh libdvdcss gutenprint foomatic-db foomatic-db-nonfree nano xorg-minimal lumina wpa-cute"
+#PACKAGES_CHROOT="iwd bluez vlc trojita telegram-desktop falkon qterminal openvpn git pianobar ntfs-3g fuse-exfat simple-mtpfs fish-shell zsh libdvdcss gutenprint foomatic-db foomatic-db-nonfree nano xorg-minimal lumina wpa-cute zfz kexec-tools"
 #Minimal package list for testing
 PACKAGES=""
 PACKAGES_CHROOT="iwd bluez nano git noto-fonts-ttf jq"
