@@ -194,6 +194,7 @@ zpool create -f -o ashift=12 -d \
 		-o feature@embedded_data=enabled \
 		-o feature@empty_bpobj=enabled \
 		-o feature@enabled_txg=enabled \
+		-o feature@encryption=enabled \
 		-o feature@extensible_dataset=enabled \
 		-o feature@filesystem_limits=enabled \
 		-o feature@hole_birth=enabled \
@@ -212,7 +213,6 @@ zpool create -f -o ashift=12 -d \
 		${ZPOOL} ${SYSTEMDRIVE}
 exit_err $? "Could not create pool: ${ZPOOL} on ${SYSTEMDRIVE}"
 #Configure the pool now
-zfs set compression=on ${ZPOOL}
 zfs create -o canmount=off ${ZPOOL}/ROOT
 zfs create -o mountpoint=/ -o canmount=noauto ${ZPOOL}/ROOT/${INITBE}
 exit_err $? "Could not create ROOT dataset"
