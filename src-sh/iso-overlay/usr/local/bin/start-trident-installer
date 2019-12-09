@@ -55,8 +55,8 @@ getPassword(){
 }
 
 PingTest(){
-  #echo "Checking for network connection..."
-  ping -q -c 1 -W 2 github.com > /dev/null 2> /dev/null
+  echo "Checking for network connection..."
+  wget https://api.github.com/repos/project-trident/trident-installer/releases > /dev/null 2> /dev/null
   return $?
 }
 

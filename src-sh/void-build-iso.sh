@@ -31,7 +31,7 @@ fi
 
 readonly ARCH="x86_64-musl"
 readonly DATE=$(date +%Y%m%d)
-readonly IMGNAME="Trident-netinstall-x86_64.iso"
+readonly IMGNAME="Trident-BETA-netinstall-x86_64.iso"
 
 readonly GRUB_PKGS="grub-i386-efi grub-x86_64-efi"
 readonly BASE_PKGS="dialog mdadm ${GRUB_PKGS}"
