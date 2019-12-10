@@ -371,13 +371,15 @@ if [ "zfs" != $(${CHROOT} grub-probe /) ] ; then
 fi  
 #Setup the GRUB configuration
 mkdir -p ${MNT}/etc/defaults
-cp "/root/Trident-wallpaper.png" "${MNT}/etc/defaults/grub-splash.png"
+wallpaper=$(ls /root/Trident-wallpaper.*)
+wallfmt=$(echo ${wallpaper} | cut -d . -f 2)
+cp "/root/${wallpaper}" "${MNT}/etc/defaults/grub-splash.${wallfmt}"
 echo "
 GRUB_DEFAULT=0
 GRUB_TIMEOUT=5
 GRUB_DISTRIBUTOR=\"Project-Trident\"
 GRUB_CMDLINE_LINUX_DEFAULT=\"loglevel=4 elevator=noop\"
-GRUB_BACKGROUND=/etc/defaults/grub-splash.png
+GRUB_BACKGROUND=/etc/defaults/grub-splash.${wallfmt}
 GRUB_CMDLINE_LINUX=\"root=ZFS=${ZPOOL}/ROOT/${INITBE}\"
 GRUB_DISABLE_OS_PROBER=true
 " > ${MNT}/etc/default/grub
@@ -395,7 +397,7 @@ echo "Installing GRUB bootloader"
 #${CHROOT} grub-mkconfig -o {MNT}/boot/grub/grub.cfg
 ${CHROOT} grub-install ${BOOTDEVICE}
 #Stamp EFI loader on the EFI partition
-#Ro create a project-trident directory only
+#Create a project-trident directory only
 ${CHROOT} grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=Project-Trident --recheck --no-floppy
 mkdir "${MNT}/boot/efi/EFI/boot/"
 #Copy the EFI registration to the default boot path as well
