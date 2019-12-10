@@ -167,7 +167,7 @@ dd if=/dev/zero of=${DISK} bs=100M count=2
 echo "Formatting the disk: ${BOOTMODE} ${DISK}"
 sfdisk -w always ${DISK} << EOF
 	label: gpt
-	,100M,U
+	,1G,U
 	,10M,21686148-6449-6E6F-744E-656564454649,*
 	;
 EOF
