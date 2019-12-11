@@ -261,6 +261,7 @@ do
   exit_err $? "Could not create dataset: ${ZPOOL}/${ds}"
 done
 #Add a custom dataset for docker (that service can do bad things to the /var dataset)
+echo "Creating Dataset: var/docker"
 zfs create -o compression=lz4 -o mountpoint=/var/lib/docker ${ZPOOL}/var/docker
 exit_err $? "Could not create dataset: ${ZPOOL}/var/docker"
 
