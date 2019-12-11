@@ -43,7 +43,7 @@ if [ -e "${outdir}/${IMGNAME}" ] ; then
   rm "${outdir}/${IMGNAME}"
 fi
 #Undocumented - set the environment variable to change the grub wallpaper
-export SPLASH_IMAGE="${CURDIR}/iso-overlay/root/Trident-wallpaper.png"
+export SPLASH_IMAGE="${CURDIR}/iso-overlay/root/Trident-wallpaper.jpg"
 cd ${repodir} && ./mklive.sh -a ${ARCH} -T "${BLTITLE}" -I "${CURDIR}/iso-overlay" -o "${outdir}/${IMGNAME}" -p "${TRIDENT_PKGS}" $@ > >(tee "${outdir}/log.txt") 2> >(tee "${outdir}/err.txt")
 if [ $? -eq 0 ] ; then
   echo "ISO Generated: ${outdir}/${IMGNAME}"
