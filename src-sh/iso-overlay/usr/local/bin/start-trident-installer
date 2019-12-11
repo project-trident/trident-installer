@@ -167,7 +167,7 @@ if [ ! -d "/var/service/wpa_supplicant" ] ; then
   sv start wpa_supplicant
 fi
 
-get_dlg_ans "--msgbox \"WARNING: This is an ALPHA image of the Void-Linux based system and only assists with setting up a ZFS-on-root installation.\n\n Packages and graphical tools are not setup yet.\n\nwww.project-trident.org\" 0 0"
+get_dlg_ans "--msgbox \"WARNING: This is a pre-release image of Project Trident based on Void-Linux.\n\n Packages and graphical tools are not setup yet and manual configuration may be required.\n\nwww.project-trident.org\" 0 0"
 ANS="anything"
 while [ -n "${ANS}" ] 
 do
