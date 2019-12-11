@@ -219,7 +219,6 @@ zpool create -f -o ashift=12 -d \
 		-o feature@embedded_data=enabled \
 		-o feature@empty_bpobj=enabled \
 		-o feature@enabled_txg=enabled \
-		-o feature@encryption=disabled \
 		-o feature@extensible_dataset=enabled \
 		-o feature@filesystem_limits=enabled \
 		-o feature@hole_birth=enabled \
