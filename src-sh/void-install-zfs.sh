@@ -256,7 +256,8 @@ exit_err $? "Count not mount the root ZFS dataset"
 datasets="home var var/logs var/tmp var/mail var/lib/docker"
 for ds in ${datasets}
 do
-echo "Creating Dataset: ${ds}"
+  echo "Creating Dataset: ${ds}"
+  mkdir -p "${MNT}/${ds}"
   zfs create -o compression=lz4 -o mountpoint=/${ds} ${ZPOOL}/${ds}
   exit_err $? "Could not create dataset: ${ZPOOL}/${ds}"
 done
