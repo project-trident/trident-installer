@@ -1,5 +1,9 @@
 #!/bin/bash
 
+SERVER_PACKAGES="iwd bluez nano git  jq fzf kexec-tools zsh fish-shell wireguard ntfs-3g fuse-exfat simple-mtpfs libdvdcss gutenprint"
+LITE_PACKAGES="${SERVER_PACKAGES} noto-fonts-ttf xorg-minimal lumina qterminal compton hicolor-icon-theme xrandr qt5-svg wpa-cute"
+FULL_PACKAGES="${LITE_PACKAGES} telegram-desktop vlc firefox trojita pianobar"
+
 if [ "${1}" = "-h" ] || [ "${1}" = "help" ] || [ "${1}" = "--help" ] ; then
 echo "Project Trident Installer
 --------------------------
@@ -130,6 +134,26 @@ adjustTextValue(){
   if [ -z "${ANS}" ] ; then
     ANS="${2}" #reset back to initial default value
   fi
+}
+
+getPackages(){
+opts="Full \"[TO-DO] Desktop install with lots of extra tools\" Lite \"[TO-DO] Desktop install with no extra tools\" Server \"CLI install for hobbyists\" Void \"ZFS install of Void Linux\" "
+  get_dlg_ans "--menu \"Select the package set to install. Packages are easily changed later.\\n\\n[WARNING] The Full and Lite desktop options are still a work in progress and not fully-implemented.\" 0 0 0 ${opts}"
+  case ${ANS} in
+    Full)
+	PACKAGES_CHROOT="${FULL_PACKAGES}"
+	;;
+    Lite)
+	PACKAGES_CHROOT="${LITE_PACKAGES}"
+	;;
+    Server)
+	PACKAGES_CHROOT="${SERVER_PACKAGES}"
+	;;
+    default)
+	PACKAGES_CHROOT=""
+	;;
+  esac
+  export PACKAGES_CHROOT
 }
 
 cleanupInstall(){
@@ -314,23 +338,18 @@ echo "Installing packages within chroot"
 mkdir ${MNT}/tmp/pkg-cache
 rm ${MNT}/var/cache/xbps/*
 # Required packages
-for pkg in zfs cryptsetup mkpasswd ${PACKAGES_CHROOT}
-do
-  echo
-  echo "Installing package: ${pkg}"
-  ${CHROOT} xbps-install -y -c /tmp/pkg-cache ${pkg}
-  exit_err $? "Could not install package: ${pkg}"
-  rm ${MNT}/tmp/pkg-cache/*
-done
-# Optional Packages
-for pkg in ${PACKAGES_OPTIONAL}
+for pkg in zfs cryptsetup ${PACKAGES_CHROOT}
 do
   echo
   echo "Installing package: ${pkg}"
   ${CHROOT} xbps-install -y -c /tmp/pkg-cache ${pkg}
   if [ $? -ne 0 ] ; then
-    echo "[WARNING] Optional package not installed: ${pkg}"
+    echo "[WARNING] Error installing package: ${pkg}"
+    echo " - Retrying in 2 seconds"
+    sleep 2
+    ${CHROOT} xbps-install -y -c /tmp/pkg-cache ${pkg}
   fi
+  exit_err $? "Could not install package: ${pkg}"
   rm ${MNT}/tmp/pkg-cache/*
 done
 
@@ -457,6 +476,11 @@ if [ -z "${KEYMAP}" ] || [ "${REPOTYPE}" = "musl" ] ; then
   #Localized keyboard maps not supported by musl packages
   KEYMAP="us"
 fi
+if [ -n "${PACKAGES}" ] ; then
+  PACKAGES_CHROOT="${PACKAGES}"
+else
+  getPackages
+fi
 if [ -z "${TIMEZONE}" ] ; then
   TIMEZONE="America/New_York"
 fi
@@ -466,10 +490,10 @@ fi
 #Full package list
 #PACKAGES_CHROOT="iwd bluez vlc trojita telegram-desktop falkon qterminal openvpn git pianobar ntfs-3g fuse-exfat simple-mtpfs fish-shell zsh libdvdcss gutenprint foomatic-db foomatic-db-nonfree nano xorg-minimal lumina wpa-cute zfz kexec-tools"
 #Minimal package list for testing
-PACKAGES=""
-PACKAGES_CHROOT="iwd bluez nano git noto-fonts-ttf jq"
-PACKAGES_OPTIONAL="xorg-minimal lumina qterminal compton hicolor-icon-theme xrandr qt5-svg wpa-cute"
-SERVICES_ENABLED="dbus sshd dhcpcd cupsd wpa_supplicant bluetoothd"
+#PACKAGES=""
+#PACKAGES_CHROOT="iwd bluez nano git noto-fonts-ttf jq"
+#PACKAGES_OPTIONAL="xorg-minimal lumina qterminal compton hicolor-icon-theme xrandr qt5-svg wpa-cute"
+SERVICES_ENABLED="dbus dhcpcd cupsd wpa_supplicant bluetoothd"
 
 # ==============================
 #  Generate Internal Variables from settings
