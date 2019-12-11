@@ -23,6 +23,7 @@ Prompt : Variable : Example Value      : Explanation
  Y     : KEYMAP    : us                 : Keyboard layout to use after install
  N     : TIMEZONE  : America/New_York   : Timezone to use after install
  Y     : ROOTPW    : myrootpw           : Password to set for the root account
+ Y     : PACKAGES : bluez lumina      : Space-delimited list of packages to install
 "
   exit 0
 fi
