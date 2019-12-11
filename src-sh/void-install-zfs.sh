@@ -230,6 +230,7 @@ zpool create -f -o ashift=12 -d \
 		-O canmount=off \
 		-O compression=lz4 \
 		-O devices=off \
+		-O encryption=off \
 		-O mountpoint=none \
 		-O normalization=formD \
 		-O relatime=on \
@@ -382,6 +383,7 @@ echo
 echo "Auto-enabling services"
 for service in ${SERVICES_ENABLED}
 do
+  if [ ! -e "/etc/sv/${service}" ] ; then continue ; fi
   echo " -> ${service}"
   ${CHROOT} ln -s /etc/sv/${service} /var/service/${service}
   exit_err $? "Could not enable service: ${service}"
@@ -395,6 +397,7 @@ fi
 #Setup the GRUB configuration
 mkdir -p ${MNT}/etc/defaults
 wallpaper=$(ls /root/Trident-wallpaper.*)
+wallpaper=$(basename ${wallpaper})
 wallfmt=$(echo ${wallpaper} | cut -d . -f 2)
 cp "/root/${wallpaper}" "${MNT}/etc/defaults/grub-splash.${wallfmt}"
 echo "
