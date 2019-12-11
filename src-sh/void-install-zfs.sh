@@ -1,7 +1,7 @@
 #!/bin/bash
 
-SERVER_PACKAGES="iwd bluez nano git  jq fzf kexec-tools zsh fish-shell wireguard ntfs-3g fuse-exfat simple-mtpfs libdvdcss gutenprint"
-LITE_PACKAGES="${SERVER_PACKAGES} noto-fonts-ttf xorg-minimal lumina qterminal compton hicolor-icon-theme xrandr qt5-svg wpa-cute"
+SERVER_PACKAGES="iwd bluez nano git  jq fzf kexec-tools zsh fish-shell wireguard"
+LITE_PACKAGES="${SERVER_PACKAGES} noto-fonts-ttf xorg-minimal lumina qterminal compton hicolor-icon-theme xrandr qt5-svg wpa-cute libdvdcss gutenprint ntfs-3g fuse-exfat simple-mtpfs"
 FULL_PACKAGES="${LITE_PACKAGES} telegram-desktop vlc firefox trojita pianobar"
 
 if [ "${1}" = "-h" ] || [ "${1}" = "help" ] || [ "${1}" = "--help" ] ; then
