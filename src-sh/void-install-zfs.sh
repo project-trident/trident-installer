@@ -393,6 +393,8 @@ if [ "zfs" != $(${CHROOT} grub-probe /) ] ; then
   echo "ERROR: Could not verify ZFS nature of /"
   exit 1
 fi  
+#Get the disk UUID for the boot disk
+diskuuid=$(blkid --output export ${SYSTEMDRIVE} | grep "UUID=" | cut -d = -f 2  )
 #Setup the GRUB configuration
 mkdir -p ${MNT}/etc/defaults
 wallpaper=$(ls /root/Trident-wallpaper.*)
@@ -405,9 +407,11 @@ GRUB_TIMEOUT=5
 GRUB_DISTRIBUTOR=\"Project-Trident\"
 GRUB_CMDLINE_LINUX_DEFAULT=\"loglevel=4 elevator=noop\"
 GRUB_BACKGROUND=/etc/defaults/grub-splash.${wallfmt}
-GRUB_CMDLINE_LINUX=\"root=ZFS=${ZPOOL}/ROOT/${INITBE}\"
+GRUB_CMDLINE_LINUX=\"root=LABEL=${ZPOOL}\"
 GRUB_DISABLE_OS_PROBER=true
 " > ${MNT}/etc/default/grub
+#GRUB_CMDLINE_LINUX=\"root=ZFS=${ZPOOL}/ROOT/${INITBE}\"
+#GRUB_CMDLINE_LINUX=\"root=UUID=${diskuuid}\"
 
 # to see if these help
 # grub needs updating after we make changes
