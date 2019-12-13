@@ -183,9 +183,11 @@ echo "Starting Installation...
 echo "-----------------"
 echo "Step 1 : Formatting the disk"
 echo "-----------------"
-echo "Erasing the first 200MB of the disk"
+echo "Erasing the first 500MB of the disk"
 dd if=/dev/zero of=${DISK} bs=100M count=5
-
+echo "Erasing the last 1MB of the disk"
+#Note that blockdev returns size in 512 byte blocks
+dd if=/dev/zero of=${DISK} bs=512 seek=$(( $(blockdev --getsz ${DISK}) - 2048 )) count=2048
 #xbps-install -y -S --repository=${REPO}
 #echo "repository=${REPO}" > /etc/xbps.d/repo.conf
 
@@ -219,6 +221,7 @@ zpool create -f -o ashift=12 -d \
 		-o feature@embedded_data=enabled \
 		-o feature@empty_bpobj=enabled \
 		-o feature@enabled_txg=enabled \
+		-o feature@encryption=enabled \
 		-o feature@extensible_dataset=enabled \
 		-o feature@filesystem_limits=enabled \
 		-o feature@hole_birth=enabled \
@@ -230,6 +233,7 @@ zpool create -f -o ashift=12 -d \
 		-O canmount=off \
 		-O compression=lz4 \
 		-O devices=off \
+		-O encryption=off \
 		-O mountpoint=none \
 		-O normalization=formD \
 		-O relatime=on \
