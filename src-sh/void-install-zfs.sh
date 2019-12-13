@@ -184,7 +184,7 @@ echo "-----------------"
 echo "Step 1 : Formatting the disk"
 echo "-----------------"
 echo "Erasing the first 200MB of the disk"
-dd if=/dev/zero of=${DISK} bs=100M count=2
+dd if=/dev/zero of=${DISK} bs=100M count=5
 
 #xbps-install -y -S --repository=${REPO}
 #echo "repository=${REPO}" > /etc/xbps.d/repo.conf
