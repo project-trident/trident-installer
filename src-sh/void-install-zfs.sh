@@ -410,11 +410,11 @@ GRUB_TIMEOUT=5
 GRUB_DISTRIBUTOR=\"Project-Trident\"
 GRUB_CMDLINE_LINUX_DEFAULT=\"loglevel=4 elevator=noop\"
 GRUB_BACKGROUND=/etc/defaults/grub-splash.${wallfmt}
-GRUB_CMDLINE_LINUX=\"root=ZFS=${ZPOOL}/ROOT/${INITBE}\"
+GRUB_CMDLINE_LINUX=\"root=UUID=${diskuuid}\"
 GRUB_DISABLE_OS_PROBER=false
 " > ${MNT}/etc/default/grub
 #GRUB_CMDLINE_LINUX=\"root=LABEL=${ZPOOL}\" #Does not know it is ZFS and throws a fit
-#GRUB_CMDLINE_LINUX=\"root=UUID=${diskuuid}\"
+#GRUB_CMDLINE_LINUX=\"root=ZFS=${ZPOOL}/ROOT/${INITBE}\"
 
 # to see if these help
 # grub needs updating after we make changes
