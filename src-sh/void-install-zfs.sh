@@ -411,7 +411,9 @@ GRUB_DISTRIBUTOR=\"Project-Trident\"
 GRUB_CMDLINE_LINUX_DEFAULT=\"loglevel=4 elevator=noop\"
 GRUB_BACKGROUND=/etc/defaults/grub-splash.${wallfmt}
 GRUB_CMDLINE_LINUX=\"root=UUID=${diskuuid}\"
-GRUB_DISABLE_OS_PROBER=false
+GRUB_DISABLE_OS_PROBER=true
+GRUB_DISABLE_LINUX_UUID=true
+GRUB_DISABLE_LINUX_PARTUUID=true
 " > ${MNT}/etc/default/grub
 #GRUB_CMDLINE_LINUX=\"root=LABEL=${ZPOOL}\" #Does not know it is ZFS and throws a fit
 #GRUB_CMDLINE_LINUX=\"root=ZFS=${ZPOOL}/ROOT/${INITBE}\"
