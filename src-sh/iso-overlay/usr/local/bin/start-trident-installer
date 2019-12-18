@@ -56,7 +56,7 @@ getPassword(){
 
 PingTest(){
   echo "Checking for network connection..."
-  wget --timeout 1 https://api.github.com/repos/project-trident/trident-installer/releases > /dev/null 2> /dev/null
+  wget -q --timeout=1 --tries=1 -O - https://api.github.com/repos/project-trident/trident-installer/releases >/dev/null
   return $?
 }
 
