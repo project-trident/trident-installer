@@ -130,7 +130,7 @@ ViewLog(){
 
 InstallSuccessful(){
   if [ ! -e "${LOGFILE}" ] ; then return 1 ; fi
-  tail -1 "${LOGFILE}" | grep -q "[SUCCESS] "
+  tail -2 "${LOGFILE}" | grep -qE "^(\[SUCCESS\])"
   return $?
 }
 
