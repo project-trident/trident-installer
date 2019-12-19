@@ -292,6 +292,9 @@ echo
 echo "-------------------------------"
 echo "Step 2: Installing base system"
 echo "-------------------------------"
+#Copy over the repository keys from the ISO (prevent prompting for acceptance if they match already)
+mkdir -p "${MNT}/var/db/xbps/keys"
+cp /var/db/xbps/keys/*.plist "${MNT}/var/db/xbps/keys/."
 #NOTE: Do NOT install the ZFS package yet - that needs to run inside chroot for post-install actions.
 xbps-install -y -S -r "${MNT}" --repository="${REPO}"
 xbps-install -y -r "${MNT}" --repository="${REPO}" base-system grub grub-i386-efi grub-x86_64-efi ${PACKAGES}
