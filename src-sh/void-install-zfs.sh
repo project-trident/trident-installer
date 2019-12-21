@@ -168,6 +168,25 @@ cleanupInstall(){
   zpool export ${ZPOOL}
 }
 
+installZfsBootMenu(){
+  # Install the zfsbootmenu custom package if it exists
+  pkgfile=$(ls /root/zfsbootmenu*)
+  if [ ! -f "${pkgfile}" ] ; then return ; fi
+  cp "${pkgfile}" "${MNT}${pkgfile}"
+  ${CHROOT} xdowngrade "${pkgfile}"
+
+  # Setup the config file within the chroot
+
+  # Install to the EFI dir
+  ${CHROOT} xbps-reconfigure -f zfsbootmenu
+  # Setup rEFInd config file
+
+  # Install to the EFI dir
+
+  # Copy the refind entry to the default location for EFI
+
+}
+
 doInstall(){
 # Install function. Nothing interactive should ever be in here
 # typically piped through tee to log the output
