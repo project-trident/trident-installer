@@ -434,7 +434,7 @@ echo "
 GRUB_DEFAULT=0
 GRUB_TIMEOUT=5
 GRUB_DISTRIBUTOR=\"Project-Trident\"
-GRUB_CMDLINE_LINUX_DEFAULT=\"loglevel=4 elevator=noop\"
+GRUB_CMDLINE_LINUX_DEFAULT=\"loglevel=3 elevator=noop\"
 GRUB_BACKGROUND=/etc/defaults/grub-splash.${wallfmt}
 GRUB_CMDLINE_LINUX=\"root=ZFS=${ZPOOL}/ROOT/${INITBE}\"
 GRUB_DISABLE_OS_PROBER=true
