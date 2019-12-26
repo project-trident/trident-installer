@@ -60,8 +60,7 @@ PingTest(){
   ip route get 1 >/dev/null 2>/dev/null
   if [ $? -ne 0 ] ; then return 1 ; fi
   #Now make sure that github can be reached
-  curl --silent  --max-time 2 https://api.github.com/repos/project-trident/trident-installer/releases >/dev/null
-  #wget -q --timeout=1 --tries=1 -O - https://api.github.com/repos/project-trident/trident-installer/releases >/dev/null
+  curl --silent --max-time 2 https://api.github.com/repos/project-trident/trident-installer/releases >/dev/null
   return $?
 }
 

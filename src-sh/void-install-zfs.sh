@@ -1,8 +1,8 @@
 #!/bin/bash
 
-SERVER_PACKAGES="iwd nano git jq fzf kexec-tools zsh fish-shell wireguard"
-LITE_PACKAGES="${SERVER_PACKAGES} bluez noto-fonts-ttf xorg-minimal lumina qterminal compton hicolor-icon-theme xrandr qt5-svg wpa-cute libdvdcss gutenprint ntfs-3g fuse-exfat simple-mtpfs"
-FULL_PACKAGES="${LITE_PACKAGES} telegram-desktop vlc firefox trojita pianobar"
+SERVER_PACKAGES="iwd nano git jq fzf kexec-tools zsh fish-shell wireguard pam_zfscrypt"
+LITE_PACKAGES="${SERVER_PACKAGES} bluez noto-fonts-ttf xorg-minimal lumina qterminal compton hicolor-icon-theme trident-icons xrandr qt5-svg wpa-cute libdvdcss gutenprint ntfs-3g fuse-exfat simple-mtpfs"
+FULL_PACKAGES="${LITE_PACKAGES} telegram-desktop vlc firefox trojita pianobar libreoffice falkon"
 
 if [ "${1}" = "-h" ] || [ "${1}" = "help" ] || [ "${1}" = "--help" ] ; then
 echo "Project Trident Installer
@@ -138,8 +138,8 @@ adjustTextValue(){
 }
 
 getPackages(){
-opts="Full \"[TO-DO] Desktop install with lots of extra tools\" Lite \"[TO-DO] Desktop install with no extra tools\" Server \"CLI install for hobbyists\" Void \"ZFS install of Void Linux\" "
-  get_dlg_ans "--menu \"Select the package set to install. Packages are easily changed later.\\n\\n[WARNING] The Full and Lite desktop options are still a work in progress and not fully-implemented.\" 0 0 0 ${opts}"
+opts="Full \"[Experimental] Desktop install with many extra utilities\" Lite \"[Experimental] Desktop install only\" Server \"Base system setup only\" Void \"Bare-bones install on ZFS\" "
+  get_dlg_ans "--menu \"Select the package set to install. Packages are easily changed later.\\n\\n[WARNING] The Full and Lite desktop options are still a work in progress and not fully-implemented yet.\" 0 0 0 ${opts}"
   case ${ANS} in
     Full)
 	PACKAGES_CHROOT="${FULL_PACKAGES}"
