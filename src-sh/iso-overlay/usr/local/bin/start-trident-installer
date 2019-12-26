@@ -57,8 +57,8 @@ getPassword(){
 PingTest(){
   echo "Checking for network connection..."
   #Check that the internal networking is working first
-  ip route get 1 >/dev/null 2>/dev/null
-  if [ $? -ne 0 ] ; then return 1 ; fi
+  #ip route get 1 >/dev/null 2>/dev/null
+  #if [ $? -ne 0 ] ; then return 1 ; fi
   #Now make sure that github can be reached
   curl --silent --max-time 2 https://api.github.com/repos/project-trident/trident-installer/releases >/dev/null
   return $?
