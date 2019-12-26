@@ -180,8 +180,8 @@ installZfsBootMenu(){
   sed -i 's|/void|/project-trident|g' "/etc/zfsbootmenu/config.ini"
   sed -i 's|ManageImages=0|ManageImages=1|' "/etc/zfsbootmenu/config.ini"
   # Now install zfsbootmenu boot entries
+  mkdir -p "${MNT}/boot/efi/EFI/project-trident"
   ${CHROOT} xbps-reconfigure -f zfsbootmenu
-  echo " - Generated zfsbootmenu images: $(ls /boot/efi/EFI/project-trident)"
   # Setup rEFInd
   ${CHROOT} refind-install --root / --nodrivers
   # Copy the refind entry to the default location for EFI
