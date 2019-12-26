@@ -169,24 +169,25 @@ cleanupInstall(){
 }
 
 installZfsBootMenu(){
+  echo "Installing zfsbootmenu"
   # Install the zfsbootmenu custom package if it exists
   pkgfile=$(ls /root/zfsbootmenu*)
   if [ ! -f "${pkgfile}" ] ; then return ; fi
   ${CHROOT} xbps-install -y fzf kexec-tools perl-Config-IniFiles xtools refind
   cp "${pkgfile}" "${MNT}${pkgfile}"
   ${CHROOT} xdowngrade ${pkgfile}
-  rm "${MNT}${pkgfile}"
   # Setup the config file within the chroot
   sed -i 's|/void|/project-trident|g' "/etc/zfsbootmenu/config.ini"
   sed -i 's|ManageImages=0|ManageImages=1|' "/etc/zfsbootmenu/config.ini"
   # Now install zfsbootmenu boot entries
   ${CHROOT} xbps-reconfigure -f zfsbootmenu
+  echo " - Generated zfsbootmenu images: $(ls /boot/efi/EFI/project-trident)"
   # Setup rEFInd
   ${CHROOT} refind-install --root / --nodrivers
   # Copy the refind entry to the default location for EFI
   cp ${MNT}/boot/efi/EFI/refind/refind_*.efi "${MNT}/boot/efi/EFI/boot/bootx64.efi"
-  # Remove the zfsbootmenu "grub" EFI entry (grub does not boot ZFS when any datasets are encrypted)
-  rm ${MNT}/boot/efi/EFI/project-trident/grub*.efi
+  # Cleanup the static package file
+  #rm "${MNT}${pkgfile}"
 }
 
 doInstall(){
