@@ -464,7 +464,7 @@ ${CHROOT} grub-install ${BOOTDEVICE}
 
 #Stamp EFI loader on the EFI partition
 mkdir -p "${MNT}/boot/efi/EFI/boot/"
-if [ "${BOOTMODE}" = "EFI" ] && [ -e "/root/zfsbootmenu-0.7.4.1_1.noarch.xbps" ] ; then
+if [ "${BOOTMODE}" = "EFI" ] && [ -e "/root/zfsbootmenu-0.7.5_1.noarch.xbps" ] ; then
   installZfsBootMenu
 else
   #Create a project-trident directory only
