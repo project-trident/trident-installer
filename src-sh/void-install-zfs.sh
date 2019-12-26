@@ -187,7 +187,7 @@ installZfsBootMenu(){
   # Copy the refind entry to the default location for EFI
   cp ${MNT}/boot/efi/EFI/refind/refind_*.efi "${MNT}/boot/efi/EFI/boot/bootx64.efi"
   # Cleanup the static package file
-  #rm "${MNT}${pkgfile}"
+  rm "${MNT}${pkgfile}"
 }
 
 doInstall(){
