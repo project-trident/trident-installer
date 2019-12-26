@@ -185,6 +185,8 @@ installZfsBootMenu(){
   ${CHROOT} refind-install --root / --nodrivers
   # Copy the refind entry to the default location for EFI
   cp ${MNT}/boot/efi/EFI/refind/refind_*.efi "${MNT}/boot/efi/EFI/boot/bootx64.efi"
+  # Remove the zfsbootmenu "grub" EFI entry (grub does not boot ZFS when any datasets are encrypted)
+  rm ${MNT}/boot/efi/EFI/project-trident/grub*.efi
 }
 
 doInstall(){
