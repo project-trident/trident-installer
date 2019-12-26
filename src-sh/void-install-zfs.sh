@@ -1,6 +1,6 @@
 #!/bin/bash
 
-SERVER_PACKAGES="iwd nano git jq fzf kexec-tools zsh fish-shell wireguard pam_zfscrypt bluez"
+SERVER_PACKAGES="iwd nano git jq zsh fish-shell wireguard pam_zfscrypt bluez"
 LITE_PACKAGES="${SERVER_PACKAGES} noto-fonts-ttf xorg-minimal lumina qterminal compton hicolor-icon-theme trident-icons xrandr qt5-svg wpa-cute libdvdcss gutenprint ntfs-3g fuse-exfat simple-mtpfs"
 FULL_PACKAGES="${LITE_PACKAGES} telegram-desktop vlc firefox trojita pianobar libreoffice falkon"
 
@@ -172,19 +172,19 @@ installZfsBootMenu(){
   # Install the zfsbootmenu custom package if it exists
   pkgfile=$(ls /root/zfsbootmenu*)
   if [ ! -f "${pkgfile}" ] ; then return ; fi
+  ${CHROOT} xbps-install -y fzf kexec-tools perl-Config-IniFiles xtools refind
   cp "${pkgfile}" "${MNT}${pkgfile}"
-  ${CHROOT} xdowngrade "${pkgfile}"
-
+  ${CHROOT} xdowngrade ${pkgfile}
+  rm "${MNT}${pkgfile}"
   # Setup the config file within the chroot
-
-  # Install to the EFI dir
+  sed -i 's|/void|/project-trident|g' "/etc/zfsbootmenu/config.ini"
+  sed -i 's|ManageImages=0|ManageImages=1|' "/etc/zfsbootmenu/config.ini"
+  # Now install zfsbootmenu boot entries
   ${CHROOT} xbps-reconfigure -f zfsbootmenu
-  # Setup rEFInd config file
-
-  # Install to the EFI dir
-
+  # Setup rEFInd
+  ${CHROOT} refind-install --root / --nodrivers
   # Copy the refind entry to the default location for EFI
-
+  cp ${MNT}/boot/efi/EFI/refind/refind_*.efi "${MNT}/boot/efi/EFI/boot/bootx64.efi"
 }
 
 doInstall(){
@@ -445,6 +445,7 @@ GRUB_DISABLE_LINUX_PARTUUID=true
 #GRUB_CMDLINE_LINUX=\"root=UUID=${diskuuid}\"
 #GRUB_CMDLINE_LINUX=\"root=ZFS=${ZPOOL}/ROOT/${INITBE}\"
 
+
 # to see if these help
 # grub needs updating after we make changes
 #echo "updating grub"
@@ -454,15 +455,20 @@ ${CHROOT} xbps-reconfigure -f linux${linuxver}
 #${CHROOT} lsinitrd -m
 
 echo "Installing GRUB bootloader"
-#Stamp GPT loader on disk itself
+#Stamp GPT loader on disk itself for non-EFI boot-ability
 ${CHROOT} grub-mkconfig -o /boot/grub/grub.cfg
 ${CHROOT} grub-install ${BOOTDEVICE}
+
 #Stamp EFI loader on the EFI partition
-#Create a project-trident directory only
-${CHROOT} grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=Project-Trident --recheck --no-floppy
 mkdir -p "${MNT}/boot/efi/EFI/boot/"
-#Copy the EFI registration to the default boot path as well
-cp "${MNT}/boot/efi/EFI/project-trident/grubx64.efi" "${MNT}/boot/efi/EFI/boot/bootx64.efi"
+if [ "${BOOTMODE}" = "EFI" ] && [ -e "/root/zfsbootmenu-0.7.4.1_1.noarch.xbps" ] ; then
+  installZfsBootMenu
+else
+  #Create a project-trident directory only
+  ${CHROOT} grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=Project-Trident --recheck --no-floppy
+  #Copy the EFI registration to the default boot path as well
+  cp "${MNT}/boot/efi/EFI/project-trident/grubx64.efi" "${MNT}/boot/efi/EFI/boot/bootx64.efi"
+fi
 
 echo
 echo "[SUCCESS] Reboot the system and remove the install media to boot into the new system"
