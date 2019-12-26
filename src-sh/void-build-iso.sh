@@ -35,7 +35,7 @@ readonly IMGNAME="Trident-BETA-netinstall-x86_64.iso"
 
 readonly GRUB_PKGS="grub-i386-efi grub-x86_64-efi"
 readonly BASE_PKGS="dialog mdadm ${GRUB_PKGS}"
-readonly TRIDENT_PKGS="${BASE_PKGS} zfs wget mtools gptfdisk"
+readonly TRIDENT_PKGS="${BASE_PKGS} zfs wget curl mtools gptfdisk"
 readonly BLTITLE="Project-Trident"
 # Make sure the output ISO file does not already exist (repeated builds)
 if [ -e "${outdir}/${IMGNAME}" ] ; then
