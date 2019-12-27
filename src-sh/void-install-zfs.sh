@@ -284,7 +284,7 @@ exit_err $? "Could not import the new pool at ${MNT}"
 zfs mount ${ZPOOL}/ROOT/${INITBE}
 exit_err $? "Count not mount the root ZFS dataset"
 
-datasets="home var var/logs var/tmp var/mail"
+datasets="home var var/log var/tmp var/mail"
 for ds in ${datasets}
 do
   echo "Creating Dataset: ${ds}"
