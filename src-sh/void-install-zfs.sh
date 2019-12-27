@@ -1,6 +1,6 @@
 #!/bin/bash
 
-SERVER_PACKAGES="iwd nano git jq zsh fish-shell wireguard pam_zfscrypt bluez nftables"
+SERVER_PACKAGES="iwd nano git jq zsh fish-shell wireguard pam_zfscrypt bluez nftables dcron"
 LITE_PACKAGES="${SERVER_PACKAGES} noto-fonts-ttf xorg-minimal lumina qterminal compton hicolor-icon-theme trident-icons xrandr qt5-svg wpa-cute libdvdcss gutenprint ntfs-3g fuse-exfat simple-mtpfs"
 FULL_PACKAGES="${LITE_PACKAGES} telegram-desktop vlc firefox trojita pianobar libreoffice falkon"
 
