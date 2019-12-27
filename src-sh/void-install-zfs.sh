@@ -183,9 +183,14 @@ installZfsBootMenu(){
   mkdir -p "${MNT}/boot/efi/EFI/project-trident"
   ${CHROOT} xbps-reconfigure -f zfsbootmenu
   # Setup rEFInd
+  echo '"Standard quiet boot"  "ro loglevel=0 elevator=noop root="
+"Standard boot" "ro loglevel=4 elevator=noop root="
+"Single user boot" "ro loglevel=4 elevator=noop single root="
+"Single user verbose boot" "ro loglevel=6 elevator=noop single root="
+' > "${MNT}/boot/refind_linux.conf"
   ${CHROOT} refind-install --root / --nodrivers
   # Copy the refind entry to the default location for EFI
-  cp ${MNT}/boot/efi/EFI/refind/refind_*.efi "${MNT}/boot/efi/EFI/boot/bootx64.efi"
+  ${CHROOT} mvrefind /boot/efi/EFI/refind /boot/efi/EFI/boot
   # Cleanup the static package file
   rm "${MNT}${pkgfile}"
 }
