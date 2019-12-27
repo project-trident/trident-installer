@@ -190,7 +190,7 @@ installZfsBootMenu(){
 ' > "${MNT}/boot/refind_linux.conf"
   ${CHROOT} refind-install --root / --nodrivers
   # Copy the refind entry to the default location for EFI
-  ${CHROOT} mvrefind /boot/efi/EFI/refind /boot/efi/EFI/boot
+  cp ${MNT}/boot/efi/EFI/refind/refind_*.efi ${MNT}/boot/efi/EFI/boot/bootx64.efi
   # Cleanup the static package file
   rm "${MNT}${pkgfile}"
 }
@@ -275,7 +275,7 @@ exit_err $? "Could not create ROOT dataset"
 zpool set bootfs=${ZPOOL}/ROOT/${INITBE} ${ZPOOL}
 exit_err $? "Could not set ROOT/${INITBE} dataset as bootfs"
 
-echo "Verify pool can be exported/imported"
+echo "Verify pool can be exported/imported"u
 zpool export ${ZPOOL}
 exit_err $? "Could not export pool"
 zpool import -R ${MNT} ${ZPOOL}
