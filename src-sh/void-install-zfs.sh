@@ -239,7 +239,8 @@ xbps-reconfigure -a
 modprobe zfs
 exit_err $? "Could not verify ZFS module"
 
-ip link sh | grep ether | cut -d ' ' -f 6 | tr -d ":" >> /etc/hostid
+zgenhostid
+#ip link sh | grep ether | cut -d ' ' -f 6 | tr -d ":" >> /etc/hostid
 
 echo "Creating ZFS Pool: ${ZPOOL}"
 zpool create -f -o ashift=12 -d \
