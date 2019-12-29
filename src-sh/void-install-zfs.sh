@@ -302,6 +302,7 @@ done
 
 mount $EFIDRIVE ${MNT}/boot/efi
 exit_err $? "Could not mount EFI boot partition: ${EFIDRIVE} -> ${MNT}/boot/efi (${BOOTMODE})"
+#Insert an fstab entry to boot this efi partition
 
 
 dirs="dev proc sys run"
@@ -413,7 +414,7 @@ echo
 echo "Auto-enabling services"
 for service in ${SERVICES_ENABLED}
 do
-  if [ ! -e "/etc/sv/${service}" ] ; then continue ; fi
+  if [ ! -e "${MNT}/etc/sv/${service}" ] ; then continue ; fi
   echo " -> ${service}"
   ${CHROOT} ln -s /etc/sv/${service} /var/service/${service}
   exit_err $? "Could not enable service: ${service}"
@@ -476,6 +477,8 @@ else
   cp "${MNT}/boot/efi/EFI/project-trident/grubx64.efi" "${MNT}/boot/efi/EFI/boot/bootx64.efi"
 fi
 
+echo "[DEBUG] ISO hostid: $(cat /etc/hostid)"
+echo "[DEBUG] System hostid: $(cat ${MNT}/etc/hostid)"
 echo
 echo "[SUCCESS] Reboot the system and remove the install media to boot into the new system"
 
@@ -539,14 +542,6 @@ if [ -z "${TIMEZONE}" ] ; then
   TIMEZONE="America/New_York"
 fi
 
-
-
-#Full package list
-#PACKAGES_CHROOT="iwd bluez vlc trojita telegram-desktop falkon qterminal openvpn git pianobar ntfs-3g fuse-exfat simple-mtpfs fish-shell zsh libdvdcss gutenprint foomatic-db foomatic-db-nonfree nano xorg-minimal lumina wpa-cute zfz kexec-tools"
-#Minimal package list for testing
-#PACKAGES=""
-#PACKAGES_CHROOT="iwd bluez nano git noto-fonts-ttf jq"
-#PACKAGES_OPTIONAL="xorg-minimal lumina qterminal compton hicolor-icon-theme xrandr qt5-svg wpa-cute"
 SERVICES_ENABLED="dbus dhcpcd cupsd wpa_supplicant bluetoothd"
 
 # ==============================
