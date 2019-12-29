@@ -285,17 +285,13 @@ exit_err $? "Could not import the new pool at ${MNT}"
 zfs mount ${ZPOOL}/ROOT/${INITBE}
 exit_err $? "Count not mount the root ZFS dataset"
 
-datasets="home var var/log var/tmp var/mail"
+datasets="home:home vlog:var/log vtmp:var/tmp docker:var/lib/docker"
 for ds in ${datasets}
 do
   echo "Creating Dataset: ${ds}"
-  zfs create -o compression=lz4 -o mountpoint=/${ds} ${ZPOOL}/${ds}
-  exit_err $? "Could not create dataset: ${ZPOOL}/${ds}"
+  zfs create -o compression=lz4 -o mountpoint=/$(echo ${ds} | cut -d : -f 2) ${ZPOOL}/$(echo ${ds} | cut -d : -f 1)
+  exit_err $? "Could not create dataset: ${ds}"
 done
-#Add a custom dataset for docker (that service can do bad things to the /var dataset)
-echo "Creating Dataset: var/docker"
-zfs create -o compression=lz4 -o mountpoint=/var/lib/docker ${ZPOOL}/var/docker
-exit_err $? "Could not create dataset: ${ZPOOL}/var/docker"
 
 dirs="boot/grub boot/efi dev etc proc run sys"
 for dir in ${dirs}
