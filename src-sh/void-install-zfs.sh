@@ -137,6 +137,17 @@ adjustTextValue(){
   fi
 }
 
+generateHostid(){
+# chars must be 0-9, a-f, A-F and exactly 8 chars
+local host_id=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 8 | head -n 1)
+#Found this snippet below from a random script online - but seems to work fine (Ken Moore: 12/29/19)
+a=${host_id:6:2}
+b=${host_id:4:2}
+c=${host_id:2:2}
+d=${host_id:0:2}
+echo -ne \\x$a\\x$b\\x$c\\x$d > /etc/hostid
+}
+
 getPackages(){
 opts="Full \"[Experimental] Desktop install with many extra utilities\" Lite \"[Experimental] Desktop install only\" Server \"Base system setup only\" Void \"Bare-bones install on ZFS\" "
   get_dlg_ans "--menu \"Select the package set to install. Packages are easily changed later.\\n\\n[WARNING] The Full and Lite desktop options are still a work in progress and not fully-implemented yet.\" 0 0 0 ${opts}"
@@ -173,7 +184,12 @@ installZfsBootMenu(){
   # Install the zfsbootmenu custom package if it exists
   pkgfile=$(ls /root/zfsbootmenu*)
   if [ ! -f "${pkgfile}" ] ; then return ; fi
-  ${CHROOT} xbps-install -y fzf kexec-tools perl-Config-IniFiles xtools refind
+  if [ -f "/root/xdowngrade-quiet" ] ; then
+    cp /root/xdowngrade-quiet ${MNT}/usr/bin/xdowngrade
+  else
+    ${CHROOT} xbps-install -y xtools
+  fi
+  ${CHROOT} xbps-install -y fzf kexec-tools perl-Config-IniFiles refind
   cp "${pkgfile}" "${MNT}${pkgfile}"
   ${CHROOT} xdowngrade ${pkgfile}
   # Setup the config file within the chroot
@@ -239,8 +255,7 @@ xbps-reconfigure -a
 modprobe zfs
 exit_err $? "Could not verify ZFS module"
 
-zgenhostid
-#ip link sh | grep ether | cut -d ' ' -f 6 | tr -d ":" >> /etc/hostid
+generateHostid
 
 echo "Creating ZFS Pool: ${ZPOOL}"
 zpool create -f -o ashift=12 -d \
