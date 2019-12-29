@@ -147,6 +147,7 @@ b=${host_id:4:2}
 c=${host_id:2:2}
 d=${host_id:0:2}
 echo -ne \\x$a\\x$b\\x$c\\x$d > /etc/hostid
+echo "New ISO hostid: $(hostid)"
 }
 
 getPackages(){
@@ -170,6 +171,10 @@ opts="Full \"[Experimental] Desktop install with many extra utilities\" Lite \"[
 }
 
 cleanupInstall(){
+  if [ -f "/root/xdowngrade-quiet" ] ; then
+    #Remove temporary xdowngrade script
+    rm ${MNT}/usr/bin/xdowngrade
+  fi
   #Now unmount everything and clean up
   umount -nfR ${MNT}/boot/efi
   umount -nfR ${MNT}/dev
@@ -206,8 +211,10 @@ installZfsBootMenu(){
 "Single user verbose boot" "ro loglevel=6 elevator=noop single root="
 ' > "${MNT}/boot/refind_linux.conf"
   ${CHROOT} refind-install --root / --nodrivers
+  #First time seems to create some config files - do it again afterwards
+  ${CHROOT} refind-install --root / --nodrivers
   # Copy the refind entry to the default location for EFI
-  cp ${MNT}/boot/efi/EFI/refind/refind_*.efi ${MNT}/boot/efi/EFI/boot/bootx64.efi
+  #cp ${MNT}/boot/efi/EFI/refind/refind_*.efi ${MNT}/boot/efi/EFI/boot/bootx64.efi
   # Cleanup the static package file
   rm "${MNT}${pkgfile}"
 }
