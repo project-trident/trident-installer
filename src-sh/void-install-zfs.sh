@@ -171,6 +171,19 @@ opts="Full \"[Experimental] Desktop install with many extra utilities\" Lite \"[
   export PACKAGES_CHROOT
 }
 
+getUser(){
+  #  user_crypt : true/false
+  #  user : <username>
+  #  userpass : <password>
+  #  usershell : /bin/bash or other
+  #  usercomment : Comment
+  user_crypt="false"
+  if [ "${BOOTMODE}" = "EFI" ] ; then
+    user_crypt="true"
+  fi
+
+}
+
 cleanupInstall(){
   #Now unmount everything and clean up
   umount -nfR ${MNT}/boot/efi
@@ -217,6 +230,57 @@ installZfsBootMenu(){
   #cp ${MNT}/boot/efi/EFI/refind/refind_*.efi ${MNT}/boot/efi/EFI/boot/bootx64.efi
   # Cleanup the static package file
   rm "${MNT}${pkgfile}"
+}
+
+createUser(){
+  # Required Inputs:
+  #  user_crypt : true/false
+  #  user : <username>
+  #  userpass : <password>
+  #  usershell : /bin/bash or other
+  #  usercomment : Comment
+
+  #Create the dataset    
+  if [ "${user_crypt}" == "true" ] && [ -e "${MNT}/usr/bin/generate-zbm" ] ; then
+    # NOTE: encrypted homedirs cannot be used when booting with GRUB
+    #  GRUB refuses to recognize ZFS boot pools if *any* datasets are encrypted.
+    #Ensure minimum passphrase length is met (8 characters)
+    if [ ${#userpass} -lt 8 ] ; then
+      echo "[ERROR] Passphrase for ${user} must be 8+ characters when encryption is enabled"
+      return 1
+    fi
+    tmpfile=$(mktemp /tmp/.XXXXXX)
+    echo "${userpass}" > "${tmpfile}"
+    zfs create -o "mountpoint=/home/${user}" -o "io.github.benkerry:zfscrypt_user=${user}" -o "setuid=off" -o "compression=on" -o "atime=off" -o "encryption=on" -o "keyformat=passphrase" -o "keylocation=file://${tmpfile}" -o "canmount=noauto" "${ZPOOL}/home/${user}"
+    if [ $? -eq 0 ] ; then
+      zfs mount "${ZPOOL}/home/${user}"
+      zfs set "keylocation=prompt" "${ZPOOL}/home/${user}"
+    fi
+    rm "${tmpfile}"
+  else
+    zfs create -o "mountpoint=/home/${user}" -o "setuid=off" -o "compression=on" -o "atime=off" -o "canmount=on" "${ZPOOL}/home/${user}"
+  fi
+  if [ $? -ne 0 ] ; then
+    return 1
+  fi
+  # Create the user
+  ${CHROOT} useradd -M -s "${usershell}" -d "/home/${user}" -c "${usercomment}" -G "wheel,users,audio,video,input,cdrom,bluetooth" "${user}"
+  if [ $? -ne 0 ] ; then
+    return 1
+  fi
+  ${CHROOT} echo "${user}:${userpass}" |  ${CHROOT} chpasswd -c SHA512
+  # Setup ownership of the dataset
+  ${CHROOT} chown "${user}:${user}" "/home/${user}"
+  # Allow the user to create/destroy child datasets and snapshots on their home dir
+  if [ "${user_crypt}" == "true" ] ; then
+    ${CHROOT} zfs allow "${user}" load-key,mount,create,destroy,rollback,snapshot "${ZPOOL}/home/${user}"
+    zfs unmount "${ZPOOL}/home/${user}"
+  else
+    ${CHROOT} zfs allow "${user}" mount,create,destroy,rollback,snapshot "${ZPOOL}/home/${user}"
+  fi
+  if [ $? -ne 0 ] ; then
+    return 1
+  fi
 }
 
 doInstall(){
@@ -324,8 +388,6 @@ done
 
 mount $EFIDRIVE ${MNT}/boot/efi
 exit_err $? "Could not mount EFI boot partition: ${EFIDRIVE} -> ${MNT}/boot/efi (${BOOTMODE})"
-#Insert an fstab entry to boot this efi partition
-
 
 dirs="dev proc sys run"
 for dir in ${dirs}
