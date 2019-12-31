@@ -2,7 +2,7 @@
 
 SERVER_PACKAGES="iwd nano git jq zsh fish-shell wireguard pam_zfscrypt bluez nftables dcron autofs"
 LITE_PACKAGES="${SERVER_PACKAGES} noto-fonts-ttf xorg-minimal xf86-video-fbdev lumina qterminal compton hicolor-icon-theme trident-icons xrandr qt5-svg wpa-cute libdvdcss gutenprint ntfs-3g fuse-exfat simple-mtpfs pavucontrol"
-FULL_PACKAGES="${LITE_PACKAGES} telegram-desktop vlc firefox trojita pianobar libreoffice falkon"
+FULL_PACKAGES="${LITE_PACKAGES} telegram-desktop vlc firefox trojita pianobar libreoffice falkon spotify"
 
 if [ "${1}" = "-h" ] || [ "${1}" = "help" ] || [ "${1}" = "--help" ] ; then
 echo "Project Trident Installer
@@ -105,10 +105,12 @@ getRepotype(){
 }
 
 getSwap(){
-  opts=" none \"No swap space\" 1G \"\" 2G \"\" 4G \"Typical size\" 8G \"\""
+  opts=" default \"4G - Average laptop\" none \"No swap space\" 1G \"\" 2G \"\" 4G \"\" 8G \"\" 16G \"\" 32G \"\""
   get_dlg_ans "--menu \"Select the encrypted SWAP size.\" 0 0 0 ${opts}"
   if [ "$ANS" = "none" ] ; then
     ANS=""
+  elif [ "${ANS}" = "default" ] ; then
+    ANS="4G"
   fi
   export SWAPSIZE="${ANS}"
 }
@@ -239,8 +241,6 @@ dd if=/dev/zero of=${DISK} bs=100M count=5
 echo "Erasing the last 1MB of the disk"
 #Note that blockdev returns size in 512 byte blocks
 dd if=/dev/zero of=${DISK} bs=512 seek=$(( $(blockdev --getsz ${DISK}) - 2048 )) count=2048
-#xbps-install -y -S --repository=${REPO}
-#echo "repository=${REPO}" > /etc/xbps.d/repo.conf
 
 echo "Formatting the disk: ${BOOTMODE} ${DISK}"
 sfdisk -w always ${DISK} << EOF
@@ -263,7 +263,7 @@ xbps-reconfigure -a
 modprobe zfs
 exit_err $? "Could not verify ZFS module"
 
-generateHostid
+#generateHostid
 
 echo "Creating ZFS Pool: ${ZPOOL}"
 zpool create -f -o ashift=12 -d \
