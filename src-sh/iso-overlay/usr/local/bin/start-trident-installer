@@ -193,7 +193,7 @@ do
       opts="Begin \"Setup Install Options\""
     else
       info="Networking setup needed"
-      opts="Configure \"Setup Networking\" Rescan \"Check network status\""
+      opts="Rescan \"Check network status\" Configure \"Setup Wifi\""
     fi
     info="${info}\nNetwork Status: ${status}"
   fi

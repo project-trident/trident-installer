@@ -141,7 +141,7 @@ adjustTextValue(){
 
 generateHostid(){
 # chars must be 0-9, a-f, A-F and exactly 8 chars
-local host_id=$(cat /dev/urandom | tr -dc 'a-fA-F0-9' | fold -w 8 | head -n 1)
+local host_id=$(cat /dev/urandom | tr -dc 'a-f0-9' | fold -w 8 | head -n 1)
 echo "Auto-generated HostID: ${host_id}"
 #Found this snippet below from a random script online - but seems to work fine (Ken Moore: 12/29/19)
 a=${host_id:6:2}
