@@ -140,6 +140,10 @@ adjustTextValue(){
 }
 
 generateHostid(){
+rm /etc/hostid
+zgenhostid
+return
+
 # chars must be 0-9, a-f, A-F and exactly 8 chars
 local host_id=$(cat /dev/urandom | tr -dc 'a-fA-F0-9' | fold -w 8 | head -n 1)
 echo "Auto-generated HostID: ${host_id}"
@@ -149,7 +153,6 @@ b=${host_id:4:2}
 c=${host_id:2:2}
 d=${host_id:0:2}
 echo -ne \\x$a\\x$b\\x$c\\x$d > /etc/hostid
-echo "New ISO hostid: $(hostid)"
 }
 
 getPackages(){
@@ -258,12 +261,13 @@ SYSTEMDRIVE="${DISK}3"
 mkfs -t msdos ${EFIDRIVE}
 
 # Setup the void tweaks for ZFS 
-# Steps found at: https://github.com/nightah/void-install
+# Many Steps found at: https://github.com/nightah/void-install
 xbps-reconfigure -a
 modprobe zfs
 exit_err $? "Could not verify ZFS module"
 
-#generateHostid
+generateHostid
+echo "New ISO hostid: $(hostid)"
 
 echo "Creating ZFS Pool: ${ZPOOL}"
 zpool create -f -o ashift=12 -d \
@@ -565,7 +569,7 @@ if [ -z "${TIMEZONE}" ] ; then
   TIMEZONE="America/New_York"
 fi
 
-SERVICES_ENABLED="dbus dhcpcd cupsd wpa_supplicant bluetoothd"
+SERVICES_ENABLED="dbus dhcpcd cupsd wpa_supplicant bluetoothd acpid"
 
 # ==============================
 #  Generate Internal Variables from settings
