@@ -140,10 +140,6 @@ adjustTextValue(){
 }
 
 generateHostid(){
-rm /etc/hostid
-zgenhostid
-return
-
 # chars must be 0-9, a-f, A-F and exactly 8 chars
 local host_id=$(cat /dev/urandom | tr -dc 'a-fA-F0-9' | fold -w 8 | head -n 1)
 echo "Auto-generated HostID: ${host_id}"
@@ -176,10 +172,6 @@ opts="Full \"[Experimental] Desktop install with many extra utilities\" Lite \"[
 }
 
 cleanupInstall(){
-  if [ -f "/root/xdowngrade-quiet" ] ; then
-    #Remove temporary xdowngrade script
-    rm ${MNT}/usr/bin/xdowngrade
-  fi
   #Now unmount everything and clean up
   umount -nfR ${MNT}/boot/efi
   umount -nfR ${MNT}/dev
@@ -203,6 +195,10 @@ installZfsBootMenu(){
   ${CHROOT} xbps-install -y fzf kexec-tools perl-Config-IniFiles refind
   cp "${pkgfile}" "${MNT}${pkgfile}"
   ${CHROOT} xdowngrade ${pkgfile}
+  if [ -f "/root/xdowngrade-quiet" ] ; then
+    #Remove temporary xdowngrade script
+    rm ${MNT}/usr/bin/xdowngrade
+  fi
   # Setup the config file within the chroot
   sed -i 's|/void|/project-trident|g' "${MNT}/etc/zfsbootmenu/config.ini"
   sed -i 's|ManageImages=0|ManageImages=1|' "${MNT}/etc/zfsbootmenu/config.ini"
@@ -215,8 +211,6 @@ installZfsBootMenu(){
 "Single user boot" "ro loglevel=4 elevator=noop single root="
 "Single user verbose boot" "ro loglevel=6 elevator=noop single root="
 ' > "${MNT}/boot/refind_linux.conf"
-  ${CHROOT} refind-install --root / --nodrivers
-  #First time seems to create some config files - do it again afterwards
   ${CHROOT} refind-install --root / --nodrivers
   # Copy the refind entry to the default location for EFI
   #cp ${MNT}/boot/efi/EFI/refind/refind_*.efi ${MNT}/boot/efi/EFI/boot/bootx64.efi
