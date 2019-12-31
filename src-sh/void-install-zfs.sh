@@ -178,17 +178,17 @@ getUser(){
   #  usershell : /bin/bash or other
   #  usercomment : Comment
   user_crypt="false"
-  if [ "${BOOTMODE}" = "EFI" ] ; then
+  #if [ "${BOOTMODE}" = "EFI" ] ; then
     #user_crypt="true"
-  fi
-  while [ -z "${usercomment}" ] ; do
+  #fi
+  #while [ -z "${usercomment}" ] ; do
     adjustTextValue "Enter the full name for the user"
     usercomment="${ANS}"
-  done
-  while [ -z "${user}" ] ; do
+  #done
+  #while [ -z "${user}" ] ; do
     adjustTextValue "Enter the shortened username"
     user="${ANS}"
-  done
+  #done
 
   getPassword "${user}"
   if [ -n "${ANS}" ] ; then
