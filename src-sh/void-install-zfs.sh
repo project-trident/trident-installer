@@ -212,7 +212,7 @@ installZfsBootMenu(){
 "Single user verbose boot" "ro loglevel=6 elevator=noop single root="
 ' > "${MNT}/boot/refind_linux.conf"
   ${CHROOT} xbps-reconfigure -f refind
-  ${CHROOT} refind-install --root / --nodrivers
+  ${CHROOT} refind-install --usedefault "${EFIDRIVE}"
   # Copy the refind entry to the default location for EFI
   #cp ${MNT}/boot/efi/EFI/refind/refind_*.efi ${MNT}/boot/efi/EFI/boot/bootx64.efi
   # Cleanup the static package file
