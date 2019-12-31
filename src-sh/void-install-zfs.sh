@@ -179,7 +179,20 @@ getUser(){
   #  usercomment : Comment
   user_crypt="false"
   if [ "${BOOTMODE}" = "EFI" ] ; then
-    user_crypt="true"
+    #user_crypt="true"
+  fi
+  while [ -z "${usercomment}" ] ; do
+    adjustTextValue "Enter the full name for the user"
+    usercomment="${ANS}"
+  done
+  while [ -z "${user}" ] ; do
+    adjustTextValue "Enter the shortened username"
+    user="${ANS}"
+  done
+
+  getPassword "${user}"
+  if [ -n "${ANS}" ] ; then
+    userpass="${ANS}"
   fi
 
 }
@@ -226,8 +239,8 @@ installZfsBootMenu(){
 ' > "${MNT}/boot/refind_linux.conf"
   ${CHROOT} xbps-reconfigure -f refind
   ${CHROOT} refind-install --usedefault "${EFIDRIVE}"
-  # Copy the refind entry to the default location for EFI
-  #cp ${MNT}/boot/efi/EFI/refind/refind_*.efi ${MNT}/boot/efi/EFI/boot/bootx64.efi
+  # Now remove the grub EFI entry that zfsbootmenu generated
+  rm ${MNT}/boot/efi/EFI/project-trident/*.efi
   # Cleanup the static package file
   rm "${MNT}${pkgfile}"
 }
