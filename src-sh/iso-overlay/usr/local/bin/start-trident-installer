@@ -171,7 +171,7 @@ if [ ! -d "/var/service/wpa_supplicant" ] ; then
   sv start wpa_supplicant
 fi
 
-get_dlg_ans "--msgbox \"WARNING: This is a pre-release image of Project Trident based on Void-Linux.\n\n Packages and graphical tools are not setup yet and manual configuration may be required.\n\nwww.project-trident.org\" 0 0"
+get_dlg_ans "--msgbox \"Welcome to the Project Trident installation image. An internet connection is required to perform the installation.\n\nWARNING: This is a pre-release image of Project Trident. Some features may not be completed yet.\n\nwww.project-trident.org\" 0 0"
 ANS="anything"
 while [ -n "${ANS}" ] 
 do
