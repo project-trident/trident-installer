@@ -178,23 +178,25 @@ getUser(){
   #  usershell : /bin/bash or other
   #  usercomment : Comment
   user_crypt="false"
-  #if [ "${BOOTMODE}" = "EFI" ] ; then
-    #user_crypt="true"
-  #fi
-  #while [ -z "${usercomment}" ] ; do
+  if [ "${BOOTMODE}" = "EFI" ] ; then
+    user_crypt="true"
+  fi
+  while [ -z "${usercomment}" ]
+  do
     adjustTextValue "Enter the full name for the user"
     usercomment="${ANS}"
-  #done
-  #while [ -z "${user}" ] ; do
+  done
+  while [ -z "${user}" ]
+  do
     adjustTextValue "Enter the shortened username"
     user="${ANS}"
-  #done
+  done
 
   getPassword "${user}"
   if [ -n "${ANS}" ] ; then
     userpass="${ANS}"
   fi
-
+  #Add prompt for desired shell later
 }
 
 cleanupInstall(){
@@ -218,9 +220,12 @@ installZfsBootMenu(){
   else
     ${CHROOT} xbps-install -y xtools
   fi
+  exit_err $? "Could not install package utilities!" 
   ${CHROOT} xbps-install -y fzf kexec-tools perl-Config-IniFiles refind
+  exit_err $? "Could not install bootloader utilities!"
   cp "${pkgfile}" "${MNT}${pkgfile}"
   ${CHROOT} xdowngrade ${pkgfile}
+  exit_err $? "Could not install zfsbootmenu!"
   if [ -f "/root/xdowngrade-quiet" ] ; then
     #Remove temporary xdowngrade script
     rm ${MNT}/usr/bin/xdowngrade
@@ -237,10 +242,18 @@ installZfsBootMenu(){
 "Single user boot" "ro loglevel=4 elevator=noop single root="
 "Single user verbose boot" "ro loglevel=6 elevator=noop single root="
 ' > "${MNT}/boot/refind_linux.conf"
-  ${CHROOT} xbps-reconfigure -f refind
+  #${CHROOT} xbps-reconfigure -f refind
   ${CHROOT} refind-install --usedefault "${EFIDRIVE}"
+  exit_err $? "Could not install refind!"
   # Now remove the grub EFI entry that zfsbootmenu generated
   rm ${MNT}/boot/efi/EFI/project-trident/*.efi
+  # Tweak the rEFInd configuration
+  bootsplash=$(ls /root/trident-wallpaper-refind*)
+  cp "${bootsplash}" ${MNT}/boot/efi/EFI/boot/.
+  echo "# Project Trident branding options" >> "${MNT}/boot/efi/EFI/boot/refind.conf"
+  echo "timeout 5" >> "${MNT}/boot/efi/EFI/boot/refind.conf"
+  echo "banner $(basename ${bootsplash})" >> "${MNT}/boot/efi/EFI/boot/refind.conf"
+  echo "banner_scale fillscreen" >> "${MNT}/boot/efi/EFI/boot/refind.conf"
   # Cleanup the static package file
   rm "${MNT}${pkgfile}"
 }
@@ -252,7 +265,14 @@ createUser(){
   #  userpass : <password>
   #  usershell : /bin/bash or other
   #  usercomment : Comment
-
+  if [ -z "${user}" ] || [ -z "${userpass}" ] ; then
+    #No user to be created
+    return 0
+  fi
+  if [ -z "${usershell}" ] ; then
+    usershell="/bin/bash"
+  fi
+  echo "Creating user account: ${user} : ${usershell}"
   #Create the dataset    
   if [ "${user_crypt}" == "true" ] && [ -e "${MNT}/usr/bin/generate-zbm" ] ; then
     # NOTE: encrypted homedirs cannot be used when booting with GRUB
@@ -507,6 +527,8 @@ if [ -n "${SWAPSIZE}" ] && [ 0 != "${SWAPSIZE}" ] ; then
   fi
 fi
 
+createUser
+
 echo
 echo "Auto-enabling services"
 for service in ${SERVICES_ENABLED}
@@ -533,6 +555,7 @@ wallpaper=$(ls /root/Trident-wallpaper.*)
 wallpaper=$(basename ${wallpaper})
 wallfmt=$(echo ${wallpaper} | cut -d . -f 2)
 cp "/root/${wallpaper}" "${MNT}/etc/defaults/grub-splash.${wallfmt}"
+# NOTE: zfsbootmenu also reads the grub configuration file for many of it's own settings like timeout
 echo "
 GRUB_DEFAULT=0
 GRUB_TIMEOUT=5
@@ -574,8 +597,6 @@ else
   cp "${MNT}/boot/efi/EFI/project-trident/grubx64.efi" "${MNT}/boot/efi/EFI/boot/bootx64.efi"
 fi
 
-echo "[DEBUG] ISO hostid: $(hostid)"
-echo "[DEBUG] System hostid: $( ${CHROOT} hostid)"
 echo
 echo "[SUCCESS] Reboot the system and remove the install media to boot into the new system"
 
@@ -638,6 +659,18 @@ fi
 if [ -z "${TIMEZONE}" ] ; then
   TIMEZONE="America/New_York"
 fi
+#Check if we are using EFI boot
+efibootmgr > /dev/null 2>/dev/null
+if [ $? -eq 0 ] ; then
+  #Using EFI
+  BOOTMODE="EFI"
+else
+  BOOTMODE="LEGACY"
+fi
+#Now get user creation info
+if [ -n "${PACKAGES_CHROOT}" ] ; then
+  getUser
+fi
 
 SERVICES_ENABLED="dbus dhcpcd cupsd wpa_supplicant bluetoothd acpid"
 
@@ -658,15 +691,6 @@ else
 fi
 # DO NOT Set target arch. This disables a lot of the post-install configuration for packages
 #export XBPS_TARGET_ARCH="${XBPS_ARCH}" 
-
-#Check if we are using EFI boot
-efibootmgr > /dev/null 2>/dev/null
-if [ $? -eq 0 ] ; then
-  #Using EFI
-  BOOTMODE="EFI"
-else
-  BOOTMODE="LEGACY"
-fi
 
 if [ -n "${LOGFILE}" ] ; then
   # Split between log and stdout
