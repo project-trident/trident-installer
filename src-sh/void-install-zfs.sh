@@ -254,6 +254,8 @@ installZfsBootMenu(){
   echo "timeout 5" >> "${MNT}/boot/efi/EFI/boot/refind.conf"
   echo "banner $(basename ${bootsplash})" >> "${MNT}/boot/efi/EFI/boot/refind.conf"
   echo "banner_scale fillscreen" >> "${MNT}/boot/efi/EFI/boot/refind.conf"
+  bootnext=$(efibootmgr | grep "EFI Hard Drive" | cut -d '*' -f 1 | rev | cut -d '0' -f 1)
+  efibootmgr -n "${bootnext}"
   # Cleanup the static package file
   rm "${MNT}${pkgfile}"
 }
