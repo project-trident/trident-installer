@@ -276,7 +276,7 @@ createUser(){
   fi
   echo "Creating user account: ${user} : ${usershell}"
   #Create the dataset    
-  if [ "${user_crypt}" == "true" ] && [ -e "${MNT}/usr/bin/generate-zbm" ] ; then
+  if [ "${user_crypt}" = "true" ] ; then
     # NOTE: encrypted homedirs cannot be used when booting with GRUB
     #  GRUB refuses to recognize ZFS boot pools if *any* datasets are encrypted.
     #Ensure minimum passphrase length is met (8 characters)
@@ -307,7 +307,7 @@ createUser(){
   # Setup ownership of the dataset
   ${CHROOT} chown "${user}:${user}" "/home/${user}"
   # Allow the user to create/destroy child datasets and snapshots on their home dir
-  if [ "${user_crypt}" == "true" ] ; then
+  if [ "${user_crypt}" = "true" ] ; then
     ${CHROOT} zfs allow "${user}" load-key,mount,create,destroy,rollback,snapshot "${ZPOOL}/home/${user}"
     zfs unmount "${ZPOOL}/home/${user}"
   else
