@@ -406,7 +406,7 @@ exit_err $? "Could not import the new pool at ${MNT}"
 zfs mount ${ZPOOL}/ROOT/${INITBE}
 exit_err $? "Count not mount the root ZFS dataset"
 
-datasets="home:usr/home vlog:var/log vtmp:var/tmp docker:var/lib/docker"
+datasets="home:usr/home vlog:var/log vtmp:var/tmp docker:var/lib/docker etc:etc"
 for ds in ${datasets}
 do
   echo "Creating Dataset: ${ds}"
@@ -414,7 +414,7 @@ do
   exit_err $? "Could not create dataset: ${ds}"
 done
 
-dirs="boot/grub boot/efi dev etc proc run sys"
+dirs="boot/grub boot/efi dev proc run sys"
 for dir in ${dirs}
 do
   mkdir -p ${MNT}/${dir}
