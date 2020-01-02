@@ -179,7 +179,7 @@ getUser(){
   #  usercomment : Comment
   user_crypt="false"
   if [ "${BOOTMODE}" = "EFI" ] ; then
-    user_crypt="true"
+    #user_crypt="true"
   fi
   while [ -z "${usercomment}" ]
   do
