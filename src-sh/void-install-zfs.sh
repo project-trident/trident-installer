@@ -178,9 +178,9 @@ getUser(){
   #  usershell : /bin/bash or other
   #  usercomment : Comment
   user_crypt="false"
-  if [ "${BOOTMODE}" = "EFI" ] ; then
+  #if [ "${BOOTMODE}" = "EFI" ] ; then
     #user_crypt="true"
-  fi
+  #fi
   while [ -z "${usercomment}" ]
   do
     adjustTextValue "Enter the full name for the user"
