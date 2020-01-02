@@ -286,26 +286,26 @@ createUser(){
     fi
     tmpfile=$(mktemp /tmp/.XXXXXX)
     echo "${userpass}" > "${tmpfile}"
-    zfs create -o "mountpoint=/home/${user}" -o "io.github.benkerry:zfscrypt_user=${user}" -o "setuid=off" -o "compression=on" -o "atime=off" -o "encryption=on" -o "keyformat=passphrase" -o "keylocation=file://${tmpfile}" -o "canmount=noauto" "${ZPOOL}/home/${user}"
+    zfs create -o "mountpoint=/usr/home/${user}" -o "io.github.benkerry:zfscrypt_user=${user}" -o "setuid=off" -o "compression=on" -o "atime=off" -o "encryption=on" -o "keyformat=passphrase" -o "keylocation=file://${tmpfile}" -o "canmount=noauto" "${ZPOOL}/home/${user}"
     if [ $? -eq 0 ] ; then
       zfs mount "${ZPOOL}/home/${user}"
       zfs set "keylocation=prompt" "${ZPOOL}/home/${user}"
     fi
     rm "${tmpfile}"
   else
-    zfs create -o "mountpoint=/home/${user}" -o "setuid=off" -o "compression=on" -o "atime=off" -o "canmount=on" "${ZPOOL}/home/${user}"
+    zfs create -o "mountpoint=/usr/home/${user}" -o "setuid=off" -o "compression=on" -o "atime=off" -o "canmount=on" "${ZPOOL}/home/${user}"
   fi
   if [ $? -ne 0 ] ; then
     return 1
   fi
   # Create the user
-  ${CHROOT} useradd -M -s "${usershell}" -d "/home/${user}" -c "${usercomment}" -G "wheel,users,audio,video,input,cdrom,bluetooth" "${user}"
+  ${CHROOT} useradd -M -s "${usershell}" -d "/usr/home/${user}" -c "${usercomment}" -G "wheel,users,audio,video,input,cdrom,bluetooth" "${user}"
   if [ $? -ne 0 ] ; then
     return 1
   fi
   ${CHROOT} echo "${user}:${userpass}" |  ${CHROOT} chpasswd -c SHA512
   # Setup ownership of the dataset
-  ${CHROOT} chown "${user}:${user}" "/home/${user}"
+  ${CHROOT} chown "${user}:${user}" "/usr/home/${user}"
   # Allow the user to create/destroy child datasets and snapshots on their home dir
   if [ "${user_crypt}" = "true" ] ; then
     ${CHROOT} zfs allow "${user}" load-key,mount,create,destroy,rollback,snapshot "${ZPOOL}/home/${user}"
@@ -397,7 +397,7 @@ exit_err $? "Could not create ROOT dataset"
 zpool set bootfs=${ZPOOL}/ROOT/${INITBE} ${ZPOOL}
 exit_err $? "Could not set ROOT/${INITBE} dataset as bootfs"
 
-echo "Verify pool can be exported/imported"u
+echo "Verify pool can be exported/imported"
 zpool export ${ZPOOL}
 exit_err $? "Could not export pool"
 zpool import -R ${MNT} ${ZPOOL}
@@ -406,7 +406,7 @@ exit_err $? "Could not import the new pool at ${MNT}"
 zfs mount ${ZPOOL}/ROOT/${INITBE}
 exit_err $? "Count not mount the root ZFS dataset"
 
-datasets="home:home vlog:var/log vtmp:var/tmp docker:var/lib/docker"
+datasets="home:usr/home vlog:var/log vtmp:var/tmp docker:var/lib/docker"
 for ds in ${datasets}
 do
   echo "Creating Dataset: ${ds}"
@@ -446,6 +446,9 @@ exit_err $? "Could not install void packages!!"
 
 linuxver=`${CHROOT} xbps-query linux | grep pkgver | cut -d - -f 2 | cut -d . -f 1-2 | cut -d _ -f 1`
 echo "Got Linux Version: ${linuxver}"
+
+echo "Symlink /home to /usr/home mountpoint"
+${CHROOT} ln -s /usr/home /home
 
 echo
 echo "copying a valid resolv.conf into directory, before chroot to get to the new install"
