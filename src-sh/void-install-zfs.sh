@@ -1,6 +1,6 @@
 #!/bin/bash
 
-SERVER_PACKAGES="iwd nano git jq zsh fish-shell wireguard pam_zfscrypt bluez nftables dcron autofs cifs-utils"
+SERVER_PACKAGES="iwd nano git jq zsh fish-shell wireguard bluez nftables dcron autofs cifs-utils"
 LITE_PACKAGES="${SERVER_PACKAGES} noto-fonts-ttf xorg-minimal xf86-video-fbdev lumina qterminal compton hicolor-icon-theme trident-icons xrandr qt5-svg wpa-cute libdvdcss gutenprint ntfs-3g fuse-exfat simple-mtpfs pavucontrol"
 FULL_PACKAGES="${LITE_PACKAGES} telegram-desktop vlc firefox trojita pianobar libreoffice falkon spotify"
 
@@ -178,9 +178,9 @@ getUser(){
   #  usershell : /bin/bash or other
   #  usercomment : Comment
   user_crypt="false"
-  #if [ "${BOOTMODE}" = "EFI" ] ; then
-    #user_crypt="true"
-  #fi
+  if [ "${BOOTMODE}" = "EFI" ] ; then
+    user_crypt="true"
+  fi
   while [ -z "${usercomment}" ]
   do
     adjustTextValue "Enter the full name for the user"
@@ -258,6 +258,18 @@ installZfsBootMenu(){
   efibootmgr -n "${bootnext}"
   # Cleanup the static package file
   rm "${MNT}${pkgfile}"
+}
+
+setupPamCrypt(){
+  grep -q "pam_zfscrypt.so" "${MNT}/etc/pam.d/passwd"
+  if [ $? -ne 0 ] ; then
+    echo "password  optional  pam_zfscrypt.so" >> "${MNT}/etc/pam.d/passwd"
+  fi
+  grep -q "pam_zfscrypt.so" "${MNT}/etc/pam.d/system-auth"
+  if [ $? -ne 0 ] ; then
+    echo "auth  optional  pam_zfscrypt.so" >> "${MNT}/etc/pam.d/system-auth"
+    echo "session  optional  pam_zfscrypt.so  runtime_dir=/tmp/zfscrypt" >> "${MNT}/etc/pam.d/system-auth"
+  fi
 }
 
 createUser(){
@@ -496,7 +508,7 @@ echo "Installing packages within chroot"
 mkdir ${MNT}/tmp/pkg-cache
 rm ${MNT}/var/cache/xbps/*
 # Required packages
-for pkg in zfs cryptsetup ${PACKAGES_CHROOT}
+for pkg in zfs cryptsetup pam_zfscrypt ${PACKAGES_CHROOT}
 do
   echo
   echo "Installing package: ${pkg}"
@@ -515,7 +527,10 @@ done
 echo
 rm -r ${MNT}/tmp/pkg-cache
 
-# Now setup SWAP on the device
+# Setup encrypted homedir support via PAM
+setupPamCrypt
+
+# Now setup encrypted SWAP on the device
 if [ -n "${SWAPSIZE}" ] && [ 0 != "${SWAPSIZE}" ] ; then
   echo "Setting up encrypted SWAP on the device: ${SWAPSIZE}"
   ${CHROOT} zfs create -V ${SWAPSIZE} -b $(getconf PAGESIZE) -o compression=zle \
@@ -677,7 +692,7 @@ if [ -n "${PACKAGES_CHROOT}" ] ; then
   getUser
 fi
 
-SERVICES_ENABLED="dbus dhcpcd cupsd wpa_supplicant bluetoothd acpid"
+SERVICES_ENABLED="dbus dhcpcd cupsd wpa_supplicant bluetoothd acpid nftables dcron autofs"
 
 # ==============================
 #  Generate Internal Variables from settings
