@@ -616,7 +616,8 @@ else
   #Copy the EFI registration to the default boot path as well
   cp "${MNT}/boot/efi/EFI/project-trident/grubx64.efi" "${MNT}/boot/efi/EFI/boot/bootx64.efi"
 fi
-
+# Take an initial snapshot of the boot environment
+${CHROOT} zfs snapshot ${ZPOOL}/ROOT/${INITBE}@cleaninstall
 echo
 echo "[SUCCESS] Reboot the system and remove the install media to boot into the new system"
 
