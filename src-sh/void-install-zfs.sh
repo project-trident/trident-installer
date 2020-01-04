@@ -83,7 +83,6 @@ get_dlg_ans(){
 }
 
 checkPackages(){
-  return #temporary bypass for the moment
   #Reads in the list of PACKAGES_CHROOT and verifies they exist in the repo
   # Missing packages are put into the PACKAGES_MISSING variable
   echo "Verifying packages are in the repository..."
@@ -210,13 +209,14 @@ getUser(){
   fi
   while [ -z "${usercomment}" ]
   do
-    adjustTextValue "Enter the full name for the user"
+    adjustTextValue "Full name for the user"
     usercomment="${ANS}"
   done
   while [ -z "${user}" ]
   do
-    adjustTextValue "Enter the shortened username"
-    user="${ANS}"
+    adjustTextValue "Enter the shortened username\n(lowercase, no spaces)" $(echo "${usercomment}" | tr -d '[:space:]' | tr '[:upper:]' '[:lower:]')
+    user=$(echo "${ANS}" | tr -d '[:space:]' | tr '[:upper:]' '[:lower:]')
+    if [ "${user}" = "root" ] ; then user="" ; fi #do not allow overwrite root account
   done
 
   getPassword "${user}"
