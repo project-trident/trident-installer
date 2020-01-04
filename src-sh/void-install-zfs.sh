@@ -2,7 +2,7 @@
 
 SERVER_PACKAGES="iwd nano git jq zsh fish-shell wireguard bluez nftables dcron autofs cifs-utils"
 LITE_PACKAGES="${SERVER_PACKAGES} noto-fonts-ttf xorg-fonts xorg-minimal xf86-video-fbdev lumina qterminal qsudo compton hicolor-icon-theme trident-icons xrandr qt5-svg wpa-cute libdvdcss gutenprint ntfs-3g fuse-exfat simple-mtpfs pulseaudio pavucontrol"
-FULL_PACKAGES="${LITE_PACKAGES} telegram-desktop vlc firefox trojita pianobar libreoffice spotify"
+FULL_PACKAGES="${LITE_PACKAGES} telegram-desktop vlc firefox trojita pianobar libreoffice"
 
 if [ "${1}" = "-h" ] || [ "${1}" = "help" ] || [ "${1}" = "--help" ] ; then
 echo "Project Trident Installer
@@ -88,6 +88,7 @@ get_dlg_ans(){
 }
 
 checkPackages(){
+  return #Disable - still not working right yet
   #Reads in the list of PACKAGES_CHROOT and verifies they exist in the repo
   # Missing packages are put into the PACKAGES_MISSING variable
   echo "Verifying packages are in the repository..."
