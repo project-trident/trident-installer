@@ -714,7 +714,7 @@ if [ $? -eq 0 ] ; then
   BOOTMODE="EFI"
 else
   BOOTMODE="LEGACY"
-  get_dlg_ans " --yesno --defaultno \"WARNING: Please boot with UEFI for the best experience.\n\nThis system is currently booting in legacy mode and features such as boot environments and dataset encryption will not be available.\n\nContinue with install setup anyway?\" 0 0"
+  get_dlg_ans " --yesno \"WARNING: Please boot with UEFI for the best experience.\n\nThis system is currently booting in legacy mode and features such as boot environments and dataset encryption will not be available.\n\nContinue with install setup anyway?\" 0 0"
   exit_err $? "Installation Cancelled (Legacy boot)"
 fi
 
