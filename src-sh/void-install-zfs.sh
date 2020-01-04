@@ -599,7 +599,7 @@ rm -r ${MNT}/tmp/pkg-cache
 setupPamCrypt
 
 # Now setup encrypted SWAP on the device
-if [ -n "${SWAPSIZE}" ] && [ 0 != "${SWAPSIZE}" ] ; then
+if [ -n "${SWAPSIZE}" ] && [ "0" != "${SWAPSIZE}" ] ; then
   echo "Setting up encrypted SWAP on the device: ${SWAPSIZE}"
   ${CHROOT} zfs create -V ${SWAPSIZE} -b $(getconf PAGESIZE) -o compression=zle \
       -o logbias=throughput -o sync=always \
