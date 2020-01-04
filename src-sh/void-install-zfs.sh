@@ -55,7 +55,7 @@ get_dlg_ans(){
   #   CLI Args : Arguments for dialog (option_name, option_text, repeat...)
   # OUTPUTS:
   #   ANS: option_name selected by user
-  if [ -n "PAGENUM" ] ; then
+  if [ -n "${PAGENUM}" ] ; then
     TITLE="${ORIGTITLE} (${PAGENUM})"
   else
     TITLE="${ORIGTITLE}"
@@ -383,6 +383,20 @@ doInstall(){
 # Install function. Nothing interactive should ever be in here
 # typically piped through tee to log the output
 
+#Print out an install summary really fast (this function is piped into a logfile for later viewing)
+echo "Installation Summary\n
+================\n
+System hostname: ${NHOSTNAME}\n
+Hard drive: ${DISK}\n
+ZFS pool name: ${ZPOOL}\n
+SWAP space reserved: ${SWAPSIZE}\n
+Create user: ${user} (${usercomment})\n
+Package type: ${REPOTYPE}\n
+Packages to install: ${PACKAGES_CHROOT}\n
+Packages ignored (not available): ${PACKAGES_MISSING}\n
+================\n
+"
+#Create the mountpoint
 if [ ! -d "${MNT}" ] ; then
   mkdir -p "${MNT}"
   exit_err $? "Could not create mountpoint directory: ${MNT}"
@@ -554,7 +568,10 @@ echo "add_dracutmodules+=\"zfs btrfs resume\"" >> ${MNT}/etc/dracut.conf.d/zol.c
 ${CHROOT} xbps-reconfigure -f linux${linuxver}
 
 echo
-echo "Installing packages within chroot"
+echo "-------------------------------"
+echo "Step 3: Installing Packages"
+echo "-------------------------------"
+echo
 mkdir ${MNT}/tmp/pkg-cache
 rm ${MNT}/var/cache/xbps/*
 # Required packages
@@ -597,10 +614,18 @@ if [ -n "${SWAPSIZE}" ] && [ 0 != "${SWAPSIZE}" ] ; then
   fi
 fi
 
+echo
+echo "-------------------------------"
+echo "Step 4: Creating user account"
+echo "-------------------------------"
+echo
 createUser
 
 echo
-echo "Auto-enabling services"
+echo "-------------------------------"
+echo "Step 5: Enabling Services"
+echo "-------------------------------"
+echo
 for service in ${SERVICES_ENABLED}
 do
   if [ ! -e "${MNT}/etc/sv/${service}" ] ; then continue ; fi
@@ -609,6 +634,11 @@ do
   exit_err $? "Could not enable service: ${service}"
 done
 
+echo
+echo "-------------------------------"
+echo "Step 6: Setup Bootloader(s)"
+echo "-------------------------------"
+echo
 #Now reinstall grub on the boot device after the reconfiguration
 if [ "zfs" != $(${CHROOT} grub-probe /) ] ; then
   echo "ERROR: Could not verify ZFS nature of /"
@@ -620,18 +650,18 @@ export ZPOOL_VDEV_NAME_PATH=YES
 diskuuid=$(blkid --output export ${SYSTEMDRIVE} | grep -E '^(UUID=)' | cut -d = -f 2  )
 echo "Got ZFS pool disk uuid: ${diskuuid}"
 #Setup the GRUB configuration
-mkdir -p ${MNT}/etc/defaults
+mkdir -p ${MNT}/etc/default
 wallpaper=$(ls /root/Trident-wallpaper.*)
 wallpaper=$(basename ${wallpaper})
 wallfmt=$(echo ${wallpaper} | cut -d . -f 2)
-cp "/root/${wallpaper}" "${MNT}/etc/defaults/grub-splash.${wallfmt}"
+cp "/root/${wallpaper}" "${MNT}/etc/default/grub-splash.${wallfmt}"
 # NOTE: zfsbootmenu also reads the grub configuration file for many of it's own settings like timeout
 echo "
 GRUB_DEFAULT=0
 GRUB_TIMEOUT=5
 GRUB_DISTRIBUTOR=\"Project-Trident\"
 GRUB_CMDLINE_LINUX_DEFAULT=\"quiet loglevel=3 elevator=noop nvidia-drm.modeset=1\"
-GRUB_BACKGROUND=/etc/defaults/grub-splash.${wallfmt}
+GRUB_BACKGROUND=/etc/default/grub-splash.${wallfmt}
 GRUB_CMDLINE_LINUX=\"root=ZFS=${ZPOOL}/ROOT/${INITBE}\"
 GRUB_DISABLE_OS_PROBER=true
 GRUB_DISABLE_LINUX_UUID=true
@@ -683,7 +713,7 @@ if [ $? -eq 0 ] ; then
   BOOTMODE="EFI"
 else
   BOOTMODE="LEGACY"
-  get_dlg_ans " --yesno --defaultno \"WARNING: Please boot with UEFI mode enabled for the best experience.\n\nThis system is currently booting in legacy mode and features such as boot environments and dataset encryption will not be available.\n\nContinue with install setup anyway?\" 0 0"
+  get_dlg_ans " --yesno --defaultno \"WARNING: Please boot with UEFI for the best experience.\n\nThis system is currently booting in legacy mode and features such as boot environments and dataset encryption will not be available.\n\nContinue with install setup anyway?\" 0 0"
   exit_err $? "Installation Cancelled (Legacy boot)"
 fi
 
