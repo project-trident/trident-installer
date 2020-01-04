@@ -91,7 +91,7 @@ checkPackages(){
   local okpkgs
   for pkg in ${PACKAGES_CHROOT}
   do
-    xbps-query -Ri -s --repository="${REPO}" "^(${pkg}-)[0-9]" --regex 1>/dev/null
+    xbps-query -Ri --repository="${REPO}" -s "^(${pkg}-)[0-9]" --regex 1>/dev/null
     if [ $? -eq 0 ] ; then
       okpkgs="${okpkgs} ${pkg}"
     else
