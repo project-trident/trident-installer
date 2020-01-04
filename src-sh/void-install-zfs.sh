@@ -83,6 +83,7 @@ get_dlg_ans(){
 }
 
 checkPackages(){
+  return #temporary bypass for the moment
   #Reads in the list of PACKAGES_CHROOT and verifies they exist in the repo
   # Missing packages are put into the PACKAGES_MISSING variable
   echo "Verifying packages are in the repository..."
@@ -365,7 +366,7 @@ ZFS pool name: ${ZPOOL}\n
 SWAP space reserved: ${SWAPSIZE}\n
 Create user: ${user} (${usercomment})\n
 Package type: ${REPOTYPE}\n
-Packages: ${PACKAGES_CHROOT}\n
+Packages to install: ${PACKAGES_CHROOT}\n
 Packages ignored (not available): ${PACKAGES_MISSING}\n
 "
   opts=" --yesno \"${text}\" 0 0"
