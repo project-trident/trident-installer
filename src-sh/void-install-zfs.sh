@@ -85,14 +85,16 @@ get_dlg_ans(){
 checkPackages(){
   #Reads in the list of PACKAGES_CHROOT and verifies they exist in the repo
   # Missing packages are put into the PACKAGES_MISSING variable
+  echo "Verifying packages are in the repository..."
   xbps-install -y -S --repository="${REPO}"
   local okpkgs
   for pkg in ${PACKAGES_CHROOT}
   do
-    xbps-query -Rsi --repository="${REPO}" "^(${pkg}-)[0-9]"--regex 1>/dev/null
+    xbps-query -Ri -s --repository="${REPO}" "^(${pkg}-)[0-9]" --regex 1>/dev/null
     if [ $? -eq 0 ] ; then
       okpkgs="${okpkgs} ${pkg}"
     else
+      echo "[WARNING] Package not found in repo: ${pkg}"
       PACKAGES_MISSING="${PACKAGES_MISSING} ${pkg}"
     fi
   done
@@ -139,13 +141,13 @@ getPassword(){
   if [ "${1}" != "root" ] ; then minlength=8; fi
   while [ "${TMP}" != "${TMP2}" ]
   do
-    get_dlg_ans "--passwordbox --insecure \"Enter password for ${1}\n\n(Note: Hidden Text, ${minlength} characters minimum, no spaces or tabs)\" 0 0"
+    get_dlg_ans "--passwordbox \"Enter password for ${1}\n\n(Note: Hidden Text, ${minlength} characters minimum, no spaces or tabs)\" 0 0"
     TMP=$(echo "${ANS}" | tr -d '[:space:]')
     if [ ${minlength} -gt ${#TMP} ] ; then
       get_dlg_ans "--msgbox \"ERROR: Invalid password\" 0 0"
       TMP="1" ; TMP2="2"
     else
-      get_dlg_ans "--passwordbox --insecure \"Repeat password for ${1}\" 0 0"
+      get_dlg_ans "--passwordbox \"Repeat password for ${1}\" 0 0"
       TMP2="${ANS}"
     fi
   done
@@ -355,15 +357,16 @@ createUser(){
 }
 
 verifyInstallSummary(){
-  text="Do you wish to begin the installation?\nThis may take 30 minutes or more depending on hardware capabilities and network connection speeds.\n
-System hostname: ${NHOSTNAME}
-Hard drive: ${DISK}
-ZFS pool name: ${ZPOOL}
-SWAP space reserved: ${SWAPSIZE}
-Create user: ${user} (${usercomment})
-Package type: ${REPOTYPE}
-Packages: ${PACKAGES_CHROOT}
-Packages ignored (not available): ${PACKAGES_MISSING}
+  text="Do you wish to begin the installation?\n
+This may take 30 minutes or more depending on hardware capabilities and network connection speeds.\n\n
+System hostname: ${NHOSTNAME}\n
+Hard drive: ${DISK}\n
+ZFS pool name: ${ZPOOL}\n
+SWAP space reserved: ${SWAPSIZE}\n
+Create user: ${user} (${usercomment})\n
+Package type: ${REPOTYPE}\n
+Packages: ${PACKAGES_CHROOT}\n
+Packages ignored (not available): ${PACKAGES_MISSING}\n
 "
   opts=" --yesno \"${text}\" 0 0"
   get_dlg_ans "${opts}"
