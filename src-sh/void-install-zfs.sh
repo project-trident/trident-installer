@@ -47,6 +47,7 @@ fi
 if [ -z "${TITLE}" ] ; then
   TITLE="Project Trident Installer"
 fi
+ORIGTITLE="${TITLE}" #save this for later
 
 get_dlg_ans(){
   # INPUTS:
@@ -54,7 +55,11 @@ get_dlg_ans(){
   #   CLI Args : Arguments for dialog (option_name, option_text, repeat...)
   # OUTPUTS:
   #   ANS: option_name selected by user
-
+  if [ -n "PAGENUM" ] ; then
+    TITLE="${ORIGTITLE} (${PAGENUM})"
+  else
+    TITLE="${ORIGTITLE}"
+  fi
   local TANS="/tmp/.dlg.ans.$$"
   if [ -e "$TANS" ] ; then rm ${TANS}; fi
   if [ -e "$TANS.dlg" ] ; then rm ${TANS}.dlg; fi
@@ -216,7 +221,7 @@ getUser(){
   do
     adjustTextValue "Enter the shortened username\n(lowercase, no spaces)" $(echo "${usercomment}" | tr -d '[:space:]' | tr '[:upper:]' '[:lower:]')
     user=$(echo "${ANS}" | tr -d '[:space:]' | tr '[:upper:]' '[:lower:]')
-    if [ "${user}" = "root" ] ; then user="" ; fi #do not allow overwrite root account
+    if [ "${user}" = "root" ] || [ "${user}" = "toor" ] ; then user="" ; fi #do not allow overwrite root account
   done
 
   getPassword "${user}"
@@ -264,7 +269,7 @@ installZfsBootMenu(){
   mkdir -p "${MNT}/boot/efi/EFI/project-trident"
   ${CHROOT} xbps-reconfigure -f zfsbootmenu
   # Setup rEFInd
-  echo '"Standard quiet boot"  "ro loglevel=0 elevator=noop root="
+  echo '"Standard quiet boot"  "ro quiet loglevel=0 elevator=noop root="
 "Standard boot" "ro loglevel=4 elevator=noop root="
 "Single user boot" "ro loglevel=4 elevator=noop single root="
 "Single user verbose boot" "ro loglevel=6 elevator=noop single root="
@@ -671,38 +676,57 @@ echo "[SUCCESS] Reboot the system and remove the install media to boot into the 
 # ===============
 #  LOAD SETTINGS
 # ===============
+#Check if we are using EFI boot
+efibootmgr > /dev/null 2>/dev/null
+if [ $? -eq 0 ] ; then
+  #Using EFI
+  BOOTMODE="EFI"
+else
+  BOOTMODE="LEGACY"
+  get_dlg_ans " --yesno --defaultno \"WARNING: Please boot with UEFI mode enabled for the best experience.\n\nThis system is currently booting in legacy mode and features such as boot environments and dataset encryption will not be available.\n\nContinue with install setup anyway?\" 0 0"
+  exit_err $? "Installation Cancelled (Legacy boot)"
+fi
+
+PAGETOT="8"
 while [ -z "${DISK}" ]
 do
+  PAGENUM="1/${PAGETOT}"
   getDisks
 done
 if [ -z "${SWAPSIZE}" ] ; then
+  PAGENUM="2/${PAGETOT}"
   getSwap
 fi
 if [ -z "${REPOTYPE}" ] ; then
+  PAGENUM="3/${PAGETOT}"
   getRepotype
 fi
 if [ -z "${ROOTPW}" ] ; then
+  PAGENUM="4/${PAGETOT}"
   getPassword "root"
   ROOTPW="${ANS}"
   unset ANS
 fi
 if [ -z "${NHOSTNAME}" ] ; then
+  PAGENUM="5/${PAGETOT}"
   NHOSTNAME="Trident-${RANDOM}"  
   adjustTextValue "Select system hostname" "${NHOSTNAME}"
   NHOSTNAME="${ANS}"
 fi
 if [ -z "${ZPOOL}" ] ; then
+  PAGENUM="6/${PAGETOT}"
   zpool import -aN
   ANS=""
   while [ $? -eq 0 ] || [ -z "${ANS}" ]
   do
     if [ -n "${ANS}" ] ; then
-      adjustTextValue "Pool already exists: Select different ZFS pool name" "${ANS}"
+      adjustTextValue "Pool already exists: Select different ZFS pool name" "${ZPOOL}"
     else
       adjustTextValue "Select ZFS pool name" "trident"
     fi
-    ZPOOL="${ANS}"
-    zpool list "${ANS}"  > /dev/null 2> /dev/null
+    ZPOOL=$(echo "${ANS}" | tr -d '[:space:]' | tr '[:upper:]' '[:lower:]')
+    ANS="${ZPOOL}"
+    zpool list "${ZPOOL}"  > /dev/null 2> /dev/null
   done
   # Now unmount/export all zfs pools
   for pool in `zpool list -H | cut -d ' ' -f 1`
@@ -720,21 +744,15 @@ fi
 if [ -n "${PACKAGES}" ] ; then
   PACKAGES_CHROOT="${PACKAGES}"
 else
+  PAGENUM="7/${PAGETOT}"
   getPackages
 fi
 if [ -z "${TIMEZONE}" ] ; then
   TIMEZONE="America/New_York"
 fi
-#Check if we are using EFI boot
-efibootmgr > /dev/null 2>/dev/null
-if [ $? -eq 0 ] ; then
-  #Using EFI
-  BOOTMODE="EFI"
-else
-  BOOTMODE="LEGACY"
-fi
 #Now get user creation info
 if [ -n "${PACKAGES_CHROOT}" ] ; then
+  PAGENUM="8/${PAGETOT}"
   getUser
 fi
 
@@ -758,6 +776,7 @@ fi
 checkPackages
 
 #Verify that they want to begin the install now
+unset PAGENUM
 verifyInstallSummary
 
 # DO NOT Set target arch. This disables a lot of the post-install configuration for packages
