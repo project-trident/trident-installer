@@ -2,7 +2,7 @@
 
 SERVER_PACKAGES="iwd nano git jq zsh fish-shell wireguard bluez nftables dcron autofs cifs-utils"
 LITE_PACKAGES="${SERVER_PACKAGES} noto-fonts-ttf xorg-fonts xorg-minimal xf86-video-fbdev lumina qterminal qsudo compton hicolor-icon-theme trident-icons xrandr qt5-svg wpa-cute libdvdcss gutenprint ntfs-3g fuse-exfat simple-mtpfs pulseaudio pavucontrol"
-FULL_PACKAGES="${LITE_PACKAGES} telegram-desktop vlc firefox trojita pianobar libreoffice falkon spotify"
+FULL_PACKAGES="${LITE_PACKAGES} telegram-desktop vlc firefox trojita pianobar libreoffice spotify"
 
 if [ "${1}" = "-h" ] || [ "${1}" = "help" ] || [ "${1}" = "--help" ] ; then
 echo "Project Trident Installer
@@ -60,7 +60,7 @@ get_dlg_ans(){
   if [ -e "$TANS.dlg" ] ; then rm ${TANS}.dlg; fi
   while :
   do
-    echo "dialog --title \"$TITLE\" ${@}" >${TANS}.dlg
+    echo "dialog --no-cancel --title \"$TITLE\" ${@}" >${TANS}.dlg
     sh ${TANS}.dlg 2>${TANS}
     local _ret=$?
     if [ $_ret -ne 0 ] || [ ! -e "$TANS" ] ; then
@@ -80,6 +80,23 @@ get_dlg_ans(){
     rm ${TANS}.dlg
     return ${_ret}
   done
+}
+
+checkPackages(){
+  #Reads in the list of PACKAGES_CHROOT and verifies they exist in the repo
+  # Missing packages are put into the PACKAGES_MISSING variable
+  xbps-install -y -S --repository="${REPO}"
+  local okpkgs
+  for pkg in ${PACKAGES_CHROOT}
+  do
+    xbps-query -Rsi --repository="${REPO}" "^(${pkg}-)[0-9]"--regex 1>/dev/null
+    if [ $? -eq 0 ] ; then
+      okpkgs="${okpkgs} ${pkg}"
+    else
+      PACKAGES_MISSING="${PACKAGES_MISSING} ${pkg}"
+    fi
+  done
+  PACKAGES_CHROOT="${okpkgs}"
 }
 
 getDisks(){
@@ -118,12 +135,19 @@ getSwap(){
 getPassword(){
   TMP="1"
   TMP2="2"
+  local minlength=4
+  if [ "${1}" != "root" ] ; then minlength=8; fi
   while [ "${TMP}" != "${TMP2}" ]
   do
-    get_dlg_ans "--passwordbox \"Enter password for ${1}\n(Note: Hidden Text)\" 0 0"
-    TMP="${ANS}"
-    get_dlg_ans "--passwordbox \"Repeat password for ${1}\" 0 0"
-    TMP2="${ANS}"
+    get_dlg_ans "--passwordbox --insecure \"Enter password for ${1}\n\n(Note: Hidden Text, ${minlength} characters minimum, no spaces or tabs)\" 0 0"
+    TMP=$(echo "${ANS}" | tr -d '[:space:]')
+    if [ ${minlength} -gt ${#TMP} ] ; then
+      get_dlg_ans "--msgbox \"ERROR: Invalid password\" 0 0"
+      TMP="1" ; TMP2="2"
+    else
+      get_dlg_ans "--passwordbox --insecure \"Repeat password for ${1}\" 0 0"
+      TMP2="${ANS}"
+    fi
   done
   ANS="${TMP}"
   unset TMP
@@ -328,6 +352,22 @@ createUser(){
   if [ $? -ne 0 ] ; then
     return 1
   fi
+}
+
+verifyInstallSummary(){
+  text="Do you wish to begin the installation?\nThis may take 30 minutes or more depending on hardware capabilities and network connection speeds.\n
+System hostname: ${NHOSTNAME}
+Hard drive: ${DISK}
+ZFS pool name: ${ZPOOL}
+SWAP space reserved: ${SWAPSIZE}
+Create user: ${user} (${usercomment})
+Package type: ${REPOTYPE}
+Packages: ${PACKAGES_CHROOT}
+Packages ignored (not available): ${PACKAGES_MISSING}
+"
+  opts=" --yesno \"${text}\" 0 0"
+  get_dlg_ans "${opts}"
+  exit_err $? "Installation Cancelled"
 }
 
 doInstall(){
@@ -711,9 +751,13 @@ else
   export XBPS_ARCH=x86_64
   REPO="https://alpha.de.repo.voidlinux.org/current"
 fi
+checkPackages
+
+#Verify that they want to begin the install now
+verifyInstallSummary
+
 # DO NOT Set target arch. This disables a lot of the post-install configuration for packages
 #export XBPS_TARGET_ARCH="${XBPS_ARCH}" 
-
 if [ -n "${LOGFILE}" ] ; then
   # Split between log and stdout
   doInstall 2>&1 | tee "${LOGFILE}"
