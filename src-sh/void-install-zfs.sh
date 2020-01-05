@@ -274,11 +274,11 @@ installZfsBootMenu(){
 "Standard boot" "ro loglevel=4 elevator=noop root="
 "Single user boot" "ro loglevel=4 elevator=noop single root="
 "Single user verbose boot" "ro loglevel=6 elevator=noop single root="
-' > "${MNT}/boot/refind_linux.conf"
+' > "${MNT}/boot/efi/EFI/project-trident/refind_linux.conf"
   #${CHROOT} xbps-reconfigure -f refind
   ${CHROOT} refind-install --usedefault "${EFIDRIVE}"
   exit_err $? "Could not install refind!"
-  # Now remove the grub EFI entry that zfsbootmenu generated
+  # Now remove the grub EFI entry that zfsbootmenu generated (if any)
   rm ${MNT}/boot/efi/EFI/project-trident/*.efi
   # Tweak the rEFInd configuration
   bootsplash=$(ls /root/trident-wallpaper-refind*)
@@ -287,6 +287,7 @@ installZfsBootMenu(){
   echo "timeout 5" >> "${MNT}/boot/efi/EFI/boot/refind.conf"
   echo "banner $(basename ${bootsplash})" >> "${MNT}/boot/efi/EFI/boot/refind.conf"
   echo "banner_scale fillscreen" >> "${MNT}/boot/efi/EFI/boot/refind.conf"
+  #Ensure refind is setup to boot next (even if they don't eject the ISO)
   bootnext=$(efibootmgr | grep "EFI Hard Drive" | cut -d '*' -f 1 | rev | cut -d '0' -f 1)
   efibootmgr -n "${bootnext}"
   # Cleanup the static package file
@@ -815,9 +816,12 @@ verifyInstallSummary
 if [ -n "${LOGFILE}" ] ; then
   # Split between log and stdout
   doInstall 2>&1 | tee "${LOGFILE}"
+  #Copy the logfile over to the installed system logs
+  cp "${LOGFILE}" "${MNT}/var/log/trident-install.log"
 else
   # Just use stdout
   doInstall
 fi
+
 #Now cleanup before exit
 cleanupInstall
