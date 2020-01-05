@@ -385,17 +385,17 @@ doInstall(){
 # typically piped through tee to log the output
 
 #Print out an install summary really fast (this function is piped into a logfile for later viewing)
-echo "Installation Summary\n
-================\n
-System hostname: ${NHOSTNAME}\n
-Hard drive: ${DISK}\n
-ZFS pool name: ${ZPOOL}\n
-SWAP space reserved: ${SWAPSIZE}\n
-Create user: ${user} (${usercomment})\n
-Package type: ${REPOTYPE}\n
-Packages to install: ${PACKAGES_CHROOT}\n
-Packages ignored (not available): ${PACKAGES_MISSING}\n
-================\n
+echo "Installation Summary
+================
+System hostname: ${NHOSTNAME}
+Hard drive: ${DISK}
+ZFS pool name: ${ZPOOL}
+SWAP space reserved: ${SWAPSIZE}
+Create user: ${user} (${usercomment})
+Package type: ${REPOTYPE}
+Packages to install: ${PACKAGES_CHROOT}
+Packages ignored (not available): ${PACKAGES_MISSING}
+================
 "
 #Create the mountpoint
 if [ ! -d "${MNT}" ] ; then
