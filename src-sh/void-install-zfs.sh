@@ -424,9 +424,15 @@ sfdisk -w always ${DISK} << EOF
 	;
 EOF
 exit_err $? "Could not partition the disk: ${DISK}"
+echo "${DISK}" | grep -q "/dev/nvme"
+if [ $? -eq 0 ] ; then
+  #Need to inject a "p" before the partition number for nvme devices
+  DISK="${DISK}p"
+fi
 EFIDRIVE="${DISK}1"
 BOOTDRIVE="${DISK}2"
 SYSTEMDRIVE="${DISK}3"
+
 
 #Formatting the boot partition (FAT32)
 mkfs -t msdos ${EFIDRIVE}
