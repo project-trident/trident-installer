@@ -796,7 +796,7 @@ if [ -n "${PACKAGES_CHROOT}" ] ; then
   getUser
 fi
 
-SERVICES_ENABLED="dbus dhcpcd cupsd wpa_supplicant bluetoothd acpid nftables dcron autofs"
+SERVICES_ENABLED="dbus dhcpcd cupsd wpa_supplicant bluetoothd acpid nftables dcron autofs openntpd"
 
 # ==============================
 #  Generate Internal Variables from settings
