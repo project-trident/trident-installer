@@ -1,8 +1,10 @@
 #!/bin/bash
 
 SERVER_PACKAGES="iwd nano git jq zsh fish-shell wireguard bluez nftables dcron autofs cifs-utils"
-LITE_PACKAGES="${SERVER_PACKAGES} noto-fonts-ttf xorg-fonts xorg-minimal xf86-video-fbdev lumina qterminal qsudo compton hicolor-icon-theme trident-icons xrandr qt5-svg wpa-cute libdvdcss gutenprint ntfs-3g fuse-exfat simple-mtpfs pulseaudio pavucontrol gst-libav"
+LITE_PACKAGES="${SERVER_PACKAGES} noto-fonts-ttf xorg-fonts xorg-minimal xf86-video-fbdev lumina qterminal qsudo compton hicolor-icon-theme trident-icons xrandr qt5-svg wpa-cute libdvdcss gutenprint ntfs-3g fuse-exfat simple-mtpfs pulseaudio pavucontrol gst-libav sddm"
 FULL_PACKAGES="${LITE_PACKAGES} telegram-desktop vlc firefox trojita pianobar libreoffice"
+
+SERVICES_ENABLED="dbus dhcpcd cupsd wpa_supplicant bluetoothd acpid nftables dcron autofs openntpd sddm"
 
 if [ "${1}" = "-h" ] || [ "${1}" = "help" ] || [ "${1}" = "--help" ] ; then
 echo "Project Trident Installer
@@ -795,8 +797,6 @@ if [ -n "${PACKAGES_CHROOT}" ] ; then
   PAGENUM="8/${PAGETOT}"
   getUser
 fi
-
-SERVICES_ENABLED="dbus dhcpcd cupsd wpa_supplicant bluetoothd acpid nftables dcron autofs openntpd"
 
 # ==============================
 #  Generate Internal Variables from settings
