@@ -1,7 +1,7 @@
 #!/bin/bash
 
-SERVER_PACKAGES="iwd nano git jq zsh fish-shell wireguard bluez nftables dcron autofs cifs-utils firejail openvpn"
-LITE_PACKAGES="${SERVER_PACKAGES} noto-fonts-ttf xorg-fonts xorg-minimal xf86-video-fbdev lumina qterminal qsudo compton hicolor-icon-theme trident-icons xrandr qt5-svg wpa-cute libdvdcss gutenprint ntfs-3g fuse-exfat simple-mtpfs pulseaudio pavucontrol gst-libav sddm"
+SERVER_PACKAGES="iwd nano git jq zsh fish-shell wireguard bluez nftables dcron autofs cifs-utils firejail openvpn openntpd"
+LITE_PACKAGES="${SERVER_PACKAGES} noto-fonts-ttf xorg-fonts xorg-minimal mesa-dri xf86-video-fbdev lumina qterminal qsudo compton hicolor-icon-theme trident-icons xrandr qt5-svg wpa-cute libdvdcss gutenprint ntfs-3g fuse-exfat simple-mtpfs pulseaudio pavucontrol gst-libav sddm"
 FULL_PACKAGES="${LITE_PACKAGES} telegram-desktop vlc firefox trojita pianobar libreoffice"
 
 SERVICES_ENABLED="dbus dhcpcd cupsd wpa_supplicant bluetoothd acpid nftables dcron autofs openntpd sddm"
@@ -558,6 +558,7 @@ echo "KEYMAP=\"${KEYMAP}\"" >> ${MNT}/etc/rc.conf
 echo "TIMEZONE=\"${TIMEZONE}\"" >> ${MNT}/etc/rc.conf
 echo "HARDWARECLOCK=\"UTC\"" >> ${MNT}/etc/rc.conf
 echo ${NHOSTNAME} > ${MNT}/etc/hostname
+echo 'LANG="en_US.UTF-8"' >> ${MNT}/etc/locale.conf
 
 #ensure passwords are encrypted by the most-secure algorithm available by default
 echo "ENCRYPT_METHOD    SHA512" >> ${MNT}/etc/login.defs
