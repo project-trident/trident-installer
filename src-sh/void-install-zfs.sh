@@ -1,7 +1,7 @@
 #!/bin/bash
 
 SERVER_PACKAGES="iwd nano git jq zsh fish-shell wireguard bluez bluez-alsa nftables dcron autofs cifs-utils firejail openvpn openntpd neofetch sl"
-LITE_PACKAGES="${SERVER_PACKAGES} noto-fonts-ttf xorg-fonts xorg-minimal mesa-dri xf86-video-fbdev lumina qterminal qsudo compton hicolor-icon-theme trident-icons xrandr qt5-svg wpa-cute libdvdcss ntfs-3g fuse-exfat simple-mtpfs pulseaudio pavucontrol gst-libav sddm"
+LITE_PACKAGES="${SERVER_PACKAGES} noto-fonts-ttf xorg-fonts xorg-minimal mesa-dri xf86-video-fbdev lumina qterminal qsudo compton hicolor-icon-theme trident-icons xrandr qt5-svg wpa-cute libdvdcss ntfs-3g fuse-exfat simple-mtpfs pulseaudio alsa-plugins-pulseaudio pavucontrol gst-libav sddm"
 FULL_PACKAGES="${LITE_PACKAGES} telegram-desktop vlc firefox trojita pianobar libreoffice cups foomatic-db foomatic-db-engine cups-filters"
 
 SERVICES_ENABLED="dbus dhcpcd cupsd wpa_supplicant bluetoothd bluez-alsa acpid nftables dcron autofs openntpd sddm"
@@ -472,9 +472,12 @@ zpool create -f -o ashift=12 -d \
 		-O normalization=formD \
 		-O relatime=on \
 		-O xattr=sa \
-		-O autotrim=on \
 		${ZPOOL} ${SYSTEMDRIVE}
 exit_err $? "Could not create pool: ${ZPOOL} on ${SYSTEMDRIVE}"
+# Try to set the autotrim property (if available on this pool/disk)
+#  Do not fail if this errors out
+zpool set autotrim=on "${ZPOOL}"
+
 #Configure the pool now
 zfs create -o canmount=off ${ZPOOL}/ROOT
 zfs create -o mountpoint=/ -o canmount=noauto ${ZPOOL}/ROOT/${INITBE}
