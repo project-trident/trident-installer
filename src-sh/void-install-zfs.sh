@@ -1,7 +1,8 @@
 #!/bin/bash
 
-SERVER_PACKAGES="iwd nano git jq zsh fish-shell wireguard bluez bluez-alsa nftables dcron autofs cifs-utils firejail openvpn openntpd neofetch sl"
-LITE_PACKAGES="${SERVER_PACKAGES} noto-fonts-ttf xorg-fonts xorg-minimal mesa-dri xf86-video-fbdev lumina qterminal qsudo compton hicolor-icon-theme trident-icons xrandr qt5-svg wpa-cute libdvdcss ntfs-3g fuse-exfat simple-mtpfs pulseaudio alsa-plugins-pulseaudio pavucontrol gst-libav sddm"
+
+SERVER_PACKAGES="zsh fish-shell firejail openvpn neofetch sl trident-core"
+LITE_PACKAGES="${SERVER_PACKAGES} wpa-cute ntfs-3g fuse-exfat simple-mtpfs trident-desktop"
 FULL_PACKAGES="${LITE_PACKAGES} telegram-desktop vlc firefox trojita pianobar libreoffice cups foomatic-db foomatic-db-engine cups-filters"
 
 SERVICES_ENABLED="dbus dhcpcd cupsd wpa_supplicant bluetoothd bluez-alsa acpid nftables dcron autofs openntpd sddm"
@@ -247,23 +248,25 @@ cleanupInstall(){
 
 installZfsBootMenu(){
   echo "Installing zfsbootmenu"
-  # Install the zfsbootmenu custom package if it exists
-  pkgfile=$(ls /root/zfsbootmenu*)
-  if [ ! -f "${pkgfile}" ] ; then return ; fi
-  if [ -f "/root/xdowngrade-quiet" ] ; then
-    cp /root/xdowngrade-quiet ${MNT}/usr/bin/xdowngrade
-  else
-    ${CHROOT} xbps-install -y xtools
-  fi
-  exit_err $? "Could not install package utilities!" 
-  ${CHROOT} xbps-install -y fzf kexec-tools perl-Config-IniFiles refind
-  exit_err $? "Could not install bootloader utilities!"
-  cp "${pkgfile}" "${MNT}${pkgfile}"
-  ${CHROOT} xdowngrade ${pkgfile}
-  exit_err $? "Could not install zfsbootmenu!"
-  if [ -f "/root/xdowngrade-quiet" ] ; then
-    #Remove temporary xdowngrade script
-    rm ${MNT}/usr/bin/xdowngrade
+  if [ ! -e "${MNT}/etc/zfsbootmenu/config.ini" ] ; then
+    # Install the zfsbootmenu custom package if it exists
+    pkgfile=$(ls /root/zfsbootmenu*)
+    if [ ! -f "${pkgfile}" ] ; then return ; fi
+    if [ -f "/root/xdowngrade-quiet" ] ; then
+      cp /root/xdowngrade-quiet ${MNT}/usr/bin/xdowngrade
+    else
+      ${CHROOT} xbps-install -y xtools
+    fi
+    exit_err $? "Could not install package utilities!" 
+    ${CHROOT} xbps-install -y fzf kexec-tools perl-Config-IniFiles refind
+    exit_err $? "Could not install bootloader utilities!"
+    cp "${pkgfile}" "${MNT}${pkgfile}"
+    ${CHROOT} xdowngrade ${pkgfile}
+    exit_err $? "Could not install zfsbootmenu!"
+    if [ -f "/root/xdowngrade-quiet" ] ; then
+      #Remove temporary xdowngrade script
+      rm ${MNT}/usr/bin/xdowngrade
+    fi
   fi
   # Setup the config file within the chroot
   sed -i 's|/void|/project-trident|g' "${MNT}/etc/zfsbootmenu/config.ini"
@@ -281,7 +284,7 @@ installZfsBootMenu(){
   ${CHROOT} refind-install --usedefault "${EFIDRIVE}"
   exit_err $? "Could not install refind!"
   # Now remove the grub EFI entry that zfsbootmenu generated (if any)
-  rm ${MNT}/boot/efi/EFI/project-trident/*.efi
+  #rm ${MNT}/boot/efi/EFI/project-trident/*.efi
   # Tweak the rEFInd configuration
   bootsplash=$(ls /root/trident-wallpaper-refind*)
   cp "${bootsplash}" ${MNT}/boot/efi/EFI/boot/.
@@ -528,9 +531,13 @@ echo "-------------------------------"
 #Copy over the repository keys from the ISO (prevent prompting for acceptance if they match already)
 mkdir -p "${MNT}/var/db/xbps/keys"
 cp /var/db/xbps/keys/*.plist "${MNT}/var/db/xbps/keys/."
+#Copy over any custom repo definitions
+mkdir -p "${MNT}/etc/xbps.d"
+cp /etc/xbps.d/*.conf "${MNT}/etc/xbps.d/."
+
 #NOTE: Do NOT install the ZFS package yet - that needs to run inside chroot for post-install actions.
 xbps-install -y -S -r "${MNT}" --repository="${REPO}"
-xbps-install -y -r "${MNT}" --repository="${REPO}" base-system grub grub-i386-efi grub-x86_64-efi ${PACKAGES}
+xbps-install -y -r "${MNT}" --repository="${REPO}" base-system zfsbootmenu grub grub-i386-efi grub-x86_64-efi ${PACKAGES}
 exit_err $? "Could not install void packages!!"
 
 linuxver=`${CHROOT} xbps-query linux | grep pkgver | cut -d - -f 2 | cut -d . -f 1-2 | cut -d _ -f 1`
@@ -546,6 +553,7 @@ if [ -e "/etc/resolv.conf" ] ; then
   #Copy the current host resolv.conf (assume it is working)
   cp /etc/resolv.conf ${MNT}/etc/resolv.conf
 fi
+
 #Copy over any saved wifi networks from the ISO
 cp "/etc/wpa_supplicant/wpa_supplicant.conf" "${MNT}/etc/wpa_supplicant/wpa_supplicant.conf"
 #add fstab entry to mount /boot/efi partition
@@ -704,8 +712,7 @@ ${CHROOT} grub-install ${BOOTDEVICE}
 
 #Stamp EFI loader on the EFI partition
 mkdir -p "${MNT}/boot/efi/EFI/boot/"
-zbootpkg=$(ls /root/zfsbootmenu-*)
-if [ "${BOOTMODE}" = "EFI" ] && [ -n "${zbootpkg}" ] ; then
+if [ "${BOOTMODE}" = "EFI" ] ; then
   installZfsBootMenu
 else
   #Create a project-trident directory only
@@ -809,13 +816,13 @@ fi
 BOOTDEVICE="${DISK}"
 MNT="/run/ovlwork/mnt"
 CHROOT="chroot ${MNT}"
-
+ARCH=$(uname -m)
 # Automatically adjust the musl/glibc repo switch as needed
 if [ "${REPOTYPE}" = "musl" ] ; then
-  export XBPS_ARCH=x86_64-musl
+  export XBPS_ARCH=${ARCH}-musl
   REPO="https://alpha.de.repo.voidlinux.org/current/musl"
 else
-  export XBPS_ARCH=x86_64
+  export XBPS_ARCH=${ARCH}
   REPO="https://alpha.de.repo.voidlinux.org/current"
 fi
 checkPackages
