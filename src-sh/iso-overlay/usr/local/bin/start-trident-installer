@@ -60,8 +60,33 @@ PingTest(){
   #ip route get 1 >/dev/null 2>/dev/null
   #if [ $? -ne 0 ] ; then return 1 ; fi
   #Now make sure that github can be reached
-  curl --silent --max-time 2 https://api.github.com/repos/project-trident/trident-installer/releases >/dev/null
-  return $?
+  BRANCHES=$(curl --silent --max-time 2 https://api.github.com/repos/project-trident/trident-installer/branches | jq '.[]?.name' | grep -E '(master|release/)' | tr -d '"')
+  if [ -z "${BRANCHES}" ] ; then
+    return 1
+  else
+    return 0
+  fi
+}
+
+getInstallBranch(){
+  BRANCH=""
+  if [ "${BRANCHES}" = "master" ] ; then
+    #Only one branch available - just use it
+    BRANCH="master"
+    return
+  fi
+  # Prompt the user to select a branch
+  opts=""
+  for brch in ${BRANCHES}
+  do
+    if [ "${brch}" = "master" ] ; then
+      opts=" ${brch} \"Experimental installer\""
+    else
+      opts=" ${brch} \"\""
+    fi
+    get_dls_ans "--menu \"Select an installer version to run\" 0 0 0 ${opts}"
+    BRANCH="${ANS}"
+  done
 }
 
 GetWifiDevice(){
@@ -139,7 +164,7 @@ InstallSuccessful(){
 }
 
 StartInstall(){
-  PingTest
+  PingTest #Sets the BRANCHES variable
   if [ $? -ne 0 ] ; then
     get_dlg_ans "--msgbox \"Networking not available. Please configure it first!\" 0 0"
     ANS="dummy"
@@ -147,8 +172,11 @@ StartInstall(){
   fi
   # Now download the latest install script
   if [ ! -e "${INSTALLER}" ] || [ "${1}" = "-f" ] ; then
+    # Now select the proper branch for the install script
+    getInstallBranch #Sets the "BRANCH" variable
+    if [ -z "${BRANCH}" ] ; then return 0 ; fi
     if [ -e "${INSTALLER}" ] ; then rm "${INSTALLER}" ; fi
-    wget https://raw.githubusercontent.com/project-trident/trident-installer/master/src-sh/void-install-zfs.sh -O "${INSTALLER}"
+    wget https://raw.githubusercontent.com/project-trident/trident-installer/${BRANCH}/src-sh/void-install-zfs.sh -O "${INSTALLER}"
     chmod 755 "${INSTALLER}"
   fi
 
