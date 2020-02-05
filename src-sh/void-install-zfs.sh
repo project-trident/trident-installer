@@ -1,8 +1,8 @@
 #!/bin/bash
 
 
-SERVER_PACKAGES="zsh fish-shell firejail openvpn neofetch sl trident-core"
-LITE_PACKAGES="${SERVER_PACKAGES} wpa-cute ntfs-3g fuse-exfat simple-mtpfs trident-desktop"
+SERVER_PACKAGES="zsh fish-shell firejail openvpn neofetch sl wget trident-core"
+LITE_PACKAGES="${SERVER_PACKAGES} wpa-cute ntfs-3g fuse-exfat simple-mtpfs trident-desktop setxkbmap"
 FULL_PACKAGES="${LITE_PACKAGES} telegram-desktop vlc firefox trojita pianobar libreoffice cups foomatic-db foomatic-db-engine cups-filters"
 
 SERVICES_ENABLED="dbus dhcpcd cupsd wpa_supplicant bluetoothd bluez-alsa acpid nftables dcron autofs openntpd sddm"
