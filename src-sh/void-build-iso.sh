@@ -1,5 +1,9 @@
 #!/bin/bash
 
+TARGET_ARCH="$1"
+if [ -z "${ARCH}" ] ; then
+  TARGET_ARCH="x86_64"
+fi
 #Verify that needed packages are installed
 packages="git qemu-user-static liblz4 make"
 for pkg in ${packages}
@@ -29,9 +33,9 @@ if [ ! -d "${outdir}" ] ; then
   mkdir -p ${outdir}
 fi
 
-readonly ARCH="x86_64-musl"
+readonly ARCH="${TARGET_ARCH}-musl"
 readonly DATE=$(date +%Y%m%d)
-readonly IMGNAME="Trident-netinstall-x86_64.iso"
+readonly IMGNAME="Trident-netinstall-${TARGET_ARCH}.iso"
 
 readonly GRUB_PKGS="grub-i386-efi grub-x86_64-efi"
 readonly BASE_PKGS="dialog mdadm ${GRUB_PKGS}"
