@@ -674,10 +674,10 @@ echo "Step 6: Setup Bootloader(s)"
 echo "-------------------------------"
 echo
 #Now reinstall grub on the boot device after the reconfiguration
-if [ "zfs" != "$(${CHROOT} grub-probe /)" ] ; then
-  echo "ERROR: Could not verify ZFS nature of /"
-  exit 1
-fi
+#if [ "zfs" != "$(${CHROOT} grub-probe /)" ] ; then
+#  echo "ERROR: Could not verify ZFS nature of /"
+#  exit 1
+#fi
 #Chase down a fix that was also added to the grub auto-scripts
 export ZPOOL_VDEV_NAME_PATH=YES
 #Get the disk UUID for the boot disk
