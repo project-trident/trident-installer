@@ -187,8 +187,8 @@ echo -ne \\x$a\\x$b\\x$c\\x$d > /etc/hostid
 }
 
 getPackages(){
-opts="Full \"[Experimental] Desktop install with many extra utilities\" Lite \"[Experimental] Desktop install only\" Server \"Base system setup only\" Void \"Bare-bones install on ZFS\" "
-  get_dlg_ans "--menu \"Select the package set to install. Packages are easily changed later.\\n\\n[WARNING] The Full and Lite desktop options are still a work in progress and not fully-implemented yet.\" 0 0 0 ${opts}"
+opts="Full \"Desktop install with many extra utilities\" Lite \"Desktop install only\" Server \"Base system setup only\" Void \"Bare-bones install on ZFS\" "
+  get_dlg_ans "--menu \"Select the package set to install. Packages are easily changed later.\" 0 0 0 ${opts}"
   case ${ANS} in
     Full)
 	PACKAGES_CHROOT="${FULL_PACKAGES}"

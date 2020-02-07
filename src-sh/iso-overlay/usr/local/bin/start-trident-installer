@@ -199,7 +199,7 @@ if [ ! -d "/var/service/wpa_supplicant" ] ; then
   sv start wpa_supplicant
 fi
 
-get_dlg_ans "--msgbox \"Welcome to the Project Trident installation image. An internet connection is required to perform the installation.\n\nWARNING: This is a pre-release image of Project Trident. Some features may not be completed yet.\n\nwww.project-trident.org\" 0 0"
+get_dlg_ans "--msgbox \"Welcome to the Project Trident installation image. An internet connection is required to perform the installation.\n\nwww.project-trident.org\" 0 0"
 ANS="anything"
 while [ -n "${ANS}" ] 
 do
