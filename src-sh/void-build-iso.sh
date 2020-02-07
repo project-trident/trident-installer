@@ -1,9 +1,10 @@
 #!/bin/bash
 
-TARGET_ARCH="$1"
-if [ -z "${ARCH}" ] ; then
+TARGET_ARCH="${1}"
+if [ -z "${TARGET_ARCH}" ] ; then
   TARGET_ARCH="x86_64"
 fi
+
 #Verify that needed packages are installed
 packages="git qemu-user-static liblz4 make"
 for pkg in ${packages}
@@ -39,7 +40,7 @@ readonly IMGNAME="Trident-netinstall-${TARGET_ARCH}.iso"
 
 readonly GRUB_PKGS="grub-i386-efi grub-x86_64-efi"
 readonly BASE_PKGS="dialog mdadm ${GRUB_PKGS}"
-readonly TRIDENT_PKGS="${BASE_PKGS} zfs wget curl mtools gptfdisk"
+readonly TRIDENT_PKGS="${BASE_PKGS} zfs wget curl jq mtools gptfdisk"
 readonly BLTITLE="Project-Trident-Installer"
 # Make sure the output ISO file does not already exist (repeated builds)
 if [ -e "${outdir}/${IMGNAME}" ] ; then
