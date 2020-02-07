@@ -534,6 +534,10 @@ cp /var/db/xbps/keys/*.plist "${MNT}/var/db/xbps/keys/."
 #Copy over any custom repo definitions
 mkdir -p "${MNT}/etc/xbps.d"
 cp /etc/xbps.d/*.conf "${MNT}/etc/xbps.d/."
+#Ensure the trident repo config is installed (if not copied from the ISO itself)
+if [ !  -e "${MNT}/etc/xbps.d/trident.conf" ] ; then
+  wget "https://project-trident.org/repo/conf/trident.conf" -O "${MNT}/etc/xbps.d/trident.conf"
+fi
 
 #NOTE: Do NOT install the ZFS package yet - that needs to run inside chroot for post-install actions.
 xbps-install -y -S -r "${MNT}" --repository="${REPO}"
