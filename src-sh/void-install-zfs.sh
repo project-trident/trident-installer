@@ -258,7 +258,7 @@ installZfsBootMenu(){
       ${CHROOT} xbps-install -y xtools
     fi
     exit_err $? "Could not install package utilities!" 
-    ${CHROOT} xbps-install -y fzf kexec-tools perl-Config-IniFiles refind
+    ${CHROOT} xbps-install -y fzf kexec-tools perl-Config-IniFiles
     exit_err $? "Could not install bootloader utilities!"
     cp "${pkgfile}" "${MNT}${pkgfile}"
     ${CHROOT} xdowngrade ${pkgfile}
@@ -604,6 +604,11 @@ echo
 mkdir ${MNT}/tmp/pkg-cache
 rm ${MNT}/var/cache/xbps/*
 # Required packages
+if [ "${BOOTMODE}" = "EFI" ] ; then
+  #if installing with EFI - need refind
+  PACKAGES_CHROOT="refind ${PACKAGES_CHROOT}"
+fi
+
 for pkg in zfs cryptsetup pam_zfscrypt ${PACKAGES_CHROOT}
 do
   echo
@@ -669,7 +674,7 @@ echo "Step 6: Setup Bootloader(s)"
 echo "-------------------------------"
 echo
 #Now reinstall grub on the boot device after the reconfiguration
-if [ "zfs" != $(${CHROOT} grub-probe /) ] ; then
+if [ "zfs" != "$(${CHROOT} grub-probe /)" ] ; then
   echo "ERROR: Could not verify ZFS nature of /"
   exit 1
 fi
