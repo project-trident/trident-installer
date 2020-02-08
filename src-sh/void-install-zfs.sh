@@ -269,8 +269,11 @@ installZfsBootMenu(){
     fi
   fi
   # Setup the config file within the chroot
+
   sed -i 's|/void|/project-trident|g' "${MNT}/etc/zfsbootmenu/config.ini"
   sed -i 's|ManageImages=0|ManageImages=1|' "${MNT}/etc/zfsbootmenu/config.ini"
+  sed -i 's|Copies=0|Copies=1|' "${MNT}/etc/zfsbootmenu/config.ini"
+
   # Now install zfsbootmenu boot entries
   mkdir -p "${MNT}/boot/efi/EFI/project-trident"
   ${CHROOT} xbps-reconfigure -f zfsbootmenu
