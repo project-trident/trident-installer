@@ -60,7 +60,8 @@ PingTest(){
   #ip route get 1 >/dev/null 2>/dev/null
   #if [ $? -ne 0 ] ; then return 1 ; fi
   #Now make sure that github can be reached
-  BRANCHES=$(curl --silent --max-time 2 https://api.github.com/repos/project-trident/trident-installer/branches | jq '.[]?.name' | grep -E '(master|release/)' | tr -d '"')
+  # BRANCHES=$(curl --silent --max-time 10 https://api.github.com/repos/project-trident/trident-installer/branches | jq '.[]?.name' | tr -d '"' | tr '\n' ' ')
+  BRANCHES=$(curl --silent --max-time 10 https://api.github.com/repos/project-trident/trident-installer/branches | jq '.[]?.name' | grep -E '(master|release/)' | tr -d '"' | tr '\n' ' ')
   if [ -z "${BRANCHES}" ] ; then
     return 1
   else
@@ -80,13 +81,13 @@ getInstallBranch(){
   for brch in ${BRANCHES}
   do
     if [ "${brch}" = "master" ] ; then
-      opts=" ${brch} \"Experimental installer\""
+      opts="${opts} ${brch} \"WARNING: Experimental\""
     else
-      opts=" ${brch} \"\""
+      opts="${opts} ${brch} \"\""
     fi
-    get_dls_ans "--menu \"Select an installer version to run\" 0 0 0 ${opts}"
-    BRANCH="${ANS}"
   done
+  get_dlg_ans "--menu \"Select an installer version to run\" 0 0 0 ${opts}"
+  BRANCH="${ANS}"
 }
 
 GetWifiDevice(){
@@ -171,7 +172,7 @@ StartInstall(){
     return 0
   fi
   # Now download the latest install script
-  if [ ! -e "${INSTALLER}" ] || [ "${1}" = "-f" ] ; then
+  if [ ! -e "${INSTALLER}" ] ; then
     # Now select the proper branch for the install script
     getInstallBranch #Sets the "BRANCH" variable
     if [ -z "${BRANCH}" ] ; then return 0 ; fi
