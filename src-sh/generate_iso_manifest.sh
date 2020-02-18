@@ -8,7 +8,7 @@ _version="${4}"
 isopath="${_isofile}"
 
 isoname=$(basename "${_isofile}")
-isosize=`ls -lh "${isopath}" | cut -w -f 5`
+isosize=`ls -lh "${isopath}" | cut -d ' ' -f 5`
 sigfile="${isoname}.sig.sha512"
 md5_file="${isoname}.md5"
 sha_file="${isoname}.sha256"
@@ -28,11 +28,11 @@ sign_iso(){
 
 generate_checksums(){
   #MD5
-  md5 "${isopath}" > "${_outdir}/${md5_file}"
-  md5_sum=`cat "${_outdir}/${md5_file}" | rev | cut -w -f 1 | rev`
+  md5sum "${isopath}" > "${_outdir}/${md5_file}"
+  md5_sum=`cat "${_outdir}/${md5_file}" | cut -d ' ' -f 1`
   #SHA256
-  sha256 "${isopath}" > "${_outdir}/${sha_file}"
-  sha_sum=`cat "${_outdir}/${sha_file}" | rev | cut -w -f 1 | rev`
+  sha256sum "${isopath}" > "${_outdir}/${sha_file}"
+  sha_sum=`cat "${_outdir}/${sha_file}" | cut -d ' ' -f 1`
 }
 
 generate_manifest(){
@@ -44,8 +44,8 @@ echo "{
 \"md5\" : \"${md5_sum}\",
 \"sha256_file\" : \"${sha_file}\",
 \"sha256\" : \"${sha_sum}\",
-\"build_date\" : \"$(date -j '+%b %d, %Y')\",
-\"build_date_time_t\" : \"$(date -j '+%s')\",
+\"build_date\" : \"$(date '+%b %d, %Y')\",
+\"build_date_time_t\" : \"$(date '+%s')\",
 \"version\" : \"${_version}\"
 }
 " > "${_outdir}/manifest.json"
