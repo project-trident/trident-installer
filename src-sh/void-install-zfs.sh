@@ -541,6 +541,7 @@ cp /etc/xbps.d/*.conf "${MNT}/etc/xbps.d/."
 if [ !  -e "${MNT}/etc/xbps.d/trident.conf" ] ; then
   wget "https://project-trident.org/repo/conf/trident.conf" -O "${MNT}/etc/xbps.d/trident.conf"
 fi
+chmod 644 "${MNT}/etc/xbps.d/trident.conf"
 
 #NOTE: Do NOT install the ZFS package yet - that needs to run inside chroot for post-install actions.
 xbps-install -y -S -r "${MNT}" --repository="${REPO}"
