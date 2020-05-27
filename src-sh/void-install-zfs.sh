@@ -422,14 +422,17 @@ echo "Erasing the first 500MB of the disk"
 dd if=/dev/zero of=${DISK} bs=100M count=5
 echo "Erasing the last 1MB of the disk"
 #Note that blockdev returns size in 512 byte blocks
-dd if=/dev/zero of=${DISK} bs=512 seek=$(( $(blockdev --getsz ${DISK}) - 2048 )) count=2048
+local disksz=$(blockdev --getsz ${DISK})
+dd if=/dev/zero of=${DISK} bs=512 seek=$(( ${disksz} - 2048 )) count=2048
 
 echo "Formatting the disk: ${BOOTMODE} ${DISK}"
+local zdisksz=$(( ${disksz} / 2)) #convert to MB
+zdisksz=$(( ${zdisksz} - 212 )) #210MB at front of device, 2MB at end of device (sizes may vary a tiny bit to start on sector boundaries)
 sfdisk -w always ${DISK} << EOF
 	label: gpt
 	,200M,U
 	,10M,21686148-6449-6E6F-744E-656564454649,*
-	;
+	,${zdisksz}M,L
 EOF
 exit_err $? "Could not partition the disk: ${DISK}"
 echo "${DISK}" | grep -q "/dev/nvme"
