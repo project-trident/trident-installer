@@ -269,25 +269,23 @@ installZfsBootMenu(){
     fi
   fi
   # Setup the config file within the chroot
-
-  sed -i 's|/void|/project-trident|g' "${MNT}/etc/zfsbootmenu/config.ini"
   sed -i 's|ManageImages=0|ManageImages=1|' "${MNT}/etc/zfsbootmenu/config.ini"
   sed -z -i 's|Copies=0|Copies=2|' "${MNT}/etc/zfsbootmenu/config.ini"
 
   # Now install zfsbootmenu boot entries
-  mkdir -p "${MNT}/boot/efi/EFI/project-trident"
+  mkdir -p "${MNT}/boot/efi/EFI/void"
   ${CHROOT} xbps-reconfigure -f zfsbootmenu
   # Setup rEFInd
   echo '"Standard quiet boot"  "ro quiet loglevel=0 elevator=noop root="
 "Standard boot" "ro loglevel=4 elevator=noop root="
 "Single user boot" "ro loglevel=4 elevator=noop single root="
 "Single user verbose boot" "ro loglevel=6 elevator=noop single root="
-' > "${MNT}/boot/efi/EFI/project-trident/refind_linux.conf"
+' > "${MNT}/boot/efi/EFI/void/refind_linux.conf"
   #${CHROOT} xbps-reconfigure -f refind
-  ${CHROOT} refind-install --usedefault "${EFIDRIVE}"
+  ${CHROOT} refind-install --usedefault "${EFIDRIVE}" #This creates the EFI/boot/bootx64.efi file
   exit_err $? "Could not install refind!"
   # Now remove the grub EFI entry that zfsbootmenu generated (if any)
-  #rm ${MNT}/boot/efi/EFI/project-trident/*.efi
+  #rm ${MNT}/boot/efi/EFI/void/*.efi
   # Tweak the rEFInd configuration
   bootsplash=$(ls /root/trident-wallpaper-refind*)
   cp "${bootsplash}" ${MNT}/boot/efi/EFI/boot/.
@@ -295,8 +293,10 @@ installZfsBootMenu(){
   echo "timeout 5" >> "${MNT}/boot/efi/EFI/boot/refind.conf"
   echo "banner $(basename ${bootsplash})" >> "${MNT}/boot/efi/EFI/boot/refind.conf"
   echo "banner_scale fillscreen" >> "${MNT}/boot/efi/EFI/boot/refind.conf"
+  #Now register the EFI boot entry properly (default void setup does not always work)
+  efibootmgr -c -d "${DISK}" -p 1 -L Trident -l "\\EFI\\boot\\bootx64.efi"
   #Ensure refind is setup to boot next (even if they don't eject the ISO)
-  bootnext=$(efibootmgr | grep "EFI Hard Drive" | cut -d '*' -f 1 | rev | cut -d '0' -f 1)
+  bootnext=$(efibootmgr | grep "Trident" | cut -d '*' -f 1 | rev | cut -d '0' -f 1)
   efibootmgr -n "${bootnext}"
   # Cleanup the static package file
   rm "${MNT}${pkgfile}"
