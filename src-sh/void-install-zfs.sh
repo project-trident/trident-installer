@@ -298,6 +298,7 @@ installZfsBootMenu(){
   #Ensure refind is setup to boot next (even if they don't eject the ISO)
   bootnext=$(efibootmgr | grep "Trident" | cut -d '*' -f 1 | rev | cut -d '0' -f 1)
   efibootmgr -n "${bootnext}"
+  efibootmgr -t 5 #Set the timeout to 5 seconds if not previously set from rEFInd config
   # Cleanup the static package file
   rm "${MNT}${pkgfile}"
 }
