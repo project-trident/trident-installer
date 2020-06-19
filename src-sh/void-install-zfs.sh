@@ -2,7 +2,7 @@
 
 
 SERVER_PACKAGES="zsh fish-shell firejail openvpn neofetch sl wget trident-core"
-LITE_PACKAGES="${SERVER_PACKAGES} wpa-cute ntfs-3g fuse-exfat simple-mtpfs trident-desktop setxkbmap"
+LITE_PACKAGES="${SERVER_PACKAGES} xorg-video-drivers wpa-cute ntfs-3g fuse-exfat simple-mtpfs trident-desktop setxkbmap"
 FULL_PACKAGES="${LITE_PACKAGES} telegram-desktop vlc firefox trojita pianobar libreoffice cups foomatic-db foomatic-db-engine cups-filters"
 
 SERVICES_ENABLED="dbus dhcpcd cupsd wpa_supplicant bluetoothd acpid nftables dcron autofs openntpd sddm"
@@ -549,7 +549,7 @@ chmod 644 ${MNT}/etc/xbps.d/*.conf
 
 #NOTE: Do NOT install the ZFS package yet - that needs to run inside chroot for post-install actions.
 xbps-install -y -S -r "${MNT}" --repository="${REPO}"
-xbps-install -y -r "${MNT}" --repository="${REPO}" base-system zfsbootmenu grub grub-i386-efi grub-x86_64-efi ${PACKAGES}
+xbps-install -y -r "${MNT}" --repository="${REPO}" base-minimal zfsbootmenu grub grub-i386-efi grub-x86_64-efi ${PACKAGES}
 exit_err $? "Could not install void packages!!"
 
 linuxver=`${CHROOT} xbps-query linux | grep pkgver | cut -d - -f 2 | cut -d . -f 1-2 | cut -d _ -f 1`
@@ -617,7 +617,7 @@ if [ "${BOOTMODE}" = "EFI" ] ; then
   PACKAGES_CHROOT="refind ${PACKAGES_CHROOT}"
 fi
 
-for pkg in zfs cryptsetup pam_zfscrypt ${PACKAGES_CHROOT}
+for pkg in trident-base zfs cryptsetup pam_zfscrypt ${PACKAGES_CHROOT}
 do
   echo
   echo "Installing package: ${pkg}"
