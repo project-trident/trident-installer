@@ -248,6 +248,7 @@ cleanupInstall(){
 
 installZfsBootMenu(){
   echo "Installing zfsbootmenu"
+  echo "quiet loglevel=3 elevator=noop" > ${MNT}/etc/default/zfsbootmenu
   if [ ! -e "${MNT}/etc/zfsbootmenu/config.ini" ] ; then
     # Install the zfsbootmenu custom package if it exists
     pkgfile=$(ls /root/zfsbootmenu*)
@@ -697,7 +698,6 @@ wallpaper=$(ls /root/Trident-wallpaper.*)
 wallpaper=$(basename ${wallpaper})
 wallfmt=$(echo ${wallpaper} | cut -d . -f 2)
 cp "/root/${wallpaper}" "${MNT}/etc/default/grub-splash.${wallfmt}"
-# NOTE: zfsbootmenu also reads the grub configuration file for many of it's own settings like timeout
 echo "
 GRUB_DEFAULT=0
 GRUB_TIMEOUT=5
@@ -709,6 +709,7 @@ GRUB_DISABLE_OS_PROBER=true
 GRUB_DISABLE_LINUX_UUID=true
 GRUB_DISABLE_LINUX_PARTUUID=true
 " > ${MNT}/etc/default/grub
+
 #GRUB_CMDLINE_LINUX=\"root=LABEL=${ZPOOL}\" #Does not know it is ZFS and throws a fit
 #GRUB_CMDLINE_LINUX=\"root=UUID=${diskuuid}\"
 #GRUB_CMDLINE_LINUX=\"root=ZFS=${ZPOOL}/ROOT/${INITBE}\"
