@@ -570,7 +570,8 @@ fi
 #Copy over any saved wifi networks from the ISO
 cp "/etc/wpa_supplicant/wpa_supplicant.conf" "${MNT}/etc/wpa_supplicant/wpa_supplicant.conf"
 #add fstab entry to mount /boot/efi partition
-echo "${EFIDRIVE} /boot/efi auto rw,nosuid,noauto,nouser,noexec,sync 0 0" >> ${MNT}/etc/fstab
+efiuuid=$(lsblk -n -o UUID ${EFIDRIVE})
+echo "UUID=\"${efiuuid}\" /boot/efi auto rw,nosuid,noauto,nouser,noexec,sync 0 0" >> ${MNT}/etc/fstab
 
 #Now inject a couple always-working DNS nameservers into the end of resolv.conf
 echo "8.8.8.8" >> ${MNT}/etc/resolv.conf
