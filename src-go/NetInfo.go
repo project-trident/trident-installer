@@ -51,9 +51,9 @@ func ScanForNetworking(){
   if (ok) {
     Frame.status = "Network: [lightgreen::b]OK"
     //Frame.footer = "Branches: " + strings.Join(branches, ", ")
+    Frame.ChangePage("") //Go back to the top-menu since it is now ok
   }else{
     Frame.status = "Network: [red::b]UNAVAILABLE"
   }
-
   QueueUpdate()
 }

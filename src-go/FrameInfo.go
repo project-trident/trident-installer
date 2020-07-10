@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/gdamore/tcell"
 	"github.com/rivo/tview"
+	"strings"
 )
 
 /*NOTE=============
@@ -24,8 +25,6 @@ type FrameInfo struct {
 	//Access to the display widgets themselves
 	frame *tview.Frame
 	list *tview.List
-	//Internal variables for triggering changes
-	gotoPage string
 }
 
 func (FI *FrameInfo)Init(){
@@ -43,17 +42,47 @@ func (FI *FrameInfo)Init(){
   //Setup the default menu info
   FI.status = "Network [red::l]UNAVAILABLE [lightgreen::-]OK"
   FI.page = "Top Menu"
-  FI.pageinfo = "Please Select an option to get started"
-  FI.footer = ""
+  FI.pageinfo = "Please select an option to get started"
+  FI.footer = "www.project-trident.org"
 }
+
 func (FI FrameInfo)Update(){
   FI.frame.Clear().
   AddText("",true, tview.AlignCenter, tcell.ColorWhite).
   AddText("[::bu]Project Trident Installer", true, tview.AlignCenter, tcell.ColorLightGreen).
-  //AddText("Network [red]UNAVAILABLE [lightgreen]OK ",true, tview.AlignRight, tcell.ColorWhite).
   AddText(FI.status+"  ",true, tview.AlignRight, tcell.ColorWhite).
   AddText("  "+FI.page,true, tview.AlignLeft, tcell.ColorWhite).
   AddText(FI.pageinfo,true, tview.AlignCenter, tcell.ColorWhite).
 
   AddText(FI.footer,false, tview.AlignCenter, tcell.ColorWhite)
+}
+
+func (FI *FrameInfo) ChangePage( newpage string ){
+  if newpage == "dl_installer" {
+    //Download installer version
+    FI.page = "Installer Version"
+    Frame.list.Clear()
+    for _, branch := range(branches){
+      if(branch == "master"){
+        Frame.list.AddItem("Master", "[yellow::b]HAZARD:[-] Latest experimental version", rune(0), func(){ Frame.ChangePage("") } )
+      } else {
+        rel := strings.Split(branch,"/")[1]
+        Frame.list.AddItem(rel, "Release version: "+ rel, rune(0), func(){ Frame.ChangePage("") } )
+      }
+    }
+    Frame.list.AddItem("Cancel", "Return to the top-level menu", 'X', func(){ Frame.ChangePage("") } )    
+  } else {
+    //Top Menu
+    FI.page = "Top Menu"
+    Frame.list.Clear()
+    if(len(branches) > 0){ 
+      Frame.list.AddItem("Setup Installation", "Proceed through the installation setup wizard.", 'S', func(){ Frame.ChangePage("dl_installer") } )
+    }else{
+      Frame.list.AddItem("Rescan Network", "Check to see if the network setting are working", 's', func(){ startNetworkScan() } )
+    }
+    Frame.list.AddItem("Reboot", "Reboot the system", 'R', func(){ } )
+    Frame.list.AddItem("Poweroff", "Poweroff the system", 'P', func(){ } )
+    Frame.list.AddItem("Exit to Terminal", "Drop to the system terminal for manual configuration", 't', func(){app.Stop()} )
+  }
+
 }

@@ -25,9 +25,7 @@ func QueueUpdate() {
 func main() {
 	app = tview.NewApplication()
 	Frame.Init()
-	Frame.list.AddItem("Print Footer", "Print to screen", '1', func(){ Frame.footer="Footer Printed"; } )
-	Frame.list.AddItem("Clear Footer", "Draw", '2', func(){ Frame.footer=""; } )
-	Frame.list.AddItem("Quit", "Press to exit", 'q', func(){app.Stop()} )
+	Frame.ChangePage("") //top menu
 	startNetworkScan()
         app.SetBeforeDrawFunc( BeforeDraw )
 	if err := app.SetRoot(Frame.frame, true).EnableMouse(true).Run(); err != nil {
