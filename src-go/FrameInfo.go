@@ -4,6 +4,7 @@ import (
 	"github.com/gdamore/tcell"
 	"github.com/rivo/tview"
 	"strings"
+	"time"
 )
 
 /*NOTE=============
@@ -51,6 +52,7 @@ func (FI FrameInfo)Update(){
   AddText("",true, tview.AlignCenter, tcell.ColorWhite).
   AddText("[::bu]Project Trident Installer", true, tview.AlignCenter, tcell.ColorLightGreen).
   AddText(FI.status+"  ",true, tview.AlignRight, tcell.ColorWhite).
+  AddText(time.Now().Format("Mon, Jan 02, 2006")+"  ",true, tview.AlignRight, tcell.ColorWhite).
   AddText("  "+FI.page,true, tview.AlignLeft, tcell.ColorWhite).
   AddText(FI.pageinfo,true, tview.AlignCenter, tcell.ColorWhite).
 
