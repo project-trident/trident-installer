@@ -437,9 +437,9 @@ sfdisk -w always ${DISK} << EOF
 	,${zdisksz}M,L
 EOF
 exit_err $? "Could not partition the disk: ${DISK}"
-EFIDRIVE=`basename $(ls /dev/${DISK}*1)`
-BOOTDRIVE=`basename $(ls /dev/${DISK}*2)`
-SYSTEMDRIVE=`basename $(ls /dev/${DISK}*3)`
+EFIDRIVE=`basename $(ls ${DISK}*1)`
+BOOTDRIVE=`basename $(ls ${DISK}*2)`
+SYSTEMDRIVE=`basename $(ls ${DISK}*3)`
 
 
 #Formatting the boot partition (FAT32)
