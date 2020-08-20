@@ -249,7 +249,7 @@ cleanupInstall(){
 installZfsBootMenu(){
   echo "Installing zfsbootmenu"
   echo "quiet loglevel=3 elevator=noop" > ${MNT}/etc/default/zfsbootmenu
-  if [ ! -e "${MNT}/etc/zfsbootmenu/config.ini" ] ; then
+  if [ ! -e "${MNT}/etc/zfsbootmenu/config.yaml" ] ; then
     # Install the zfsbootmenu custom package if it exists
     pkgfile=$(ls /root/zfsbootmenu*)
     if [ ! -f "${pkgfile}" ] ; then return ; fi
@@ -545,7 +545,7 @@ chmod 644 ${MNT}/etc/xbps.d/*.conf
 
 #NOTE: Do NOT install the ZFS package yet - that needs to run inside chroot for post-install actions.
 xbps-install -y -S -r "${MNT}" --repository="${REPO}"
-xbps-install -y -r "${MNT}" --repository="${REPO}" base-minimal zfsbootmenu grub grub-i386-efi grub-x86_64-efi ${PACKAGES}
+xbps-install -y -r "${MNT}" --repository="${REPO}" base-minimal zfsbootmenu yq-go grub grub-i386-efi grub-x86_64-efi ${PACKAGES}
 exit_err $? "Could not install void packages!!"
 
 linuxver=`${CHROOT} xbps-query linux | grep pkgver | cut -d - -f 2 | cut -d . -f 1-2 | cut -d _ -f 1`

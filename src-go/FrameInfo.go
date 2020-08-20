@@ -5,6 +5,7 @@ import (
 	"github.com/rivo/tview"
 	"strings"
 	"time"
+	"os/exec"
 )
 
 /*NOTE=============
@@ -25,12 +26,15 @@ type FrameInfo struct {
 	pageinfo string
 	//Access to the display widgets themselves
 	frame *tview.Frame
+	pages *tview.Pages
 	list *tview.List
 }
 
 func (FI *FrameInfo)Init(){
   FI.list = tview.NewList()
-  FI.frame = tview.NewFrame(FI.list).SetBorders(0,0,0,0,0,0)
+  FI.pages = tview.NewPages()
+  FI.pages.AddPage("list", FI.list, true, true)
+  FI.frame = tview.NewFrame(FI.pages).SetBorders(0,0,0,0,0,0)
   //Setup all the colors
   FI.frame.SetBackgroundColor(tcell.ColorBlue)
   FI.list.SetBackgroundColor(tcell.ColorSilver)
@@ -63,28 +67,36 @@ func (FI *FrameInfo) ChangePage( newpage string ){
   if newpage == "dl_installer" {
     //Download installer version
     FI.page = "Installer Version"
-    Frame.list.Clear()
+    FI.list.Clear()
     for _, branch := range(branches){
       if(branch == "master"){
-        Frame.list.AddItem("Master", "[yellow::b]HAZARD:[-] Latest experimental version", rune(0), func(){ Frame.ChangePage("") } )
+        FI.list.AddItem("Master", "[yellow::b]HAZARD:[-] Latest experimental version", rune(0), func(){ FI.ChangePage("") } )
       } else {
         rel := strings.Split(branch,"/")[1]
-        Frame.list.AddItem(rel, "Release version: "+ rel, rune(0), func(){ Frame.ChangePage("") } )
+        FI.list.AddItem(rel, "Release version: "+ rel, rune(0), func(){ FI.ChangePage("") } )
       }
     }
-    Frame.list.AddItem("Cancel", "Return to the top-level menu", 'X', func(){ Frame.ChangePage("") } )    
+    FI.list.AddItem("Cancel", "Return to the top-level menu", 'X', func(){ FI.ChangePage("") } )    
+    FI.pages.SwitchToPage("list")
   } else {
     //Top Menu
     FI.page = "Top Menu"
-    Frame.list.Clear()
+    FI.list.Clear()
     if(len(branches) > 0){ 
-      Frame.list.AddItem("Setup Installation", "Proceed through the installation setup wizard.", 'S', func(){ Frame.ChangePage("dl_installer") } )
+      FI.list.AddItem("Setup Installation", "Proceed through the installation setup wizard.", 'S', func(){ FI.ChangePage("dl_installer") } )
     }else{
-      Frame.list.AddItem("Rescan Network", "Check to see if the network setting are working", 's', func(){ startNetworkScan() } )
+      FI.list.AddItem("Rescan Network", "Check to see if the network setting are working", 's', func(){ startNetworkScan() } )
     }
-    Frame.list.AddItem("Reboot", "Reboot the system", 'R', func(){ } )
-    Frame.list.AddItem("Poweroff", "Poweroff the system", 'P', func(){ } )
-    Frame.list.AddItem("Exit to Terminal", "Drop to the system terminal for manual configuration", 't', func(){app.Stop()} )
+    FI.list.AddItem("Reboot", "Reboot the system", 'R', func(){ 
+      exec.Command("reboot").Run()
+      app.Stop()
+    } )
+    FI.list.AddItem("Poweroff", "Poweroff the system", 'P', func(){
+      exec.Command("poweroff").Run()
+      app.Stop()
+    } )
+    FI.list.AddItem("Exit to Terminal", "Drop to the system terminal for manual configuration", 't', func(){app.Stop()} )
+    FI.pages.SwitchToPage("list")
   }
 
 }
