@@ -270,8 +270,7 @@ installZfsBootMenu(){
     fi
   fi
   # Setup the config file within the chroot
-  sed -i 's|ManageImages=0|ManageImages=1|' "${MNT}/etc/zfsbootmenu/config.ini"
-  sed -z -i 's|Copies=0|Copies=2|' "${MNT}/etc/zfsbootmenu/config.ini"
+  yq-go write -i ${MNT}/etc/zfsbootmenu/config.yaml Global.ManageImages true
 
   # Now install zfsbootmenu boot entries
   mkdir -p "${MNT}/boot/efi/EFI/void"
