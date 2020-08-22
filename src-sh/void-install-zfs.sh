@@ -440,8 +440,11 @@ exit_err $? "Could not partition the disk: ${DISK}"
 #  Some devices just append a number (sdX<N>), some append s<N> (nvmeX), some use p<N> (mmcblkX)
 #  Sort by newest-created first, and only take the 1st match, just in case there are random other device entries found
 EFIDRIVE=`basename $(ls -t ${DISK}*1 | head -n 1)`
+EFIDRIVE="/dev/${EFIDRIVE}"
 BOOTDRIVE=`basename $(ls -t ${DISK}*2 | head -n 1)`
+BOOTDRIVE="/dev/${BOOTDRIVE}"
 SYSTEMDRIVE=`basename $(ls -t ${DISK}*3 | head -n 1)`
+SYSTEMDRIVE="/dev/${SYSTEMDRIVE}"
 
 
 #Formatting the boot partition (FAT32)
