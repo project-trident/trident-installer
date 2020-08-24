@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 	"os/exec"
+	"strconv"
 )
 
 /*NOTE=============
@@ -64,22 +65,15 @@ func (FI FrameInfo)Update(){
 }
 
 func (FI *FrameInfo) ChangePage( newpage string ){
-  if newpage == "dl_installer" {
-    //Download installer version
-    FI.page = "Installer Version"
-    FI.list.Clear()
-    for _, branch := range(branches){
-      if(branch == "master"){
-        FI.list.AddItem("Master", "[yellow::b]HAZARD:[-] Latest experimental version", rune(0), func(){ FI.ChangePage("") } )
-      } else {
-        rel := strings.Split(branch,"/")[1]
-        FI.list.AddItem(rel, "Release version: "+ rel, rune(0), func(){ FI.ChangePage("") } )
-      }
-    }
-    FI.list.AddItem("Cancel", "Return to the top-level menu", 'X', func(){ FI.ChangePage("") } )    
-    FI.pages.SwitchToPage("list")
-  } else {
-    //Top Menu
+  //This is where we match page Index to the associated function to populate the page
+  switch newpage {
+	case "dl_installer": FI.ShowSelectInstallerList()
+	default: FI.ShowTopMenu()
+  }
+
+}
+
+func (FI *FrameInfo) ShowTopMenu(){
     FI.page = "Top Menu"
     FI.list.Clear()
     if(len(branches) > 0){ 
@@ -97,6 +91,28 @@ func (FI *FrameInfo) ChangePage( newpage string ){
     } )
     FI.list.AddItem("Exit to Terminal", "Drop to the system terminal for manual configuration", 't', func(){app.Stop()} )
     FI.pages.SwitchToPage("list")
-  }
+}
 
+func (FI *FrameInfo) ShowSelectInstallerList(){
+    FI.page = "Installer Selection"
+    FI.pageinfo = "Select a version of the install routine to use."
+    FI.list.Clear()
+    gotrelease := false
+    for i := len(branches)-1; i>=0; i-- { //
+      branch := branches[i]
+      if(branch == "master"){
+        //always show the "master" version
+        FI.list.AddItem("Master", "[yellow::b]HAZARD:[-] Experimental version", rune(0), func(){ FI.ChangePage("") } )
+      } else if !gotrelease {
+        //only show the latest release version - could have lots of different branches of this which get obsolete
+        gotrelease = true
+        rel := strings.Split( strings.Split(branch,"/")[1], ".") //Always [YY, MM]
+	year := "20"+rel[0]
+        monthnum, _ := strconv.Atoi(rel[1])
+	month := time.Month( monthnum ).String()
+        FI.list.AddItem(rel[0]+"."+rel[1], "Release version: "+ month +", "+year, rune(0), func(){ FI.ChangePage("") } )
+      }
+    }
+    FI.list.AddItem("Cancel", "Return to the top-level menu", 'X', func(){ FI.ChangePage("") } )    
+    FI.pages.SwitchToPage("list")
 }

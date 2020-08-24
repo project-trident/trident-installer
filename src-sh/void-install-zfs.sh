@@ -177,7 +177,7 @@ adjustTextValue(){
 generateHostid(){
 # chars must be 0-9, a-f, A-F and exactly 8 chars
 local host_id=$(cat /dev/urandom | tr -dc 'a-f0-9' | fold -w 8 | head -n 1)
-echo "Auto-generated HostID: ${host_id}"
+#echo "Auto-generated HostID: ${host_id}"
 #Found this snippet below from a random script online - but seems to work fine (Ken Moore: 12/29/19)
 a=${host_id:6:2}
 b=${host_id:4:2}
@@ -458,7 +458,7 @@ modprobe zfs
 exit_err $? "Could not verify ZFS module"
 
 generateHostid
-echo "New ISO hostid: $(hostid)"
+#echo "New ISO hostid: $(hostid)"
 
 echo "Creating ZFS Pool: ${ZPOOL}"
 zpool create -f -o ashift=12 -d \
