@@ -554,9 +554,6 @@ xbps-install -y -S -r "${MNT}" --repository="${REPO}"
 xbps-install -y -r "${MNT}" --repository="${REPO}" base-minimal zfsbootmenu yq-go grub grub-i386-efi grub-x86_64-efi ${PACKAGES}
 exit_err $? "Could not install void packages!!"
 
-linuxver=`${CHROOT} xbps-query linux | grep pkgver | cut -d - -f 2 | cut -d . -f 1-2 | cut -d _ -f 1`
-echo "Got Linux Version: ${linuxver}"
-
 echo "Symlink /home to /usr/home mountpoint"
 rmdir ${MNT}/home
 ${CHROOT} ln -s /usr/home /home
@@ -605,7 +602,11 @@ echo "Fix dracut and kernel config, then update grub"
 echo "hostonly=\"yes\"" >> ${MNT}/etc/dracut.conf.d/zol.conf
 echo "nofsck=\"yes\"" >> ${MNT}/etc/dracut.conf.d/zol.conf
 echo "add_dracutmodules+=\"zfs btrfs resume\"" >> ${MNT}/etc/dracut.conf.d/zol.conf
-${CHROOT} xbps-reconfigure -f linux${linuxver}
+# Get the currently-installed linux package name
+linuxpkg=`xbps-query --regex -s 'linux[0-9]\.[0-9]$' -p "pkgname" | cut -d ' ' -f 2 | tail -1`
+echo "Got Linux Kernel Package: ${linuxpkg}"
+# Reconfigure that package
+${CHROOT} xbps-reconfigure -f "${linuxpkg}"
 
 echo
 echo "-------------------------------"
@@ -722,7 +723,7 @@ GRUB_DISABLE_LINUX_PARTUUID=true
 #echo "updating grub"
 #${CHROOT} update-grub
 ${CHROOT} zpool set cachefile=/etc/zfs/zpool.cache "${ZPOOL}"
-${CHROOT} xbps-reconfigure -f linux${linuxver}
+${CHROOT} xbps-reconfigure -f "${linuxpkg}"
 #${CHROOT} lsinitrd -m
 
 echo "Installing GRUB bootloader"
