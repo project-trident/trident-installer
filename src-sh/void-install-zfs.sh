@@ -603,10 +603,12 @@ echo "hostonly=\"yes\"" >> ${MNT}/etc/dracut.conf.d/zol.conf
 echo "nofsck=\"yes\"" >> ${MNT}/etc/dracut.conf.d/zol.conf
 echo "add_dracutmodules+=\"zfs btrfs resume\"" >> ${MNT}/etc/dracut.conf.d/zol.conf
 # Get the currently-installed linux package name
-linuxpkg=`${CHROOT} xbps-query --regex -s 'linux[0-9]\.[0-9]$' -p "pkgname" | cut -d ' ' -f 2 | tail -1`
+# This looks within the xbps package db directly (xbps-query does not work in a chroot very well)
+linuxpkg=$(ls -t ${MNT}/var/db/xbps/.linux*-headers*.plist | head -1 | cut -d \- -f 1 | cut -d . -f 2-3)
 if [ "${linuxpkg}" = "" ] ; then
-  echo "Unable to determine Linux Kernel package!!"
-  exit 1
+  echo "[WARNING] Unable to determine Linux Kernel package!!"
+  echo "Using the generic 'linux' package instead"
+  linuxpkg="linux"
 fi
 echo "Got Linux Kernel Package: ${linuxpkg}"
 # Reconfigure that package
