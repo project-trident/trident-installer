@@ -270,8 +270,16 @@ installZfsBootMenu(){
     fi
   fi
   # Setup the config file within the chroot
-  ${CHROOT} yq-go write -i /etc/zfsbootmenu/config.yaml Global.ManageImages true
-  ${CHROOT} yq-go write -i /etc/zfsbootmenu/config.yaml Components.Enabled true
+  ${CHROOT} yq-go -V | cut -d " " -f 3 | grep -Eq '^3'
+  if [ $? -eq 0 ] ; then
+    #yq-go version 3.x format
+    ${CHROOT} yq-go write -i /etc/zfsbootmenu/config.yaml Global.ManageImages true
+    ${CHROOT} yq-go write -i /etc/zfsbootmenu/config.yaml Components.Enabled true
+  else
+    #yq-go version 4.x format
+    ${CHROOT} yq-go eval '.Global.ManageImages = true' /etc/zfsbootmenu/config.yaml
+    ${CHROOT} yq-go eval '.Components.Enabled = true' /etc/zfsbootmenu/config.yaml
+  fi
   
   # Now install zfsbootmenu boot entries
   mkdir -p "${MNT}/boot/efi/EFI/void"
