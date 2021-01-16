@@ -445,6 +445,7 @@ sfdisk --force -w always ${DISK} << EOF
 	,${zdisksz}M,L
 EOF
 exit_err $? "Could not partition the disk: ${DISK}"
+sleep 2 #let devices settle a moment
 # Search for the devices with the numbering we just created (this accounts for differing device labeling based on device type)
 #  Some devices just append a number (sdX<N>), some append s<N> (nvmeX), some use p<N> (mmcblkX)
 #  Sort by newest-created first, and only take the 1st match, just in case there are random other device entries found
