@@ -277,8 +277,8 @@ installZfsBootMenu(){
     ${CHROOT} yq-go write -i /etc/zfsbootmenu/config.yaml Components.Enabled true
   else
     #yq-go version 4.x format
-    ${CHROOT} yq-go eval '.Global.ManageImages = true' /etc/zfsbootmenu/config.yaml
-    ${CHROOT} yq-go eval '.Components.Enabled = true' /etc/zfsbootmenu/config.yaml
+    ${CHROOT} yq-go eval -i '.Global.ManageImages = true' /etc/zfsbootmenu/config.yaml
+    ${CHROOT} yq-go eval -i '.Components.Enabled = true' /etc/zfsbootmenu/config.yaml
   fi
   
   # Now install zfsbootmenu boot entries
