@@ -310,6 +310,8 @@ installZfsBootMenu(){
   efibootmgr -t 5 #Set the timeout to 5 seconds if not previously set from rEFInd config
   # Cleanup the static package file
   rm "${MNT}${pkgfile}"
+  # Re-run zfsbootmenu generation (just in case)
+  ${CHROOT} xbps-reconfigure -f zfsbootmenu
 }
 
 setupPamCrypt(){
