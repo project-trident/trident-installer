@@ -285,16 +285,15 @@ installZfsBootMenu(){
   mkdir -p "${MNT}/boot/efi/EFI/void"
   ${CHROOT} xbps-reconfigure -f zfsbootmenu
   # Setup rEFInd
-  echo '"Standard quiet boot"  "ro quiet loglevel=0 elevator=noop root="
-"Standard boot" "ro loglevel=4 elevator=noop root="
-"Single user boot" "ro loglevel=4 elevator=noop single root="
-"Single user verbose boot" "ro loglevel=6 elevator=noop single root="
+  echo '"Quiet boot"  "ro quiet loglevel=0 zbm.import_policy=hostid zbm.set_hostid"
+"Standard boot" "ro loglevel=4 zbm.import_policy=hostid zbm.set_hostid"
+"Verbose boot" "ro loglevel=7 zbm.import_policy=hostid zbm.set_hostid"
+"Single user boot" "ro loglevel=4 zbm.import_policy=hostid zbm.set_hostid"
+"Single user verbose boot" "ro loglevel=7 zbm.import_policy=hostid zbm.set_hostid"
 ' > "${MNT}/boot/efi/EFI/void/refind_linux.conf"
   #${CHROOT} xbps-reconfigure -f refind
   ${CHROOT} refind-install --usedefault "${EFIDRIVE}" #This creates the EFI/boot/bootx64.efi file
   exit_err $? "Could not install refind!"
-  # Now remove the grub EFI entry that zfsbootmenu generated (if any)
-  #rm ${MNT}/boot/efi/EFI/void/*.efi
   # Tweak the rEFInd configuration
   bootsplash=$(ls /root/trident-wallpaper-refind*)
   cp "${bootsplash}" ${MNT}/boot/efi/EFI/boot/.
@@ -443,7 +442,6 @@ zdisksz=$(( ${zdisksz} - 512 )) #510MB at front of device, 2MB at end of device 
 sfdisk --force -w always ${DISK} << EOF
 	label: gpt
 	,500M,U
-	,10M,21686148-6449-6E6F-744E-656564454649,*
 	,${zdisksz}M,L
 EOF
 exit_err $? "Could not partition the disk: ${DISK}"
@@ -453,9 +451,7 @@ sleep 2 #let devices settle a moment
 #  Sort by newest-created first, and only take the 1st match, just in case there are random other device entries found
 EFIDRIVE=`basename $(ls -t ${DISK}*1 | head -n 1)`
 EFIDRIVE="/dev/${EFIDRIVE}"
-BOOTDRIVE=`basename $(ls -t ${DISK}*2 | head -n 1)`
-BOOTDRIVE="/dev/${BOOTDRIVE}"
-SYSTEMDRIVE=`basename $(ls -t ${DISK}*3 | head -n 1)`
+SYSTEMDRIVE=`basename $(ls -t ${DISK}*2 | head -n 1)`
 SYSTEMDRIVE="/dev/${SYSTEMDRIVE}"
 
 
@@ -526,7 +522,7 @@ do
   exit_err $? "Could not create dataset: ${ds}"
 done
 
-dirs="boot/grub boot/efi dev etc proc run sys"
+dirs="boot/efi dev etc proc run sys"
 for dir in ${dirs}
 do
   mkdir -p ${MNT}/${dir}
@@ -562,7 +558,7 @@ chmod 644 ${MNT}/etc/xbps.d/*.conf
 
 #NOTE: Do NOT install the ZFS package yet - that needs to run inside chroot for post-install actions.
 xbps-install -y -S -r "${MNT}" --repository="${REPO}"
-xbps-install -y -r "${MNT}" --repository="${REPO}" trident-base grub grub-i386-efi grub-x86_64-efi ${PACKAGES}
+xbps-install -y -r "${MNT}" --repository="${REPO}" trident-base ${PACKAGES}
 exit_err $? "Could not install void packages!!"
 
 echo "Symlink /home to /usr/home mountpoint"
@@ -609,7 +605,7 @@ exit_err $? "Could not install the nonfree repo"
 ${CHROOT} xbps-install -y -S
 
 echo
-echo "Fix dracut and kernel config, then update grub"
+echo "Fix dracut and kernel config"
 echo "hostonly=\"yes\"" >> ${MNT}/etc/dracut.conf.d/zol.conf
 echo "nofsck=\"yes\"" >> ${MNT}/etc/dracut.conf.d/zol.conf
 echo "add_dracutmodules+=\" zfs btrfs resume \"" >> ${MNT}/etc/dracut.conf.d/zol.conf
@@ -702,62 +698,14 @@ echo "-------------------------------"
 echo "Step 6: Setup Bootloader(s)"
 echo "-------------------------------"
 echo
-#Now reinstall grub on the boot device after the reconfiguration
-#if [ "zfs" != "$(${CHROOT} grub-probe /)" ] ; then
-#  echo "ERROR: Could not verify ZFS nature of /"
-#  exit 1
-#fi
-#Chase down a fix that was also added to the grub auto-scripts
-export ZPOOL_VDEV_NAME_PATH=YES
-#Get the disk UUID for the boot disk
-diskuuid=$(blkid --output export ${SYSTEMDRIVE} | grep -E '^(UUID=)' | cut -d = -f 2  )
-echo "Got ZFS pool disk uuid: ${diskuuid}"
-#Setup the GRUB configuration
-mkdir -p ${MNT}/etc/default
-wallpaper=$(ls /root/Trident-wallpaper.*)
-wallpaper=$(basename ${wallpaper})
-wallfmt=$(echo ${wallpaper} | cut -d . -f 2)
-cp "/root/${wallpaper}" "${MNT}/etc/default/grub-splash.${wallfmt}"
-echo "
-GRUB_DEFAULT=0
-GRUB_TIMEOUT=5
-GRUB_DISTRIBUTOR=\"Project-Trident\"
-GRUB_CMDLINE_LINUX_DEFAULT=\"quiet loglevel=3 elevator=noop\"
-GRUB_BACKGROUND=/etc/default/grub-splash.${wallfmt}
-GRUB_CMDLINE_LINUX=\"root=ZFS=${ZPOOL}/ROOT/${INITBE}\"
-GRUB_DISABLE_OS_PROBER=true
-GRUB_DISABLE_LINUX_UUID=true
-GRUB_DISABLE_LINUX_PARTUUID=true
-" > ${MNT}/etc/default/grub
-
-#GRUB_CMDLINE_LINUX=\"root=LABEL=${ZPOOL}\" #Does not know it is ZFS and throws a fit
-#GRUB_CMDLINE_LINUX=\"root=UUID=${diskuuid}\"
-#GRUB_CMDLINE_LINUX=\"root=ZFS=${ZPOOL}/ROOT/${INITBE}\"
-
-
-# to see if these help
-# grub needs updating after we make changes
-#echo "updating grub"
-#${CHROOT} update-grub
 ${CHROOT} zpool set cachefile=/etc/zfs/zpool.cache "${ZPOOL}"
 ${CHROOT} xbps-reconfigure -f "${linuxpkg}"
 #${CHROOT} lsinitrd -m
 
-echo "Installing GRUB bootloader"
-#Stamp GPT loader on disk itself for non-EFI boot-ability
-${CHROOT} grub-mkconfig -o /boot/grub/grub.cfg
-${CHROOT} grub-install ${BOOTDEVICE}
-
 #Stamp EFI loader on the EFI partition
-mkdir -p "${MNT}/boot/efi/EFI/boot/"
-if [ "${BOOTMODE}" = "EFI" ] ; then
-  installZfsBootMenu
-else
-  #Create a project-trident directory only
-  ${CHROOT} grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=Project-Trident --recheck --no-floppy
-  #Copy the EFI registration to the default boot path as well
-  cp "${MNT}/boot/efi/EFI/project-trident/grubx64.efi" "${MNT}/boot/efi/EFI/boot/bootx64.efi"
-fi
+mkdir -p "${MNT}/boot/efi/EFI/void/"
+installZfsBootMenu
+
 # Take an initial snapshot of the boot environment
 ${CHROOT} zfs snapshot ${ZPOOL}/ROOT/${INITBE}@cleaninstall
 echo
@@ -775,8 +723,8 @@ if [ $? -eq 0 ] ; then
   BOOTMODE="EFI"
 else
   BOOTMODE="LEGACY"
-  get_dlg_ans " --yesno \"WARNING: Please boot with UEFI for the best experience.\n\nThis system is currently booting in legacy mode and features such as boot environments and dataset encryption will not be available.\n\nContinue with install setup anyway?\" 0 0"
-  exit_err $? "Installation Cancelled (Legacy boot)"
+  get_dlg_ans " --msgbox \"Error: Please reboot with UEFI enabled.\n\nThis system is currently booting in legacy mode and features such as boot environments and dataset encryption are not be available with Legacy boot systems.\" 0 0"
+  exit 1
 fi
 
 PAGETOT="8"
