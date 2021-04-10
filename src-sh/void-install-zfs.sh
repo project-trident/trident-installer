@@ -612,7 +612,7 @@ echo
 echo "Fix dracut and kernel config, then update grub"
 echo "hostonly=\"yes\"" >> ${MNT}/etc/dracut.conf.d/zol.conf
 echo "nofsck=\"yes\"" >> ${MNT}/etc/dracut.conf.d/zol.conf
-echo "add_dracutmodules+=\"zfs btrfs resume\"" >> ${MNT}/etc/dracut.conf.d/zol.conf
+echo "add_dracutmodules+=\" zfs btrfs resume \"" >> ${MNT}/etc/dracut.conf.d/zol.conf
 # Get the currently-installed linux package name
 # This looks within the xbps package db directly (xbps-query does not work in a chroot very well)
 linuxpkg=$(ls -t ${MNT}/var/db/xbps/.linux*-headers*.plist | head -1 | cut -d \- -f 1 | cut -d . -f 2-3)
