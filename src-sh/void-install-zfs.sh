@@ -288,8 +288,8 @@ installZfsBootMenu(){
   echo '"Quiet boot"  "ro quiet loglevel=0 zbm.import_policy=hostid zbm.set_hostid"
 "Standard boot" "ro loglevel=4 zbm.import_policy=hostid zbm.set_hostid"
 "Verbose boot" "ro loglevel=7 zbm.import_policy=hostid zbm.set_hostid"
-"Single user boot" "ro loglevel=4 zbm.import_policy=hostid zbm.set_hostid"
-"Single user verbose boot" "ro loglevel=7 zbm.import_policy=hostid zbm.set_hostid"
+"Single user boot" "ro loglevel=4 single zbm.import_policy=hostid zbm.set_hostid"
+"Single user verbose boot" "ro loglevel=7 single zbm.import_policy=hostid zbm.set_hostid"
 ' > "${MNT}/boot/efi/EFI/void/refind_linux.conf"
   #${CHROOT} xbps-reconfigure -f refind
   ${CHROOT} refind-install --usedefault "${EFIDRIVE}" #This creates the EFI/boot/bootx64.efi file
