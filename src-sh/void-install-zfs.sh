@@ -280,7 +280,8 @@ installZfsBootMenu(){
     ${CHROOT} yq-go eval -i '.Global.ManageImages = true' /etc/zfsbootmenu/config.yaml
     ${CHROOT} yq-go eval -i '.Components.Enabled = true' /etc/zfsbootmenu/config.yaml
   fi
-  
+  # Ensure zfsbootmenu does not embed the nvidia/nouveau modules in it's image
+  echo 'omit_drivers+=" nouveau nvidia "' >> ${MNT}/etc/zfsbootmenu/dracut.conf.d/nvidia.conf
   # Now install zfsbootmenu boot entries
   mkdir -p "${MNT}/boot/efi/EFI/void"
   ${CHROOT} xbps-reconfigure -f zfsbootmenu
@@ -608,7 +609,7 @@ echo
 echo "Fix dracut and kernel config"
 echo "hostonly=\"yes\"" >> ${MNT}/etc/dracut.conf.d/zol.conf
 echo "nofsck=\"yes\"" >> ${MNT}/etc/dracut.conf.d/zol.conf
-echo "add_dracutmodules+=\" zfs btrfs resume \"" >> ${MNT}/etc/dracut.conf.d/zol.conf
+echo "add_dracutmodules+=\" zfs resume \"" >> ${MNT}/etc/dracut.conf.d/zol.conf
 # Get the currently-installed linux package name
 # This looks within the xbps package db directly (xbps-query does not work in a chroot very well)
 linuxpkg=$(ls -t ${MNT}/var/db/xbps/.linux*-headers*.plist | head -1 | cut -d \- -f 1 | cut -d . -f 2-3)
