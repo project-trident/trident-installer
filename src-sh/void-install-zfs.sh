@@ -248,7 +248,7 @@ cleanupInstall(){
 
 installZfsBootMenu(){
   echo "Installing zfsbootmenu"
-  echo "quiet loglevel=3 elevator=noop rd.hostonly=0" > ${MNT}/etc/default/zfsbootmenu
+  echo "quiet loglevel=3 rd.hostonly=0" > ${MNT}/etc/default/zfsbootmenu
   if [ ! -e "${MNT}/etc/zfsbootmenu/config.yaml" ] ; then
     # Install the zfsbootmenu custom package if it exists
     pkgfile=$(ls /root/zfsbootmenu*)
