@@ -6,6 +6,7 @@ import (
 	"strings"
 	"strconv"
 	"regexp"
+	"path/filepath"
 )
 
 type sfDisk struct {
@@ -51,7 +52,7 @@ func ListDisks() map[string]*sfDisk {
 			CD.bytes, _ = strconv.Atoi( strings.Split(list[1]," ")[0] )
 			CD.sectors, _ = strconv.Atoi( strings.Split(list[2]," ")[0] )
 			//Finally ensure this disk is in the output map
-			out[CD.Node] = CD
+			out[ filepath.Base(CD.Node) ] = CD
 
 		}else if strings.HasPrefix(line, "Disk model:"){
 			CD.Model = strings.Split( line, "model: ")[1]
@@ -82,15 +83,13 @@ func ListDisks() map[string]*sfDisk {
 			P.Size = pieces[4]
 			P.Type = pieces[5]
 			if CD.Partitions == nil { CD.Partitions = make(map[string]sfPart) }
-			CD.Partitions[P.Node] = P
+			CD.Partitions[ filepath.Base(P.Node) ] = P
 		}
 	}
 	for key, val := range out {
 		if val.UUID == "" {
 			//Not a "physical" disk, but just some logical thing at runtime of the install environment
 			delete(out, key)
-		}else{
-			fmt.Println("Got Info:", key, *val)
 		}
 	}
 	return out

@@ -19,6 +19,9 @@ Flags:
   "u"  Underline text
 ==================*/
 
+var ISet InstallSettings
+var DiskList map[string]*sfDisk
+
 type FrameInfo struct {
 	//Variables which are used to display to the user
 	footer string
@@ -68,6 +71,7 @@ func (FI *FrameInfo) ChangePage( newpage string ){
   //This is where we match page Index to the associated function to populate the page
   switch newpage {
 	case "dl_installer": FI.ShowSelectInstallerList()
+	case "disk_select": FI.SelectInstallDisk()
 	default: FI.ShowTopMenu()
   }
 
@@ -75,9 +79,10 @@ func (FI *FrameInfo) ChangePage( newpage string ){
 
 func (FI *FrameInfo) ShowTopMenu(){
     FI.page = "Top Menu"
+    FI.pageinfo = ""
     FI.list.Clear()
     if(len(branches) > 0){ 
-      FI.list.AddItem("Setup Installation", "Proceed through the installation setup wizard.", 'S', func(){ FI.ChangePage("dl_installer") } )
+      FI.list.AddItem("Setup Installation", "Proceed through the installation setup wizard.", 'S', func(){ FI.ChangePage("disk_select") } )
     }else{
       FI.list.AddItem("Rescan Network", "Check to see if the network setting are working", 's', func(){ startNetworkScan() } )
     }
@@ -91,6 +96,38 @@ func (FI *FrameInfo) ShowTopMenu(){
     } )
     FI.list.AddItem("Exit to Terminal", "Drop to the system terminal for manual configuration", 't', func(){app.Stop()} )
     FI.pages.SwitchToPage("list")
+}
+
+func (FI *FrameInfo) SelectInstallDisk(){
+	FI.page = "Disk Selection"
+	FI.pageinfo = "Select a hard disk for installation."
+	FI.list.Clear()
+	if DiskList == nil {
+		DiskList = ListDisks()
+	}
+	for disknode, disk := range DiskList {
+		//Add the disk itself here
+		FI.list.AddItem( disknode +" (Whole Disk)", disk.Model+" ("+disk.Size+")", rune(0), func(){ FI.SelectWholeDisk(disk.Node) } )
+		//Now add any partitions here
+		for partnode, part := range disk.Partitions {
+			FI.list.AddItem( "   "+partnode +" (Partition Only)", "   "+part.Type+" ("+part.Size+")", rune(0), func(){ FI.SelectPartition(part.Node) } )
+		}
+
+	}
+	FI.list.AddItem("Refresh List", 	"Re-scan the system disks for options", 'r', FI.RefreshDiskList )
+	FI.list.AddItem("Exit", "Go back to the top menu", 'q', func(){ FI.ChangePage("")} )
+}
+
+func (FI *FrameInfo) RefreshDiskList() {
+	DiskList = ListDisks()
+}
+
+func (FI *FrameInfo) SelectWholeDisk(disknode string) {
+	//TODO
+}
+
+func (FI *FrameInfo) SelectPartition(partnode string) {
+	//TODO
 }
 
 func (FI *FrameInfo) ShowSelectInstallerList(){
